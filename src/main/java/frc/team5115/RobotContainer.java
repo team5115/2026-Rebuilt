@@ -30,6 +30,7 @@ import frc.team5115.subsystems.dispenser.DispenserIOSparkMax;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.drive.GyroIO;
 import frc.team5115.subsystems.drive.GyroIONavx;
+import frc.team5115.subsystems.drive.GyroIOSim;
 import frc.team5115.subsystems.drive.ModuleIO;
 import frc.team5115.subsystems.drive.ModuleIOSim;
 import frc.team5115.subsystems.drive.ModuleIOSparkMax;
@@ -104,13 +105,19 @@ public class RobotContainer {
                                 new ModuleIOSparkMax(0),
                                 new ModuleIOSparkMax(1),
                                 new ModuleIOSparkMax(2),
-                                new ModuleIOSparkMax(3));
+                                new ModuleIOSparkMax(3),
+                                (pose) -> {});
                 vision = new PhotonVision(new PhotonVisionIOReal(), drivetrain);
                 bling = new Bling(new BlingIOReal());
                 break;
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
-                gyro = new GyroIO() {};
+                MapleSim.getInstance();
+                MapleSim.setupArena();
+                MapleSim.initInstance();
+                var swerveSim = MapleSim.getSwerveSim();
+                gyro = new GyroIOSim(swerveSim.getGyroSimulation());
+
                 climber = new Climber(new ClimberIOSim());
                 elevator = new Elevator(new ElevatorIOSim());
                 dispenser = new Dispenser(new DispenserIOSim(), elevator::getDispenserSpeed);
@@ -119,7 +126,12 @@ public class RobotContainer {
                         new Dealgaefacationinator5000(new Dealgaefacationinator5000IOSim());
                 drivetrain =
                         new Drivetrain(
-                                gyro, new ModuleIOSim(), new ModuleIOSim(), new ModuleIOSim(), new ModuleIOSim());
+                                gyro, 
+                                new ModuleIOSim(swerveSim.getModules()[0]),
+                                new ModuleIOSim(swerveSim.getModules()[1]),
+                                new ModuleIOSim(swerveSim.getModules()[3]),
+                                new ModuleIOSim(swerveSim.getModules()[2]),
+                                swerveSim::setSimulationWorldPose);
                 vision = new PhotonVision(new PhotonVisionIOSim(), drivetrain);
                 bling = new Bling(new BlingIOSim());
                 break;
@@ -135,7 +147,7 @@ public class RobotContainer {
                         new Dealgaefacationinator5000(new Dealgaefacationinator5000IO() {});
                 drivetrain =
                         new Drivetrain(
-                                gyro, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {});
+                                gyro, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, (pose) -> {});
                 vision = new PhotonVision(new PhotonVisionIO() {}, drivetrain);
                 bling = new Bling(new BlingIO() {});
                 break;
@@ -222,6 +234,8 @@ public class RobotContainer {
             faultPrintTimeout -= 1;
             Logger.recordOutput("HasFaults", hasFaults);
             Logger.recordOutput("ClearForMatch", !hasFaults);
+        } else {
+            MapleSim.simPeriodic();
         }
     }
 
