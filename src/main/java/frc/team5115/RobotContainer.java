@@ -127,7 +127,7 @@ public class RobotContainer {
                         new Dealgaefacationinator5000(new Dealgaefacationinator5000IOSim());
                 drivetrain =
                         new Drivetrain(
-                                gyro, 
+                                gyro,
                                 new ModuleIOSim(swerveSim.getModules()[0]),
                                 new ModuleIOSim(swerveSim.getModules()[1]),
                                 new ModuleIOSim(swerveSim.getModules()[3]),
@@ -148,7 +148,13 @@ public class RobotContainer {
                         new Dealgaefacationinator5000(new Dealgaefacationinator5000IO() {});
                 drivetrain =
                         new Drivetrain(
-                                gyro, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, (pose) -> {});
+                                gyro,
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                (pose) -> {});
+                // TODO set the drivetrain's resetSimulationPoseCallback ^^^
                 vision = new PhotonVision(new PhotonVisionIO() {}, drivetrain);
                 bling = new Bling(new BlingIO() {});
                 break;

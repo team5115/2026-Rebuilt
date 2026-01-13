@@ -45,6 +45,7 @@ public class AutoCommands {
                 dispenser.stop(),
                 elevator.setHeight(Elevator.Height.INTAKE));
     }
+
     // without raising while aligning
     // public static Command getReefAlignCommand(
     //         Drivetrain drivetrain, Elevator elevator, Dispenser dispenser, Side side, Height

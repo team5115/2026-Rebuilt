@@ -100,9 +100,7 @@ public class PhotonVision extends SubsystemBase {
             cameraProp.setLatencyStdDevMs(stdDevLatencyMs);
             cameraProp.setCalibError(avgErrPx, stdDevErrPx);
             cameraSim = new PhotonCameraSim(camera, cameraProp);
-            poseEstimator =
-                    new PhotonPoseEstimator(
-                            VisionConstants.FIELD_LAYOUT, robotToCamera);
+            poseEstimator = new PhotonPoseEstimator(VisionConstants.FIELD_LAYOUT, robotToCamera);
         }
     }
 

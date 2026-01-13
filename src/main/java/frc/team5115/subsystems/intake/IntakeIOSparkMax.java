@@ -1,7 +1,7 @@
 package frc.team5115.subsystems.intake;
 
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;

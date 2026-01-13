@@ -1,10 +1,10 @@
 package frc.team5115.subsystems.elevator;
 
+import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -24,6 +24,7 @@ public class ElevatorIOSparkMax implements ElevatorIO {
     private final DigitalInput firstSensor;
     private final DigitalInput secondSensor;
     private final DigitalInput thirdSensor;
+
     // private final DigitalInput fourthSensor;
 
     public ElevatorIOSparkMax() {
@@ -49,7 +50,8 @@ public class ElevatorIOSparkMax implements ElevatorIO {
                 .p(ElevatorConstants.sparkP)
                 .i(ElevatorConstants.sparkI)
                 .d(ElevatorConstants.sparkD)
-                .feedForward.kV(1.0 / ElevatorConstants.KV_NEO);
+                .feedForward
+                .kV(1.0 / ElevatorConstants.KV_NEO);
 
         motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }

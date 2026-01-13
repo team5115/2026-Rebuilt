@@ -9,16 +9,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import frc.team5115.subsystems.elevator.Elevator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-
 
 public final class Constants {
     private static final boolean isReplay = false;
@@ -91,6 +89,7 @@ public final class Constants {
 
         public static final double MAX_LINEAR_SPEED = 5; // meters per second
 
+        // TODO set TRACK_WIDTH to its new value for this year
         private static final double TRACK_WIDTH = Units.inchesToMeters(26.25);
         public static final double TRACK_WIDTH_X = TRACK_WIDTH;
         public static final double TRACK_WIDTH_Y = TRACK_WIDTH;
@@ -290,7 +289,8 @@ public final class Constants {
         return isHubEnabledTest(matchTime, gameData, alliance);
     }
 
-    private static boolean isHubEnabledTest(double matchTime, String gameData, Optional<Alliance> alliance){
+    private static boolean isHubEnabledTest(
+            double matchTime, String gameData, Optional<Alliance> alliance) {
         if (alliance.isEmpty()) {
             return true;
         }
@@ -298,22 +298,22 @@ public final class Constants {
         final boolean isBlue = alliance.get().equals(Alliance.Blue);
         if (matchTime <= 30) {
             return true;
-            //auto and endgame
+            // auto and endgame
         }
         if (matchTime >= 130) {
             return true;
-        } 
+        }
 
         boolean blueWonAuto;
-        if(gameData.length() > 0) {
+        if (gameData.length() > 0) {
             switch (gameData.charAt(0)) {
-                case 'B' :
+                case 'B':
                     blueWonAuto = true;
                     break;
-                case 'R' :
+                case 'R':
                     blueWonAuto = false;
                     break;
-                default :
+                default:
                     System.err.println("Bad game data");
                     return true;
             }
@@ -321,7 +321,6 @@ public final class Constants {
             return true;
         }
 
-        
         if (matchTime >= 105) {
             return blueWonAuto != isBlue;
         }
