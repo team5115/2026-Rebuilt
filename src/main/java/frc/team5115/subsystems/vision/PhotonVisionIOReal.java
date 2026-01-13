@@ -24,7 +24,7 @@ public class PhotonVisionIOReal implements PhotonVisionIO {
 
     @Override
     public Optional<EstimatedRobotPose> updatePose(Camera camera, PhotonPipelineResult result) {
-        var pose = camera.poseEstimator.update(result);
+        var pose = camera.poseEstimator.estimateCoprocMultiTagPose(result);
         return pose;
     }
 
