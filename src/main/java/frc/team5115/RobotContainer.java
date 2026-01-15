@@ -2,7 +2,6 @@ package frc.team5115;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -12,10 +11,6 @@ import frc.team5115.subsystems.bling.Bling;
 import frc.team5115.subsystems.bling.BlingIO;
 import frc.team5115.subsystems.bling.BlingIOReal;
 import frc.team5115.subsystems.bling.BlingIOSim;
-import frc.team5115.subsystems.climber.Climber;
-import frc.team5115.subsystems.climber.ClimberIO;
-import frc.team5115.subsystems.climber.ClimberIORev;
-import frc.team5115.subsystems.climber.ClimberIOSim;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.drive.GyroIO;
 import frc.team5115.subsystems.drive.GyroIONavx;
@@ -49,7 +44,6 @@ public class RobotContainer {
     private final GyroIO gyro;
     private final Drivetrain drivetrain;
     private final PhotonVision vision;
-    private final Climber climber;
     private final Intake intake;
     private final Bling bling;
     private final Shooter shooter;
@@ -77,9 +71,7 @@ public class RobotContainer {
                 // final GenericEntry dispenseSpeedEntry =
                 //         Shuffleboard.getTab("SmartDashboard").add("Dispenser Speed", 0).getEntry();
                 //         () -> dispenseSpeedEntry.getDouble(0.1)
-                final PneumaticHub hub = new PneumaticHub(Constants.PNEUMATIC_HUB_ID);
                 gyro = new GyroIONavx();
-                climber = new Climber(new ClimberIORev(hub));
                 intake = new Intake(new IntakeIOSparkMax());
                 drivetrain =
                         new Drivetrain(
@@ -101,7 +93,6 @@ public class RobotContainer {
                 var swerveSim = MapleSim.getSwerveSim();
                 gyro = new GyroIOSim(swerveSim.getGyroSimulation());
 
-                climber = new Climber(new ClimberIOSim());
                 intake = new Intake(new IntakeIOSim());
                 drivetrain =
                         new Drivetrain(
@@ -119,7 +110,6 @@ public class RobotContainer {
             default:
                 // Replayed robot, disable IO implementations
                 gyro = new GyroIO() {};
-                climber = new Climber(new ClimberIO() {});
                 intake = new Intake(new IntakeIO() {});
                 drivetrain =
                         new Drivetrain(
@@ -138,7 +128,7 @@ public class RobotContainer {
         driverController = new DriverController();
 
         // Register auto commands for pathplanner
-        registerCommands(drivetrain, vision, intake, climber, shooter);
+        registerCommands(drivetrain, vision, intake, shooter);
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -170,7 +160,7 @@ public class RobotContainer {
 
         autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
 
-        driverController.configureButtonBindings(drivetrain, climber, intake);
+        driverController.configureButtonBindings(drivetrain, intake);
         driverController.configureRumbleBindings(drivetrain);
         configureBlingBindings();
     }
@@ -179,7 +169,6 @@ public class RobotContainer {
         bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
         drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
         drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
-        climber.extended().whileTrue(bling.purpleSolid());
         new Trigger(() -> hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
 
@@ -188,7 +177,7 @@ public class RobotContainer {
             if (faultPrintTimeout <= 0) {
                 final var faults =
                         RobotFaults.fromSubsystems(
-                                drivetrain, vision, climber, intake, driverController.joysticksConnected());
+                                drivetrain, vision, intake, driverController.joysticksConnected());
                 hasFaults = faults.hasFaults();
                 if (hasFaults) {
                     System.err.println(faults.toString());
@@ -213,7 +202,7 @@ public class RobotContainer {
      * @param shooter
      */
     public static void registerCommands(
-            Drivetrain drivetrain, PhotonVision vision, Intake intake, Climber climber, Shooter shooter) {
+            Drivetrain drivetrain, PhotonVision vision, Intake intake, Shooter shooter) {
 
         // TODO add named commands
         System.out.println("Registered Commands");

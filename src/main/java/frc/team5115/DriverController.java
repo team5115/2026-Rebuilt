@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.team5115.Constants.AutoConstants.Side;
 import frc.team5115.commands.DriveCommands;
-import frc.team5115.subsystems.climber.Climber;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.intake.Intake;
 
@@ -34,7 +33,7 @@ public class DriverController {
         drivetrain.alignedAtGoalTrigger().onTrue(rumble(Constants.RUMBLE_STRENGTH)).onFalse(rumble(0));
     }
 
-    public void configureButtonBindings(Drivetrain drivetrain, Climber climber, Intake intake) {
+    public void configureButtonBindings(Drivetrain drivetrain, Intake intake) {
         // drive control
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
@@ -45,13 +44,13 @@ public class DriverController {
                         () -> -joyDrive.getLeftX(),
                         () -> -joyDrive.getRightX()));
         if (Constants.SINGLE_MODE) {
-            configureSingleMode(drivetrain, climber, intake);
+            configureSingleMode(drivetrain, intake);
         } else {
-            configureDualMode(drivetrain, climber, intake);
+            configureDualMode(drivetrain, intake);
         }
     }
 
-    private void configureSingleMode(Drivetrain drivetrain, Climber climber, Intake intake) {
+    private void configureSingleMode(Drivetrain drivetrain, Intake intake) {
         /* Drive button bindings -
          * x: forces the robot to stop moving
          * left bumper: Sets robot relative to true while held down
@@ -101,13 +100,9 @@ public class DriverController {
         */
 
         // TODO add binds
-
-        joyDrive.povRight().onTrue(climber.extend());
-        joyDrive.povLeft().onTrue(climber.retract());
-        joyDrive.povUp().onTrue(climber.toggleShield());
     }
 
-    private void configureDualMode(Drivetrain drivetrain, Climber climber, Intake intake) {
+    private void configureDualMode(Drivetrain drivetrain, Intake intake) {
         /* Drive button bindings -
          * x: forces the robot to stop moving
          * left bumper: Sets robot relative to true while held down
@@ -156,11 +151,6 @@ public class DriverController {
         */
 
         // TODO add binds
-
-        joyManip.rightBumper().onTrue(climber.extend());
-        joyManip.leftBumper().onTrue(climber.retract());
-        joyManip.pov(0).onTrue(climber.toggleShield());
-        // .onFalse(dealgaefacationinator5000.clean());
     }
 
     private Command setRobotRelative(boolean state) {

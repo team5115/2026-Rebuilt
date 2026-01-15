@@ -2,7 +2,6 @@ package frc.team5115;
 
 import com.revrobotics.spark.SparkBase.Faults;
 import com.revrobotics.spark.SparkMax;
-import frc.team5115.subsystems.climber.Climber;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.vision.PhotonVision;
@@ -16,7 +15,6 @@ public class RobotFaults {
     public final boolean gyroDisconnected;
     public final boolean drivetrainNull;
     public final boolean visionNull;
-    public final boolean climberNull;
     public final boolean intakeNull;
     private final String cachedToString;
 
@@ -27,7 +25,6 @@ public class RobotFaults {
             boolean gyroDisconnected,
             boolean drivetrainNull,
             boolean visionNull,
-            boolean climberNull,
             boolean intakeNull) {
         this.sparkFaults = sparkFaults;
         this.cameraDisconnected = cameraDisconnected;
@@ -35,7 +32,6 @@ public class RobotFaults {
         this.gyroDisconnected = gyroDisconnected;
         this.drivetrainNull = drivetrainNull;
         this.visionNull = visionNull;
-        this.climberNull = climberNull;
         this.intakeNull = intakeNull;
         cachedToString = cacheString();
     }
@@ -62,9 +58,6 @@ public class RobotFaults {
         if (visionNull) {
             builder.append("VisionNull; ");
         }
-        if (climberNull) {
-            builder.append("ClimberNull; ");
-        }
         if (intakeNull) {
             builder.append("IntakeNull; ");
         }
@@ -85,11 +78,7 @@ public class RobotFaults {
     }
 
     public static RobotFaults fromSubsystems(
-            Drivetrain drivetrain,
-            PhotonVision vision,
-            Climber climber,
-            Intake intake,
-            boolean joysticksConnected) {
+            Drivetrain drivetrain, PhotonVision vision, Intake intake, boolean joysticksConnected) {
 
         ArrayList<SparkMax> sparks = new ArrayList<>();
         if (drivetrain != null) {
@@ -109,7 +98,6 @@ public class RobotFaults {
                 drivetrain == null ? true : !drivetrain.isGyroConnected(),
                 drivetrain == null,
                 vision == null,
-                climber == null,
                 intake == null);
     }
 
