@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.4274400684931507,
-        "y": 0.7869648972602739
+        "x": 3.545,
+        "y": 3.4
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6281244814267932,
-        "y": 0.9360479828383476
+        "x": 3.3212522361359564,
+        "y": 3.231842576028622
       },
       "isLocked": false,
-      "linkedName": "new_point"
+      "linkedName": "StartPoseOutpost"
     },
     {
       "anchor": {
-        "x": 1.4274400684931507,
-        "y": 0.7869648972602739
+        "x": 2.931842576028622,
+        "y": 3.0371377459749542
       },
       "prevControl": {
-        "x": 1.2019086157924601,
-        "y": 0.6191504084683036
+        "x": 3.2169119425712047,
+        "y": 3.1932161117371916
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "new_point"
+      "linkedName": "ShootFromDistanceDown"
     }
   ],
   "rotationTargets": [],
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 55.0
+    "velocity": 0,
+    "rotation": 29.999999999999996
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 55.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
