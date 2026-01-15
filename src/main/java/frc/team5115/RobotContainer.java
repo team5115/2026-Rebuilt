@@ -27,6 +27,10 @@ import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.intake.IntakeIO;
 import frc.team5115.subsystems.intake.IntakeIOSim;
 import frc.team5115.subsystems.intake.IntakeIOSparkMax;
+import frc.team5115.subsystems.shooter.Shooter;
+import frc.team5115.subsystems.shooter.ShooterIO;
+import frc.team5115.subsystems.shooter.ShooterIOSim;
+import frc.team5115.subsystems.shooter.ShooterIOSparkMax;
 import frc.team5115.subsystems.vision.PhotonVision;
 import frc.team5115.subsystems.vision.PhotonVisionIO;
 import frc.team5115.subsystems.vision.PhotonVisionIOReal;
@@ -48,6 +52,7 @@ public class RobotContainer {
     private final Climber climber;
     private final Intake intake;
     private final Bling bling;
+    private final Shooter shooter;
 
     // Controllers
     private final DriverController driverController;
@@ -86,6 +91,7 @@ public class RobotContainer {
                                 (pose) -> {});
                 vision = new PhotonVision(new PhotonVisionIOReal(), drivetrain);
                 bling = new Bling(new BlingIOReal());
+                shooter = new Shooter(new ShooterIOSparkMax());
                 break;
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
@@ -107,6 +113,7 @@ public class RobotContainer {
                                 swerveSim::setSimulationWorldPose);
                 vision = new PhotonVision(new PhotonVisionIOSim(), drivetrain);
                 bling = new Bling(new BlingIOSim());
+                shooter = new Shooter(new ShooterIOSim());
                 break;
 
             default:
@@ -125,12 +132,13 @@ public class RobotContainer {
                 // TODO set the drivetrain's resetSimulationPoseCallback ^^^
                 vision = new PhotonVision(new PhotonVisionIO() {}, drivetrain);
                 bling = new Bling(new BlingIO() {});
+                shooter = new Shooter(new ShooterIO() {});
                 break;
         }
         driverController = new DriverController();
 
         // Register auto commands for pathplanner
-        registerCommands(drivetrain, vision, intake, climber);
+        registerCommands(drivetrain, vision, intake, climber, shooter);
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -200,14 +208,12 @@ public class RobotContainer {
      *
      * @param drivetrain
      * @param vision
-     * @param elevator
-     * @param dispenser
      * @param intake
-     * @param dealgaefacationinator5000
      * @param climber
+     * @param shooter
      */
     public static void registerCommands(
-            Drivetrain drivetrain, PhotonVision vision, Intake intake, Climber climber) {
+            Drivetrain drivetrain, PhotonVision vision, Intake intake, Climber climber, Shooter shooter) {
 
         // TODO add named commands
         System.out.println("Registered Commands");
