@@ -47,6 +47,7 @@ public final class Constants {
     public static final byte INTAKE_MOTOR_ID = 12;
     public static final byte DISPENSER_MOTOR_ID = 13;
     public static final byte DEALGAE_MOTOR_ID = 14;
+    public static final byte SHOOTER_MOTOR_ID = -1; // TODO determine motor ID
 
     public static final byte CLIMB_INAKE_SENSOR = 2;
     public static final byte BACK_CORAL_SENSOR = 0;
