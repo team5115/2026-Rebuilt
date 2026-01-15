@@ -1,14 +1,12 @@
 package frc.team5115;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.intake.IntakeIO;
 import frc.team5115.subsystems.intake.IntakeIOSim;
 import frc.team5115.subsystems.intake.IntakeIOSparkMax;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import java.util.function.DoubleSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -24,36 +22,30 @@ public class RobotContainer {
     private final DriverController driverController;
 
     // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+    // private final LoggedDashboardChooser<Command> autoChooser;
 
     // Setings
 
     // Works with faults
 
-    private final DoubleSubscriber speedSubscriber;
+    private DoubleSupplier speedSupplier = () -> 0;
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         switch (Constants.currentMode) {
             case REAL:
-                // Real robot, instantiate hardware IO implementations
-                // final GenericEntry dispenseSpeedEntry =
-                //         Shuffleboard.getTab("SmartDashboard").add("Dispenser Speed", 0).getEntry();
-                //         () -> dispenseSpeedEntry.getDouble(0.1)
-                final var table = NetworkTableInstance.getDefault().getTable("customtable");
-                speedSubscriber = table.getDoubleTopic("speed").subscribe(0);
+                SmartDashboard.putNumber("IntakeSpeedInput", 0);
+                speedSupplier = () -> SmartDashboard.getNumber("IntakeSpeedInput", 0);
                 intake = new Intake(new IntakeIOSparkMax());
                 break;
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
                 intake = new Intake(new IntakeIOSim());
-                speedSubscriber = null;
                 break;
 
             default:
                 // Replayed robot, disable IO implementations
                 intake = new Intake(new IntakeIO() {});
-                speedSubscriber = null;
                 // TODO set the drivetrain's resetSimulationPoseCallback ^^^
                 break;
         }
@@ -62,9 +54,9 @@ public class RobotContainer {
         // Register auto commands for pathplanner
 
         // Set up auto routines
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+        // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-        driverController.configureButtonBindings(intake, speedSubscriber::get);
+        driverController.configureButtonBindings(intake, speedSupplier::getAsDouble);
     }
 
     public void robotPeriodic() {}
@@ -81,7 +73,8 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        // return autoChooser.get();
+        return null;
     }
 
     public void disabledPeriodic() {}
