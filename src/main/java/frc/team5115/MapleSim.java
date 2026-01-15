@@ -2,6 +2,7 @@ package frc.team5115;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -55,7 +56,7 @@ public class MapleSim {
                                 1.2)) // Wheel COF
                 // Configures the track length and track width (spacing between swerve modules)
                 .withTrackLengthTrackWidth(
-                        Inches.of(SwerveConstants.TRACK_WIDTH_X), Inches.of(SwerveConstants.TRACK_WIDTH_Y))
+                        Meters.of(SwerveConstants.TRACK_WIDTH_X), Meters.of(SwerveConstants.TRACK_WIDTH_Y))
                 // Configures the bumper size (dimensions of the robot bumper)
                 .withBumperSize(Inches.of(30), Inches.of(30)); // TODO: correct numbers
     }

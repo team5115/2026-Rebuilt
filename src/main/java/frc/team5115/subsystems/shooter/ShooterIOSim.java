@@ -1,22 +1,25 @@
-package frc.team5115.subsystems.dispenser;
+package frc.team5115.subsystems.shooter;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.team5115.Constants;
 
-public class DispenserIOSim implements DispenserIO {
-    private final DCMotorSim sim;
+public class ShooterIOSim implements ShooterIO {
+    private final FlywheelSim sim;
     private double appliedVolts;
 
-    public DispenserIOSim() {
-        final DCMotor motor = DCMotor.getNEO(1);
-        sim = new DCMotorSim(LinearSystemId.createDCMotorSystem(motor, 0.0002, 1.0), motor);
+    public ShooterIOSim() {
+        sim =
+                new FlywheelSim(
+                        LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 0.1, 1),
+                        DCMotor.getNEO(1),
+                        0.0002); // TODO adjust physical constants
     }
 
     @Override
-    public void updateInputs(DispenserIOInputs inputs) {
+    public void updateInputs(ShooterIOInputs inputs) {
         sim.update(Constants.LOOP_PERIOD_SECS);
         inputs.velocityRPM = sim.getAngularVelocityRPM();
         inputs.appliedVolts = appliedVolts;
@@ -26,12 +29,6 @@ public class DispenserIOSim implements DispenserIO {
     @Override
     public void setVoltage(double volts) {
         appliedVolts = MathUtil.clamp(volts, -12.0, +12.0);
-        sim.setInputVoltage(appliedVolts);
-    }
-
-    @Override
-    public void setPercent(double percent) {
-        appliedVolts = MathUtil.clamp(percent * 12, -12.0, +12.0);
         sim.setInputVoltage(appliedVolts);
     }
 }

@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
-import frc.team5115.subsystems.elevator.Elevator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +46,7 @@ public final class Constants {
     public static final byte INTAKE_MOTOR_ID = 12;
     public static final byte DISPENSER_MOTOR_ID = 13;
     public static final byte DEALGAE_MOTOR_ID = 14;
+    public static final byte SHOOTER_MOTOR_ID = -1; // TODO determine motor ID
 
     public static final byte CLIMB_INAKE_SENSOR = 2;
     public static final byte BACK_CORAL_SENSOR = 0;
@@ -122,48 +122,6 @@ public final class Constants {
         public static final int DrivingMotorAutoCurrentLimit = 60; // amp
         public static final int DrivingMotorTeleopCurrentLimit = 50; // amps, lower than in auto
         public static final int TurningMotorCurrentLimit = 20; // amps
-    }
-
-    public static class ElevatorConstants {
-        // Heights and radius in meters
-        public static final double MAX_HEIGHT = Elevator.Height.L4.position;
-        public static final double MIN_HEIGHT = Elevator.Height.MINIMUM.position;
-        public static final double DRUM_RADIUS = 0.05;
-        public static final double CARRIAGE_MASS_KG = 9.072; // 20 lbs
-        public static final double GEARING = 12.0; // numbers greater than 1 represent reductions
-
-        // Below conversion factor found empirically
-        public static final double METERS_PER_ROTATION =
-                0.007778940626786609 / 52.0 * 57.0 * 20.0 / GEARING * 63.0 / 62.625;
-
-        public static final int STALL_CURRENT_AMPS = 40;
-        public static final int FREE_CURRENT_AMPS = 40;
-        // Kv values for neo and neo 550
-        // Kf for closed loop velocity control is 1 / kv
-        public static final double KV_NEO = 473;
-        public static final double KV_NEO_550 = 917;
-
-        public static final double sparkP = 0.00001;
-        public static final double sparkI = 0;
-        public static final double sparkD = 0;
-
-        public static final double SLOW_PID_HEIGHT_METERS = 0.01 * 6.0;
-
-        public static final double FIRST_MAGNET_HEIGHT = 0;
-        public static final double SECOND_MAGNET_HEIGHT = 0.1637495863622731; // meters
-        public static final double THIRD_MAGNET_HEIGHT = 0.6174441447379277; // meters
-
-        public static final double MAX_VEL = 10.0; // m/s
-        public static final double MAX_ACCEL = 20.0; // m/s^2
-        public static final double KP = 3.0;
-        public static final double KI = 0;
-        public static final double KD = 0;
-        public static final double KS = 0.38176; // volts
-        public static final double KG = 0.33756; // volts
-        public static final double KV = 9.0313; // volts / m/s
-        public static final double KA = 0.44379; // volts / m/s^2
-
-        public static final double SLOW_CONSTANT = 0.75;
     }
 
     public static class AutoConstants {

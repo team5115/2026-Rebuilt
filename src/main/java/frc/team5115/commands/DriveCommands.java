@@ -44,8 +44,8 @@ public class DriveCommands {
                     double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
                     // Square values
-                    linearMagnitude = linearMagnitude * linearMagnitude;
-                    omega = Math.copySign(omega * omega, omega);
+                    linearMagnitude = responseCurve(linearMagnitude, 6, 1);
+                    omega = Math.copySign(responseCurve(linearMagnitude, 3.0, 0.32), omega);
 
                     // Calcaulate new linear velocity
                     Translation2d linearVelocity =
@@ -66,6 +66,16 @@ public class DriveCommands {
                                             vx, vy, omega, drivetrain.getGyroRotation()));
                 },
                 drivetrain);
+    }
+
+    /**
+     * @param x input value [0,1]
+     * @param n power [0,infinity)
+     * @param k offset [0,infinity)
+     * @return the controller responce curve [0,1]
+     */
+    private static double responseCurve(double x, double n, double k) {
+        return (Math.pow(x + k, n) + (x - 1) * Math.pow(k, n)) / Math.pow(1 + k, n);
     }
 
     // public static Command cleanStart(
