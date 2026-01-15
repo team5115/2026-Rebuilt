@@ -7,6 +7,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
+
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -54,26 +57,51 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
-        Logger.recordOutput("Shooter/Setpoint RPM", setpointRPM);
-        Logger.recordOutput("Shooter/At Setpoint?", pid.atSetpoint());
 
         final double volts =
                 feedforward.calculate(setpointRPM) + pid.calculate(inputs.velocityRPM, setpointRPM);
         io.setVoltage(volts);
+
+        final double error = setpointRPM - inputs.velocityRPM;
+        Logger.recordOutput("Shooter/Setpoint RPM", setpointRPM);
+        Logger.recordOutput("Shooter/Error RPM", error);
+        Logger.recordOutput("Shooter/Error Squared", error * error);
+        Logger.recordOutput("Shooter/At Setpoint?", pid.atSetpoint());
     }
 
-    public Command stop() {
-        return Commands.runOnce(() -> setpointRPM = 0, this);
-    }
-
-    public Command spinToSpeed() {
-        return Commands.runOnce(() -> setSetpoint(5000), this)
-                .andThen(Commands.waitUntil(() -> pid.atSetpoint()));
-    }
-
-    private void setSetpoint(double rpm) {
+    /**
+     * Update the setpoint of the shooter
+     * @param rpm the setpoint speed
+     */
+    private void setpoint(double rpm) {
         setpointRPM = rpm;
         pid.setSetpoint(rpm);
+    }
+
+    /**
+     * Instant Command the shooter to spin based on a supplied speed.
+     * @param rpm a DoubleSupplier that gives the speed to spin the shooter
+     * @return an Instant Command
+     */
+    public Command supplySetpoint(DoubleSupplier rpm) {
+        return Commands.runOnce(() -> setpoint(rpm.getAsDouble()), this);
+    }
+
+    /**
+     * Instant Command the shooter to spin at a set speed. 
+     * @param rpm the speed at which to spin the shooter
+     * @return an Instant Command
+     */
+    public Command setSetpoint(double rpm) {
+        return Commands.runOnce(() -> setpoint(rpm), this);
+    }
+
+    /**
+     * Wait until the pid reaches its setpoint
+     * @return a Wait Command
+     */
+    public Command waitForSetpoint() {
+        return Commands.waitUntil(() -> pid.atSetpoint());
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -82,13 +110,5 @@ public class Shooter extends SubsystemBase {
 
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysID.dynamic(direction);
-    }
-
-    public void vomit() {
-        setSetpoint(-3000);
-    }
-
-    public void forceStop() {
-        setSetpoint(+0);
     }
 }
