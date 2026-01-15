@@ -19,7 +19,7 @@ public class AutoCommands {
         return Commands.sequence(
                 Commands.print("Intaking"),
                 elevator.setHeight(Elevator.Height.INTAKE),
-                intake.intake(),
+                intake.setSpeed(() -> 0.15),
                 elevator.waitForDetectionState(true, 5.0),
                 dispenser.waitForDetectionState(true, 1.0));
     }
