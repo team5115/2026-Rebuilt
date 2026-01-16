@@ -185,7 +185,12 @@ public class RobotContainer {
             if (faultPrintTimeout <= 0) {
                 final var faults =
                         RobotFaults.fromSubsystems(
-                                drivetrain, vision, intake, shooter, indexer, driverController.joysticksConnected());
+                                drivetrain,
+                                vision,
+                                intake,
+                                shooter,
+                                indexer,
+                                driverController.joysticksConnected());
                 hasFaults = faults.hasFaults();
                 if (hasFaults) {
                     System.err.println(faults.toString());

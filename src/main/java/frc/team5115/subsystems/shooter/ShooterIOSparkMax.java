@@ -1,7 +1,5 @@
 package frc.team5115.subsystems.shooter;
 
-import java.util.ArrayList;
-
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -10,6 +8,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.team5115.Constants;
+import java.util.ArrayList;
 
 public class ShooterIOSparkMax implements ShooterIO {
 
@@ -42,7 +41,7 @@ public class ShooterIOSparkMax implements ShooterIO {
     public void setVoltage(double volts) {
         motor.setVoltage(volts);
     }
-    
+
     @Override
     public void getSparks(ArrayList<SparkMax> sparks) {
         sparks.add(motor);

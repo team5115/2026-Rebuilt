@@ -86,7 +86,12 @@ public class RobotFaults {
     }
 
     public static RobotFaults fromSubsystems(
-            Drivetrain drivetrain, PhotonVision vision, Intake intake, Shooter shooter, Indexer indexer, boolean joysticksConnected) {
+            Drivetrain drivetrain,
+            PhotonVision vision,
+            Intake intake,
+            Shooter shooter,
+            Indexer indexer,
+            boolean joysticksConnected) {
 
         ArrayList<SparkMax> sparks = new ArrayList<>();
         if (drivetrain != null) {
