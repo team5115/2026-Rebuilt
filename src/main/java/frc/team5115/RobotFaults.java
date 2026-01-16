@@ -3,8 +3,6 @@ package frc.team5115;
 import com.revrobotics.spark.SparkBase.Faults;
 import com.revrobotics.spark.SparkMax;
 import frc.team5115.subsystems.drive.Drivetrain;
-import frc.team5115.subsystems.intake.Intake;
-import frc.team5115.subsystems.vision.PhotonVision;
 import java.util.ArrayList;
 
 public class RobotFaults {
@@ -77,15 +75,11 @@ public class RobotFaults {
         return !cachedToString.equals(NO_FAULTS);
     }
 
-    public static RobotFaults fromSubsystems(
-            Drivetrain drivetrain, PhotonVision vision, Intake intake, boolean joysticksConnected) {
+    public static RobotFaults fromSubsystems(Drivetrain drivetrain, boolean joysticksConnected) {
 
         ArrayList<SparkMax> sparks = new ArrayList<>();
         if (drivetrain != null) {
             drivetrain.getSparks(sparks);
-        }
-        if (intake != null) {
-            intake.getSparks(sparks);
         }
         StringBuilder sparkFaults = new StringBuilder();
         for (var spark : sparks) {
@@ -93,12 +87,12 @@ public class RobotFaults {
         }
         return new RobotFaults(
                 sparkFaults.toString(),
-                vision == null ? true : vision.areAnyCamerasDisconnected(),
+                false,
                 !joysticksConnected,
                 drivetrain == null ? true : !drivetrain.isGyroConnected(),
                 drivetrain == null,
-                vision == null,
-                intake == null);
+                false,
+                false);
     }
 
     private static void appendSparkFaults(StringBuilder mainBuilder, Faults faults, int id) {

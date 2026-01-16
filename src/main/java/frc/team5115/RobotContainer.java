@@ -3,14 +3,9 @@ package frc.team5115;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.Mode;
-import frc.team5115.subsystems.bling.Bling;
-import frc.team5115.subsystems.bling.BlingIO;
-import frc.team5115.subsystems.bling.BlingIOReal;
-import frc.team5115.subsystems.bling.BlingIOSim;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.drive.GyroIO;
 import frc.team5115.subsystems.drive.GyroIONavx;
@@ -18,18 +13,6 @@ import frc.team5115.subsystems.drive.GyroIOSim;
 import frc.team5115.subsystems.drive.ModuleIO;
 import frc.team5115.subsystems.drive.ModuleIOSim;
 import frc.team5115.subsystems.drive.ModuleIOSparkMax;
-import frc.team5115.subsystems.intake.Intake;
-import frc.team5115.subsystems.intake.IntakeIO;
-import frc.team5115.subsystems.intake.IntakeIOSim;
-import frc.team5115.subsystems.intake.IntakeIOSparkMax;
-import frc.team5115.subsystems.shooter.Shooter;
-import frc.team5115.subsystems.shooter.ShooterIO;
-import frc.team5115.subsystems.shooter.ShooterIOSim;
-import frc.team5115.subsystems.shooter.ShooterIOSparkMax;
-import frc.team5115.subsystems.vision.PhotonVision;
-import frc.team5115.subsystems.vision.PhotonVisionIO;
-import frc.team5115.subsystems.vision.PhotonVisionIOReal;
-import frc.team5115.subsystems.vision.PhotonVisionIOSim;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -43,10 +26,6 @@ public class RobotContainer {
     // Subsystems
     private final GyroIO gyro;
     private final Drivetrain drivetrain;
-    private final PhotonVision vision;
-    private final Intake intake;
-    private final Bling bling;
-    private final Shooter shooter;
 
     // Controllers
     private final DriverController driverController;
@@ -72,7 +51,6 @@ public class RobotContainer {
                 //         Shuffleboard.getTab("SmartDashboard").add("Dispenser Speed", 0).getEntry();
                 //         () -> dispenseSpeedEntry.getDouble(0.1)
                 gyro = new GyroIONavx();
-                intake = new Intake(new IntakeIOSparkMax());
                 drivetrain =
                         new Drivetrain(
                                 gyro,
@@ -81,9 +59,6 @@ public class RobotContainer {
                                 new ModuleIOSparkMax(2),
                                 new ModuleIOSparkMax(3),
                                 (pose) -> {});
-                vision = new PhotonVision(new PhotonVisionIOReal(), drivetrain);
-                bling = new Bling(new BlingIOReal());
-                shooter = new Shooter(new ShooterIOSparkMax());
                 break;
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
@@ -93,7 +68,6 @@ public class RobotContainer {
                 var swerveSim = MapleSim.getSwerveSim();
                 gyro = new GyroIOSim(swerveSim.getGyroSimulation());
 
-                intake = new Intake(new IntakeIOSim());
                 drivetrain =
                         new Drivetrain(
                                 gyro,
@@ -102,15 +76,11 @@ public class RobotContainer {
                                 new ModuleIOSim(swerveSim.getModules()[3]),
                                 new ModuleIOSim(swerveSim.getModules()[2]),
                                 swerveSim::setSimulationWorldPose);
-                vision = new PhotonVision(new PhotonVisionIOSim(), drivetrain);
-                bling = new Bling(new BlingIOSim());
-                shooter = new Shooter(new ShooterIOSim());
                 break;
 
             default:
                 // Replayed robot, disable IO implementations
                 gyro = new GyroIO() {};
-                intake = new Intake(new IntakeIO() {});
                 drivetrain =
                         new Drivetrain(
                                 gyro,
@@ -119,16 +89,12 @@ public class RobotContainer {
                                 new ModuleIO() {},
                                 new ModuleIO() {},
                                 (pose) -> {});
-                // TODO set the drivetrain's resetSimulationPoseCallback ^^^
-                vision = new PhotonVision(new PhotonVisionIO() {}, drivetrain);
-                bling = new Bling(new BlingIO() {});
-                shooter = new Shooter(new ShooterIO() {});
                 break;
         }
         driverController = new DriverController();
 
         // Register auto commands for pathplanner
-        registerCommands(drivetrain, vision, intake, shooter);
+        registerCommands(drivetrain);
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -160,24 +126,15 @@ public class RobotContainer {
 
         autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
 
-        driverController.configureButtonBindings(drivetrain, intake);
+        driverController.configureButtonBindings(drivetrain);
         driverController.configureRumbleBindings(drivetrain);
-        configureBlingBindings();
-    }
-
-    private void configureBlingBindings() {
-        bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
-        drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
-        drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
-        new Trigger(() -> hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
 
     public void robotPeriodic() {
         if (Constants.currentMode == Mode.REAL) {
             if (faultPrintTimeout <= 0) {
                 final var faults =
-                        RobotFaults.fromSubsystems(
-                                drivetrain, vision, intake, driverController.joysticksConnected());
+                        RobotFaults.fromSubsystems(drivetrain, driverController.joysticksConnected());
                 hasFaults = faults.hasFaults();
                 if (hasFaults) {
                     System.err.println(faults.toString());
@@ -201,8 +158,7 @@ public class RobotContainer {
      * @param climber
      * @param shooter
      */
-    public static void registerCommands(
-            Drivetrain drivetrain, PhotonVision vision, Intake intake, Shooter shooter) {
+    public static void registerCommands(Drivetrain drivetrain) {
 
         // TODO add named commands
         System.out.println("Registered Commands");
