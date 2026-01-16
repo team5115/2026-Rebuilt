@@ -27,7 +27,7 @@ public class MapleSim {
     }
 
     public static void setupArena() {
-        SimulatedArena.getInstance().addGamePiece(new CrescendoNoteOnField(new Translation2d(3, 3)));
+        SimulatedArena.getInstance().addGamePiece(new CrescendoNoteOnField(new Translation2d(3, 4.5)));
     }
 
     public static void simPeriodic() {
