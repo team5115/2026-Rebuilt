@@ -20,6 +20,7 @@ public class Intake extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
+        Logger.recordOutput("Intake/Geared Speed", inputs.velocityRPM / 5.0);
     }
 
     public Command setSpeed(DoubleSupplier speed) {
