@@ -7,9 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
-
 import java.util.function.DoubleSupplier;
-
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -71,6 +69,7 @@ public class Shooter extends SubsystemBase {
 
     /**
      * Update the setpoint of the shooter
+     *
      * @param rpm the setpoint speed
      */
     private void setpoint(double rpm) {
@@ -80,6 +79,7 @@ public class Shooter extends SubsystemBase {
 
     /**
      * Instant Command the shooter to spin based on a supplied speed.
+     *
      * @param rpm a DoubleSupplier that gives the speed to spin the shooter
      * @return an Instant Command
      */
@@ -88,7 +88,8 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
-     * Instant Command the shooter to spin at a set speed. 
+     * Instant Command the shooter to spin at a set speed.
+     *
      * @param rpm the speed at which to spin the shooter
      * @return an Instant Command
      */
@@ -98,6 +99,7 @@ public class Shooter extends SubsystemBase {
 
     /**
      * Wait until the pid reaches its setpoint
+     *
      * @return a Wait Command
      */
     public Command waitForSetpoint() {
