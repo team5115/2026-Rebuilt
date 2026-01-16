@@ -16,6 +16,15 @@ import java.util.function.DoubleSupplier;
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
 
+    private static final double LINEAR_N = 6.0;
+    private static final double LINEAR_K = 1.0;
+
+    // TODO maybe modify slow mode speed?
+    private static final double SLOW_MODE_MULTIPLIER = 0.15;
+
+    private static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
+    private static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
+
     private DriveCommands() {}
 
     /**
@@ -44,8 +53,8 @@ public class DriveCommands {
                     double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
                     // Square values
-                    linearMagnitude = responseCurve(linearMagnitude, 6, 1);
-                    omega = Math.copySign(responseCurve(linearMagnitude, 3.0, 0.32), omega);
+                    linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
+                    omega = Math.copySign(responseCurve(omega, 3.0, 0.32), omega);
 
                     // Calcaulate new linear velocity
                     Translation2d linearVelocity =
@@ -54,8 +63,7 @@ public class DriveCommands {
                                     .getTranslation();
 
                     // Convert to ChassisSpeeds & send command
-                    // TODO maybe modify slow mode speed?
-                    final double multiplier = slowMode.getAsBoolean() ? 0.15 : 1.0;
+                    final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
                     final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
                     final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
                     omega *= SwerveConstants.MAX_ANGULAR_SPEED * multiplier;
