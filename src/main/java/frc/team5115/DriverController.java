@@ -20,6 +20,7 @@ public class DriverController {
 
     public void configureButtonBindings(Intake intake, DoubleSupplier speed) {
         joyDrive.a().whileTrue(intake.setSpeed(speed)).onFalse(intake.stop());
+        joyDrive.b().whileTrue(intake.setSpeed(() -> -speed.getAsDouble())).onFalse(intake.stop());
     }
 
     public boolean getRobotRelative() {
