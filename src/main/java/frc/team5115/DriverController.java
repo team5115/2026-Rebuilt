@@ -83,6 +83,15 @@ public class DriverController {
                 .onTrue(drivetrain.selectNearestScoringSpot(Side.CENTER))
                 .whileTrue(drivetrain.alignSelectedSpot());
 
+        joyDrive
+                .a()
+                .whileTrue(
+                        DriveCommands.lockedOnHub(
+                                drivetrain,
+                                () -> slowMode,
+                                () -> -joyDrive.getLeftY(),
+                                () -> -joyDrive.getLeftX()));
+
         /*
         * Manipulator button bindings:
         * hold left stick and move it for elevator manual control

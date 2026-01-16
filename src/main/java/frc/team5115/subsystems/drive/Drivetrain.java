@@ -457,6 +457,23 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("ChassisSpeedsDiscrete", speeds);
     }
 
+    /**
+     * Drive based on field-relative linear velocities with the heading locked toward a position.
+     *
+     * @param vx x linear velocity
+     * @param vy y linear velocity
+     * @param centerOfOrbit the point to maintain a heading lock on
+     */
+    public void runOrbit(double vx, double vy, Translation2d centerOfOrbit) {
+        final Pose2d pose = getPose();
+        final Rotation2d goalHeading = pose.getTranslation().minus(centerOfOrbit).getAngle();
+        final var omega = anglePid.calculate(pose.getRotation().getRadians(), goalHeading.getRadians());
+        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, getGyroRotation()));
+
+        Logger.recordOutput("Orbit/GoalHeading", goalHeading);
+        Logger.recordOutput("Orbit/Omega", omega);
+    }
+
     /** Stops the drive. */
     public void stop() {
         runVelocity(new ChassisSpeeds());
