@@ -3,7 +3,9 @@ package frc.team5115;
 import com.revrobotics.spark.SparkBase.Faults;
 import com.revrobotics.spark.SparkMax;
 import frc.team5115.subsystems.drive.Drivetrain;
+import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
+import frc.team5115.subsystems.shooter.Shooter;
 import frc.team5115.subsystems.vision.PhotonVision;
 import java.util.ArrayList;
 
@@ -16,6 +18,8 @@ public class RobotFaults {
     public final boolean drivetrainNull;
     public final boolean visionNull;
     public final boolean intakeNull;
+    public final boolean shooterNull;
+    public final boolean indexerNull;
     private final String cachedToString;
 
     public RobotFaults(
@@ -25,7 +29,9 @@ public class RobotFaults {
             boolean gyroDisconnected,
             boolean drivetrainNull,
             boolean visionNull,
-            boolean intakeNull) {
+            boolean intakeNull,
+            boolean shooterNull,
+            boolean indexerNull) {
         this.sparkFaults = sparkFaults;
         this.cameraDisconnected = cameraDisconnected;
         this.joysticksDisconnected = joysticksDisconnected;
@@ -33,6 +39,8 @@ public class RobotFaults {
         this.drivetrainNull = drivetrainNull;
         this.visionNull = visionNull;
         this.intakeNull = intakeNull;
+        this.shooterNull = shooterNull;
+        this.indexerNull = indexerNull;
         cachedToString = cacheString();
     }
 
@@ -78,7 +86,7 @@ public class RobotFaults {
     }
 
     public static RobotFaults fromSubsystems(
-            Drivetrain drivetrain, PhotonVision vision, Intake intake, boolean joysticksConnected) {
+            Drivetrain drivetrain, PhotonVision vision, Intake intake, Shooter shooter, Indexer indexer, boolean joysticksConnected) {
 
         ArrayList<SparkMax> sparks = new ArrayList<>();
         if (drivetrain != null) {
@@ -86,6 +94,12 @@ public class RobotFaults {
         }
         if (intake != null) {
             intake.getSparks(sparks);
+        }
+        if (shooter != null) {
+            shooter.getSparks(sparks);
+        }
+        if (indexer != null) {
+            indexer.getSparks(sparks);
         }
         StringBuilder sparkFaults = new StringBuilder();
         for (var spark : sparks) {
@@ -98,7 +112,9 @@ public class RobotFaults {
                 drivetrain == null ? true : !drivetrain.isGyroConnected(),
                 drivetrain == null,
                 vision == null,
-                intake == null);
+                intake == null,
+                shooter == null,
+                indexer == null);
     }
 
     private static void appendSparkFaults(StringBuilder mainBuilder, Faults faults, int id) {

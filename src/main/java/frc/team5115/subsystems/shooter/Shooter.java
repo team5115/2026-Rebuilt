@@ -7,8 +7,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
+
+import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
+
+import com.revrobotics.spark.SparkMax;
 
 public class Shooter extends SubsystemBase {
     private final ShooterIO io;
@@ -112,5 +116,9 @@ public class Shooter extends SubsystemBase {
 
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysID.dynamic(direction);
+    }
+
+    public void getSparks(ArrayList<SparkMax> sparks) {
+        io.getSparks(sparks);
     }
 }

@@ -47,6 +47,7 @@ public final class Constants {
     public static final byte DISPENSER_MOTOR_ID = 13;
     public static final byte DEALGAE_MOTOR_ID = 14;
     public static final byte SHOOTER_MOTOR_ID = -1; // TODO determine motor ID
+    public static final byte INDEXER_MOTOR_ID = -1; // TODO determine motor ID
 
     public static final byte CLIMB_INAKE_SENSOR = 2;
     public static final byte BACK_CORAL_SENSOR = 0;
@@ -62,6 +63,8 @@ public final class Constants {
     public static final byte LED_STRIP_PWM_ID = 0;
 
     public static final double LOOP_PERIOD_SECS = 0.02;
+
+    public static final double INDEX_SPEED = 0.22;
 
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;

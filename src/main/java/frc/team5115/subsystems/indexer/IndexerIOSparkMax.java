@@ -1,6 +1,4 @@
-package frc.team5115.subsystems.shooter;
-
-import java.util.ArrayList;
+package frc.team5115.subsystems.indexer;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -10,39 +8,38 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.team5115.Constants;
+import java.util.ArrayList;
 
-public class ShooterIOSparkMax implements ShooterIO {
-
+public class IndexerIOSparkMax implements IndexerIO {
     private final SparkMax motor;
     private final RelativeEncoder encoder;
 
-    public ShooterIOSparkMax() {
-        motor = new SparkMax(Constants.SHOOTER_MOTOR_ID, MotorType.kBrushless);
+    public IndexerIOSparkMax() {
+        motor = new SparkMax(Constants.INDEXER_MOTOR_ID, MotorType.kBrushless);
         encoder = motor.getEncoder();
 
         final SparkMaxConfig motorConfig = new SparkMaxConfig();
-        // Shooter motor configs
-        motorConfig
-                .closedLoopRampRate(0.1)
-                .inverted(false)
-                .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(40);
-
+        motorConfig.smartCurrentLimit(30, 40).idleMode(IdleMode.kCoast);
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     @Override
-    public void updateInputs(ShooterIOInputs inputs) {
+    public void updateInputs(IndexerIOInputs inputs) {
         inputs.velocityRPM = encoder.getVelocity();
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
     }
 
     @Override
+    public void setPercent(double percent) {
+        motor.set(percent);
+    }
+
+    @Override
     public void setVoltage(double volts) {
         motor.setVoltage(volts);
     }
-    
+
     @Override
     public void getSparks(ArrayList<SparkMax> sparks) {
         sparks.add(motor);

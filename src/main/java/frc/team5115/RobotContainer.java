@@ -18,6 +18,10 @@ import frc.team5115.subsystems.drive.GyroIOSim;
 import frc.team5115.subsystems.drive.ModuleIO;
 import frc.team5115.subsystems.drive.ModuleIOSim;
 import frc.team5115.subsystems.drive.ModuleIOSparkMax;
+import frc.team5115.subsystems.indexer.Indexer;
+import frc.team5115.subsystems.indexer.IndexerIO;
+import frc.team5115.subsystems.indexer.IndexerIOSim;
+import frc.team5115.subsystems.indexer.IndexerIOSparkMax;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.intake.IntakeIO;
 import frc.team5115.subsystems.intake.IntakeIOSim;
@@ -47,6 +51,7 @@ public class RobotContainer {
     private final Intake intake;
     private final Bling bling;
     private final Shooter shooter;
+    private final Indexer indexer;
 
     // Controllers
     private final DriverController driverController;
@@ -84,6 +89,7 @@ public class RobotContainer {
                 vision = new PhotonVision(new PhotonVisionIOReal(), drivetrain);
                 bling = new Bling(new BlingIOReal());
                 shooter = new Shooter(new ShooterIOSparkMax());
+                indexer = new Indexer(new IndexerIOSparkMax());
                 break;
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
@@ -105,6 +111,7 @@ public class RobotContainer {
                 vision = new PhotonVision(new PhotonVisionIOSim(), drivetrain);
                 bling = new Bling(new BlingIOSim());
                 shooter = new Shooter(new ShooterIOSim());
+                indexer = new Indexer(new IndexerIOSim());
                 break;
 
             default:
@@ -123,12 +130,13 @@ public class RobotContainer {
                 vision = new PhotonVision(new PhotonVisionIO() {}, drivetrain);
                 bling = new Bling(new BlingIO() {});
                 shooter = new Shooter(new ShooterIO() {});
+                indexer = new Indexer(new IndexerIO() {});
                 break;
         }
         driverController = new DriverController();
 
         // Register auto commands for pathplanner
-        registerCommands(drivetrain, vision, intake, shooter);
+        registerCommands(drivetrain, vision, intake, shooter, indexer);
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -177,7 +185,7 @@ public class RobotContainer {
             if (faultPrintTimeout <= 0) {
                 final var faults =
                         RobotFaults.fromSubsystems(
-                                drivetrain, vision, intake, driverController.joysticksConnected());
+                                drivetrain, vision, intake, shooter, indexer, driverController.joysticksConnected());
                 hasFaults = faults.hasFaults();
                 if (hasFaults) {
                     System.err.println(faults.toString());
@@ -202,7 +210,7 @@ public class RobotContainer {
      * @param shooter
      */
     public static void registerCommands(
-            Drivetrain drivetrain, PhotonVision vision, Intake intake, Shooter shooter) {
+            Drivetrain drivetrain, PhotonVision vision, Intake intake, Shooter shooter, Indexer indexer) {
 
         // TODO add named commands
         System.out.println("Registered Commands");
