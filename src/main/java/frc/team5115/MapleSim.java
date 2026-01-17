@@ -1,6 +1,5 @@
 package frc.team5115;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
@@ -56,7 +55,7 @@ public class MapleSim {
                 .withTrackLengthTrackWidth(
                         Meters.of(SwerveConstants.TRACK_WIDTH_X), Meters.of(SwerveConstants.TRACK_WIDTH_Y))
                 // Configures the bumper size (dimensions of the robot bumper)
-                .withBumperSize(Inches.of(30), Inches.of(30)); // TODO: correct numbers
+                .withBumperSize(SwerveConstants.BUMPER_WIDTH_X, SwerveConstants.BUMPER_WIDTH_Y);
     }
 
     public static void initInstance() {

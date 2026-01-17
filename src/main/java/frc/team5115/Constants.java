@@ -1,5 +1,8 @@
 package frc.team5115;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+
 import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -9,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -75,10 +79,20 @@ public final class Constants {
 
         public static final double MAX_LINEAR_SPEED = 5; // meters per second
 
-        // TODO set TRACK_WIDTH to its new value for this year
-        private static final double TRACK_WIDTH = Units.inchesToMeters(26.25);
-        public static final double TRACK_WIDTH_X = TRACK_WIDTH;
-        public static final double TRACK_WIDTH_Y = TRACK_WIDTH;
+        // 29" wide, 25.75" front to back 
+        private static final Distance FRAME_WIDTH_X = Inches.of(29);
+        private static final Distance FRAME_WIDTH_Y = Inches.of(25.75);
+        private static final Distance BUMPER_DEPTH = Inches.of(2.75);
+        private static final Distance MODULE_INSET = Inches.of(1.75);
+
+        public static final Distance BUMPER_WIDTH_X = FRAME_WIDTH_X.plus(BUMPER_DEPTH.times(2));
+        public static final Distance BUMPER_WIDTH_Y = FRAME_WIDTH_Y.plus(BUMPER_DEPTH.times(2));
+
+        public static final double TRACK_WIDTH_X =
+                FRAME_WIDTH_X.minus(MODULE_INSET.times(2)).in(Meters);
+        public static final double TRACK_WIDTH_Y =
+                FRAME_WIDTH_Y.minus(MODULE_INSET.times(2)).in(Meters);
+
         public static final double DRIVE_BASE_RADIUS =
                 Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0);
         public static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;
