@@ -23,7 +23,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.team5115.Constants;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.util.LocalADStarAK;
@@ -119,7 +119,7 @@ public class Drivetrain extends SubsystemBase {
                         new PIDConstants(linear_kp, linear_ki, linear_kd),
                         new PIDConstants(angular_kp, angular_ki, angular_kd)),
                 SwerveConstants.getRobotConfig(),
-                () -> isRedAlliance(),
+                () -> Constants.isRedAlliance(),
                 this);
         Pathfinding.setPathfinder(new LocalADStarAK());
         PathPlannerLogging.setLogActivePathCallback(
@@ -304,11 +304,6 @@ public class Drivetrain extends SubsystemBase {
         field.setRobotPose(getPose());
     }
 
-    @AutoLogOutput(key = "Drive/IsRedAlliance")
-    public boolean isRedAlliance() {
-        return DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Red;
-    }
-
     @AutoLogOutput(key = "AutoAlign/SelectedPose")
     private Pose2d selectedPose = null;
 
@@ -466,12 +461,15 @@ public class Drivetrain extends SubsystemBase {
      */
     public void runOrbit(double vx, double vy, Translation2d centerOfOrbit) {
         final Pose2d pose = getPose();
-        final Rotation2d goalHeading = pose.getTranslation().minus(centerOfOrbit).getAngle();
+        final Rotation2d goalHeading = centerOfOrbit.minus(pose.getTranslation()).getAngle();
         final var omega = anglePid.calculate(pose.getRotation().getRadians(), goalHeading.getRadians());
         runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, getGyroRotation()));
 
-        Logger.recordOutput("Orbit/GoalHeading", goalHeading);
+        Logger.recordOutput("Orbit/GoalHeadingPose", new Pose2d(pose.getTranslation(), goalHeading));
         Logger.recordOutput("Orbit/Omega", omega);
+        Logger.recordOutput(
+                "Orbit/CenterOfOrbit",
+                new Pose2d(centerOfOrbit, Constants.isRedAlliance() ? Rotation2d.kZero : Rotation2d.kPi));
     }
 
     /** Stops the drive. */

@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.team5115.Constants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.drive.Drivetrain;
 import java.util.function.BooleanSupplier;
@@ -57,7 +58,7 @@ public class DriveCommands {
                     final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
 
                     // Get the angle to point towards the orbit point
-                    drivetrain.runOrbit(vx, vy, drivetrain.isRedAlliance() ? RED_HUB : BLUE_HUB);
+                    drivetrain.runOrbit(vx, vy, Constants.isRedAlliance() ? RED_HUB : BLUE_HUB);
                 },
                 drivetrain);
     }

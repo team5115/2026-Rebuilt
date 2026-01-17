@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Timer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public final class Constants {
     private static final boolean isReplay = false;
@@ -230,6 +231,11 @@ public final class Constants {
         final String gameData = DriverStation.getGameSpecificMessage();
         final var alliance = DriverStation.getAlliance();
         return isHubEnabledTest(matchTime, gameData, alliance);
+    }
+
+    @AutoLogOutput(key = "IsRedAlliance")
+    public static boolean isRedAlliance() {
+        return DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Red;
     }
 
     private static boolean isHubEnabledTest(
