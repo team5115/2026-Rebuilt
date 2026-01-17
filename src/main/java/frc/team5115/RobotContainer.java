@@ -72,10 +72,6 @@ public class RobotContainer {
 
         switch (Constants.currentMode) {
             case REAL:
-                // Real robot, instantiate hardware IO implementations
-                // final GenericEntry dispenseSpeedEntry =
-                //         Shuffleboard.getTab("SmartDashboard").add("Dispenser Speed", 0).getEntry();
-                //         () -> dispenseSpeedEntry.getDouble(0.1)
                 gyro = new GyroIONavx();
                 intake = new Intake(new IntakeIOSparkMax());
                 drivetrain =
@@ -105,8 +101,8 @@ public class RobotContainer {
                                 gyro,
                                 new ModuleIOSim(swerveSim.getModules()[0]),
                                 new ModuleIOSim(swerveSim.getModules()[1]),
-                                new ModuleIOSim(swerveSim.getModules()[3]),
                                 new ModuleIOSim(swerveSim.getModules()[2]),
+                                new ModuleIOSim(swerveSim.getModules()[3]),
                                 swerveSim::setSimulationWorldPose);
                 vision = new PhotonVision(new PhotonVisionIOSim(), drivetrain);
                 bling = new Bling(new BlingIOSim());
@@ -126,7 +122,6 @@ public class RobotContainer {
                                 new ModuleIO() {},
                                 new ModuleIO() {},
                                 (pose) -> {});
-                // TODO set the drivetrain's resetSimulationPoseCallback ^^^
                 vision = new PhotonVision(new PhotonVisionIO() {}, drivetrain);
                 bling = new Bling(new BlingIO() {});
                 shooter = new Shooter(new ShooterIO() {});
@@ -232,8 +227,13 @@ public class RobotContainer {
 
     public void teleopInit() {
         drivetrain.setTeleopCurrentLimit();
-        // drivetrain.offsetGyro(fRotation2d.fromDegrees(-90));
     }
+
+    public void simInit() {
+        drivetrain.setPose(Constants.SIM_INIT_POSE);
+    }
+
+    public void simPeriodic() {}
 
     public void autoInit() {
         drivetrain.setAutoCurrentLimit();

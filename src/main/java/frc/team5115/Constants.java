@@ -33,6 +33,8 @@ public final class Constants {
         REPLAY
     }
 
+    public static final Pose2d SIM_INIT_POSE = new Pose2d(3, 3, Rotation2d.kZero);
+
     public static final boolean SINGLE_MODE = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
@@ -207,7 +209,7 @@ public final class Constants {
         public static final int WIDTH_PX = 1280;
         public static final int HEIGHT_PX = 720;
         public static final double DIAG_FOV_DEGREES = 90;
-        public static final double AVG_ERR_PX = 1;
+        public static final double AVG_ERR_PX = 0.5;
         public static final double STD_DEV_ERR_PX = 0;
         public static final double FPS = 30;
         public static final double AVG_LATENCY_MS = 30;

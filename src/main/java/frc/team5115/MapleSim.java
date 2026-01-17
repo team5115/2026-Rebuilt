@@ -5,8 +5,6 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.team5115.Constants.SwerveConstants;
@@ -67,7 +65,7 @@ public class MapleSim {
                         // Specify Configuration
                         MapleSim.getDriveSimConfig(),
                         // Specify starting pose
-                        new Pose2d(3, 3, new Rotation2d()));
+                        Constants.SIM_INIT_POSE);
         SimulatedArena.getInstance().addDriveTrainSimulation(swerveSim);
     }
 
