@@ -364,9 +364,7 @@ public class Drivetrain extends SubsystemBase {
         return Commands.runOnce(
                 () -> {
                     selectedPose = goalPose.get();
-                    final Pose2d currentPose = getPose();
-                    anglePid.reset(
-                            currentPose.getRotation().getRadians(), getChassisSpeeds().omegaRadiansPerSecond);
+                    anglePid.reset(getRotation().getRadians(), getChassisSpeeds().omegaRadiansPerSecond);
                     translationPid.reset();
                 },
                 this);

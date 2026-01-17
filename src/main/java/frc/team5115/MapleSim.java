@@ -49,8 +49,8 @@ public class MapleSim {
                                 12, // Steer motor gear ratio.
                                 Volts.of(0.1), // Drive friction voltage.
                                 Volts.of(0.1), // Steer friction voltage
-                                Inches.of(3), // Wheel radius
-                                KilogramSquareMeters.of(0.01), // Steer MOI
+                                Meters.of(SwerveConstants.WHEEL_RADIUS_METERS), // Wheel radius
+                                KilogramSquareMeters.of(0.03), // Steer MOI
                                 1.2)) // Wheel COF
                 // Configures the track length and track width (spacing between swerve modules)
                 .withTrackLengthTrackWidth(
