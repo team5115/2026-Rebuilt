@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.Mode;
 import frc.team5115.subsystems.agitator.Agitator;
@@ -168,6 +169,13 @@ public class RobotContainer {
                 drivetrain.sysIdSpinDynamic(SysIdRoutine.Direction.kReverse));
 
         autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
+        
+        autoChooser.addOption("Shooter SysID (Quasistatic Forward)", shooter.sysIdQuasistatic(Direction.kForward));
+        autoChooser.addOption("Shooter SysID (Quasistatic Reverse)", shooter.sysIdQuasistatic(Direction.kReverse));
+        autoChooser.addOption("Shooter SysID (Dynamic Forward)", shooter.sysIdDynamic(Direction.kForward));
+        autoChooser.addOption("Shooter SysID (Dynamic Reverse)", shooter.sysIdDynamic(Direction.kReverse));
+
+
 
         driverController.configureButtonBindings(drivetrain, intake, agitator, indexer, shooter);
         driverController.configureRumbleBindings(drivetrain);
