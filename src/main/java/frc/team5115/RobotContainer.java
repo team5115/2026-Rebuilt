@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.Mode;
+import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.bling.Bling;
 import frc.team5115.subsystems.bling.BlingIO;
 import frc.team5115.subsystems.bling.BlingIOReal;
@@ -52,6 +53,7 @@ public class RobotContainer {
     private final Bling bling;
     private final Shooter shooter;
     private final Indexer indexer;
+    private final Agitator agitator;
 
     // Controllers
     private final DriverController driverController;
@@ -86,6 +88,7 @@ public class RobotContainer {
                 bling = new Bling(new BlingIOReal());
                 shooter = new Shooter(new ShooterIOSparkMax());
                 indexer = new Indexer(new IndexerIOSparkMax());
+                agitator = new Agitator();
                 break;
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
@@ -108,6 +111,7 @@ public class RobotContainer {
                 bling = new Bling(new BlingIOSim());
                 shooter = new Shooter(new ShooterIOSim());
                 indexer = new Indexer(new IndexerIOSim());
+                agitator = new Agitator();
                 break;
 
             default:
@@ -126,6 +130,7 @@ public class RobotContainer {
                 bling = new Bling(new BlingIO() {});
                 shooter = new Shooter(new ShooterIO() {});
                 indexer = new Indexer(new IndexerIO() {});
+                agitator = new Agitator();
                 break;
         }
         driverController = new DriverController();
@@ -163,7 +168,7 @@ public class RobotContainer {
 
         autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
 
-        driverController.configureButtonBindings(drivetrain, intake);
+        driverController.configureButtonBindings(drivetrain, intake, agitator, indexer, shooter);
         driverController.configureRumbleBindings(drivetrain);
         configureBlingBindings();
     }

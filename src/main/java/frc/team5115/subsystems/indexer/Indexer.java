@@ -22,20 +22,17 @@ public class Indexer extends SubsystemBase {
         Logger.processInputs("Indexer", inputs);
     }
 
-    public Command setSpeed(double speed) {
-        return Commands.runOnce(() -> io.setPercent(speed));
+    private Command run(double speed) {
+        return Commands.runEnd(() -> io.setPercent(speed), () -> io.setPercent(0), this);
     }
 
+    /**
+     * Index forever, stopping when interrupted.
+     *
+     * @return a RunEnd Command
+     */
     public Command index() {
-        return setSpeed(Constants.INDEX_SPEED);
-    }
-
-    public Command vomit() {
-        return setSpeed(-Constants.INDEX_SPEED);
-    }
-
-    public Command stop() {
-        return setSpeed(0);
+        return run(Constants.INDEX_SPEED);
     }
 
     public void getSparks(ArrayList<SparkMax> sparks) {

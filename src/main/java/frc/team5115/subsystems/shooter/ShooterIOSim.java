@@ -13,7 +13,7 @@ public class ShooterIOSim implements ShooterIO {
     public ShooterIOSim() {
         sim =
                 new FlywheelSim(
-                        LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 0.1, 1),
+                        LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 0.003, 1),
                         DCMotor.getNEO(1),
                         0.0002); // TODO adjust physical constants
     }

@@ -6,8 +6,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.team5115.Constants.AutoConstants.Side;
 import frc.team5115.commands.DriveCommands;
+import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
+import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
+import frc.team5115.subsystems.shooter.Shooter;
 
 public class DriverController {
     private final CommandXboxController joyDrive;
@@ -33,7 +36,8 @@ public class DriverController {
         drivetrain.alignedAtGoalTrigger().onTrue(rumble(Constants.RUMBLE_STRENGTH)).onFalse(rumble(0));
     }
 
-    public void configureButtonBindings(Drivetrain drivetrain, Intake intake) {
+    public void configureButtonBindings(
+            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
         // drive control
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
@@ -43,14 +47,22 @@ public class DriverController {
                         () -> -joyDrive.getLeftY(),
                         () -> -joyDrive.getLeftX(),
                         () -> -joyDrive.getRightX()));
+
+        // Slowly agitate slow by default
+        agitator.setDefaultCommand(agitator.slow());
+
+        // TODO do we want to always intake?
+        intake.setDefaultCommand(intake.intake().repeatedly());
+
         if (Constants.SINGLE_MODE) {
-            configureSingleMode(drivetrain, intake);
+            configureSingleMode(drivetrain, intake, agitator, indexer, shooter);
         } else {
             configureDualMode(drivetrain, intake);
         }
     }
 
-    private void configureSingleMode(Drivetrain drivetrain, Intake intake) {
+    private void configureSingleMode(
+            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
         /* Drive button bindings -
          * x: forces the robot to stop moving
          * left bumper: Sets robot relative to true while held down
@@ -91,6 +103,8 @@ public class DriverController {
                                 () -> slowMode,
                                 () -> -joyDrive.getLeftY(),
                                 () -> -joyDrive.getLeftX()));
+
+        joyDrive.b().whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
 
         /*
         * Manipulator button bindings:

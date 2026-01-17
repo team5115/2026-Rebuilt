@@ -52,6 +52,7 @@ public final class Constants {
     public static final double LOOP_PERIOD_SECS = 0.02;
 
     public static final double INDEX_SPEED = 0.22;
+    public static final double INTAKE_SPEED = 1.0;
 
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;
@@ -79,7 +80,7 @@ public final class Constants {
 
         public static final double MAX_LINEAR_SPEED = 5; // meters per second
 
-        // 29" wide, 25.75" front to back 
+        // 29" wide, 25.75" front to back
         private static final Distance FRAME_WIDTH_X = Inches.of(29);
         private static final Distance FRAME_WIDTH_Y = Inches.of(25.75);
         private static final Distance BUMPER_DEPTH = Inches.of(2.75);

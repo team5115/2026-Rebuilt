@@ -108,6 +108,25 @@ public class Shooter extends SubsystemBase {
         return Commands.waitUntil(() -> pid.atSetpoint());
     }
 
+    /**
+     * Run forever, maintaining the required shooter speed. Stops the shooter when interrupted.
+     *
+     * @param distanceToHub the current distance to the hub
+     * @return a RunEnd Command
+     */
+    public Command maintainSpeed(DoubleSupplier distanceToHub) {
+        return Commands.runEnd(
+                () -> {
+                    // TODO calculate the required shooter speed
+                    setpoint(4000);
+                },
+                () -> {
+                    // Stop at the end
+                    setpoint(0);
+                },
+                this);
+    }
+
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return sysID.quasistatic(direction);
     }

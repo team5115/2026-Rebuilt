@@ -10,7 +10,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.team5115.Constants;
 import frc.team5115.Constants.SwerveConstants;
+import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
+import frc.team5115.subsystems.indexer.Indexer;
+import frc.team5115.subsystems.shooter.Shooter;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -27,6 +30,26 @@ public class DriveCommands {
     private static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
 
     private DriveCommands() {}
+
+    /**
+     * Runs forever, shooting indefinitely. Stops the indexer and shooter when done
+     *
+     * @param drivetrain
+     * @param agitator
+     * @param indexer
+     * @param shooter
+     * @return a Command that runs forever.
+     */
+    public static Command smartShoot(
+            Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
+        return Commands.parallel(
+                agitator.fast(),
+                shooter.maintainSpeed(
+                        () ->
+                                (Constants.isRedAlliance() ? RED_HUB : BLUE_HUB)
+                                        .getDistance(drivetrain.getPose().getTranslation())),
+                shooter.waitForSetpoint().andThen(indexer.index()));
+    }
 
     /** Drive field relative but maintain a heading pointed towards the hub */
     public static Command lockedOnHub(
