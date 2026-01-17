@@ -1,7 +1,8 @@
 package frc.team5115.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import frc.team5115.Constants.VisionConstants;
+import frc.team5115.MapleSim;
 import frc.team5115.subsystems.vision.PhotonVision.Camera;
 import java.util.List;
 import java.util.Optional;
@@ -26,55 +27,19 @@ public class PhotonVisionIOSim implements PhotonVisionIO {
     @Override
     public void updateInputs(PhotonVisionIOInputs inputs) {
         for (Camera camera : Camera.values()) {
-            inputs.isConnected[camera.ordinal()] = camera.cameraSim.getCamera().isConnected();
+            inputs.isConnected[camera.ordinal()] = camera.camera.isConnected();
         }
+        visionSim.update(MapleSim.getSwerveSim().getSimulatedDriveTrainPose());
     }
 
     @Override
     public List<PhotonPipelineResult> getAllUnreadResults(Camera camera) {
-        return camera.cameraSim.getCamera().getAllUnreadResults();
+        return camera.camera.getAllUnreadResults();
     }
 
     @Override
-    public Optional<EstimatedRobotPose> updatePose(Camera camera, PhotonPipelineResult result) {
-        var pose = camera.poseEstimator.estimateCoprocMultiTagPose(result);
-        return pose;
+    public Optional<EstimatedRobotPose> updatePose(
+            Camera camera, PhotonPipelineResult result, Pose3d referencePose) {
+        return camera.poseEstimator.estimateLowestAmbiguityPose(result);
     }
-
-    @Override
-    public void updateVisionSimPose(Pose2d pose) {
-        visionSim.update(pose);
-    }
-
-    //     @Override
-    //     public void addSimCamera(
-    //             String name,
-    //             int width,
-    //             int height,
-    //             int fovDeg,
-    //             int avgErrPx,
-    //             int stdDevErrPx,
-    //             int fps,
-    //             int avgLatencyMs,
-    //             int stdDevLatencyMs,
-    //             boolean rawStreamEnabled,
-    //             boolean processedStreamEnabled,
-    //             boolean wireframeEnabled) {
-
-    //         PhotonCamera camera = new PhotonCamera(name);
-    //         SimCameraProperties cameraProp = new SimCameraProperties();
-    //         cameraProp.setCalibration(width, height, Rotation2d.fromDegrees(fovDeg));
-    //         cameraProp.setCalibError(avgErrPx, stdDevErrPx);
-    //         cameraProp.setFPS(fps);
-    //         cameraProp.setAvgLatencyMs(avgLatencyMs);
-    //         cameraProp.setLatencyStdDevMs(stdDevLatencyMs);
-
-    //         PhotonCameraSim cameraSim = new PhotonCameraSim(camera, cameraProp);
-    //         visionSim.addCamera(cameraSim, VisionConstants.ROBOT_TO_CAM);
-
-    //         cameras.put(name, cameraSim);
-    //         cameraSim.enableDrawWireframe(wireframeEnabled);
-    //         cameraSim.enableProcessedStream(processedStreamEnabled);
-    //         cameraSim.enableRawStream(rawStreamEnabled);
-    //     }
 }
