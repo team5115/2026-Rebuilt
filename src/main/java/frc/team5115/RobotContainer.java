@@ -2,12 +2,10 @@ package frc.team5115;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.subsystems.shooter.Shooter;
 import frc.team5115.subsystems.shooter.ShooterIO;
@@ -16,7 +14,6 @@ import frc.team5115.subsystems.shooter.ShooterIOSparkMax;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -34,7 +31,7 @@ public class RobotContainer {
     private final DriverController driverController;
 
     // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+    // private final LoggedDashboardChooser<Command> autoChooser;
 
     private final DoubleSupplier speedSupplier;
     private final BooleanSupplier hitTargetSupplier;
@@ -110,20 +107,20 @@ public class RobotContainer {
                         Units.feetToMeters(SmartDashboard.getNumber(feetKey, 0))
                                 + Units.inchesToMeters(SmartDashboard.getNumber(inchKey, 0));
 
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+        // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
         // autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
 
-        autoChooser.addOption(
-                "Shooter SysID (Quasistatic Forward)", shooter.sysIdQuasistatic(Direction.kForward));
-        autoChooser.addOption(
-                "Shooter SysID (Quasistatic Reverse)", shooter.sysIdQuasistatic(Direction.kReverse));
-        autoChooser.addOption(
-                "Shooter SysID (Dynamic Forward)", shooter.sysIdDynamic(Direction.kForward));
-        autoChooser.addOption(
-                "Shooter SysID (Dynamic Reverse)", shooter.sysIdDynamic(Direction.kReverse));
+        // autoChooser.addOption(
+        //         "Shooter SysID (Quasistatic Forward)", shooter.sysIdQuasistatic(Direction.kForward));
+        // autoChooser.addOption(
+        //         "Shooter SysID (Quasistatic Reverse)", shooter.sysIdQuasistatic(Direction.kReverse));
+        // autoChooser.addOption(
+        //         "Shooter SysID (Dynamic Forward)", shooter.sysIdDynamic(Direction.kForward));
+        // autoChooser.addOption(
+        //         "Shooter SysID (Dynamic Reverse)", shooter.sysIdDynamic(Direction.kReverse));
 
-        autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
+        // autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
 
         driverController = new DriverController();
         driverController.configureButtonBindings(null, shooter, speedSupplier);
@@ -144,7 +141,8 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        // return autoChooser.get();
+        return shooter.allSysIds();
     }
 
     public void teleopInit() {
