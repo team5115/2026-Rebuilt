@@ -43,8 +43,8 @@ public final class Constants {
     public static final boolean SINGLE_MODE = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
-    public static final byte INTAKE_MOTOR_ID = 12;
-    public static final byte SHOOTER_MOTOR_ID = 12; // TODO determine motor ID
+    public static final byte INTAKE_MOTOR_ID = -1; // TODO determine motor ID
+    public static final byte SHOOTER_MOTOR_ID = 14; // TODO determine motor ID
     public static final byte INDEXER_MOTOR_ID = -1; // TODO determine motor ID
     public static final byte AGITATOR_MOTOR_ID = -1; // TODO determine motor ID
 

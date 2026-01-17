@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.shooter.Shooter;
 import java.util.function.DoubleSupplier;
@@ -32,14 +31,14 @@ public class DriverController {
     public void configureButtonBindings(
             Drivetrain drivetrain, Shooter shooter, DoubleSupplier shooterSpeed) {
         // drive control
-        drivetrain.setDefaultCommand(
-                DriveCommands.joystickDrive(
-                        drivetrain,
-                        () -> robotRelative,
-                        () -> slowMode,
-                        () -> -joyDrive.getLeftY(),
-                        () -> -joyDrive.getLeftX(),
-                        () -> -joyDrive.getRightX()));
+        // drivetrain.setDefaultCommand(
+        //         DriveCommands.joystickDrive(
+        //                 drivetrain,
+        //                 () -> robotRelative,
+        //                 () -> slowMode,
+        //                 () -> -joyDrive.getLeftY(),
+        //                 () -> -joyDrive.getLeftX(),
+        //                 () -> -joyDrive.getRightX()));
 
         joyDrive.a().whileTrue(shooter.supplySetpoint(shooterSpeed)).onFalse(shooter.setSetpoint(0));
     }

@@ -3,20 +3,12 @@ package frc.team5115;
 import static edu.wpi.first.units.Units.Meters;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.team5115.Constants.AutoConstants;
-import frc.team5115.subsystems.drive.Drivetrain;
-import frc.team5115.subsystems.drive.GyroIO;
-import frc.team5115.subsystems.drive.GyroIONavx;
-import frc.team5115.subsystems.drive.GyroIOSim;
-import frc.team5115.subsystems.drive.ModuleIO;
-import frc.team5115.subsystems.drive.ModuleIOSim;
-import frc.team5115.subsystems.drive.ModuleIOSparkMax;
 import frc.team5115.subsystems.shooter.Shooter;
 import frc.team5115.subsystems.shooter.ShooterIO;
 import frc.team5115.subsystems.shooter.ShooterIOSim;
@@ -34,8 +26,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
     // Subsystems
-    private final GyroIO gyro;
-    private final Drivetrain drivetrain;
+    // private final GyroIO gyro;
+    // private final Drivetrain drivetrain;
     private final Shooter shooter;
 
     // Controllers
@@ -57,15 +49,15 @@ public class RobotContainer {
 
         switch (Constants.currentMode) {
             case REAL:
-                gyro = new GyroIONavx();
-                drivetrain =
-                        new Drivetrain(
-                                gyro,
-                                new ModuleIOSparkMax(0),
-                                new ModuleIOSparkMax(1),
-                                new ModuleIOSparkMax(2),
-                                new ModuleIOSparkMax(3),
-                                (pose) -> {});
+                // gyro = new GyroIONavx();
+                // drivetrain =
+                //         new Drivetrain(
+                //                 gyro,
+                //                 new ModuleIOSparkMax(0),
+                //                 new ModuleIOSparkMax(1),
+                //                 new ModuleIOSparkMax(2),
+                //                 new ModuleIOSparkMax(3),
+                //                 (pose) -> {});
                 shooter = new Shooter(new ShooterIOSparkMax());
                 break;
             case SIM:
@@ -73,31 +65,31 @@ public class RobotContainer {
                 MapleSim.getInstance();
                 MapleSim.setupArena();
                 MapleSim.initInstance();
-                var swerveSim = MapleSim.getSwerveSim();
-                gyro = new GyroIOSim(swerveSim.getGyroSimulation());
+                // var swerveSim = MapleSim.getSwerveSim();
+                // gyro = new GyroIOSim(swerveSim.getGyroSimulation());
 
-                drivetrain =
-                        new Drivetrain(
-                                gyro,
-                                new ModuleIOSim(swerveSim.getModules()[0]),
-                                new ModuleIOSim(swerveSim.getModules()[1]),
-                                new ModuleIOSim(swerveSim.getModules()[2]),
-                                new ModuleIOSim(swerveSim.getModules()[3]),
-                                swerveSim::setSimulationWorldPose);
+                // drivetrain =
+                //         new Drivetrain(
+                //                 gyro,
+                //                 new ModuleIOSim(swerveSim.getModules()[0]),
+                //                 new ModuleIOSim(swerveSim.getModules()[1]),
+                //                 new ModuleIOSim(swerveSim.getModules()[2]),
+                //                 new ModuleIOSim(swerveSim.getModules()[3]),
+                //                 swerveSim::setSimulationWorldPose);
                 shooter = new Shooter(new ShooterIOSim());
                 break;
 
             default:
                 // Replayed robot, disable IO implementations
-                gyro = new GyroIO() {};
-                drivetrain =
-                        new Drivetrain(
-                                gyro,
-                                new ModuleIO() {},
-                                new ModuleIO() {},
-                                new ModuleIO() {},
-                                new ModuleIO() {},
-                                (pose) -> {});
+                // gyro = new GyroIO() {};
+                // drivetrain =
+                //         new Drivetrain(
+                //                 gyro,
+                //                 new ModuleIO() {},
+                //                 new ModuleIO() {},
+                //                 new ModuleIO() {},
+                //                 new ModuleIO() {},
+                //                 (pose) -> {});
                 shooter = new Shooter(new ShooterIO() {});
                 break;
         }
@@ -120,7 +112,7 @@ public class RobotContainer {
 
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-        autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
+        // autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
 
         autoChooser.addOption(
                 "Shooter SysID (Quasistatic Forward)", shooter.sysIdQuasistatic(Direction.kForward));
@@ -134,8 +126,8 @@ public class RobotContainer {
         autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
 
         driverController = new DriverController();
-        driverController.configureButtonBindings(drivetrain, shooter, speedSupplier);
-        driverController.configureRumbleBindings(drivetrain);
+        driverController.configureButtonBindings(null, shooter, speedSupplier);
+        // driverController.configureRumbleBindings(drivetrain);
     }
 
     public void robotPeriodic() {
@@ -156,21 +148,21 @@ public class RobotContainer {
     }
 
     public void teleopInit() {
-        drivetrain.setTeleopCurrentLimit();
+        // drivetrain.setTeleopCurrentLimit();
     }
 
     public void simInit() {
-        drivetrain.setPose(Constants.SIM_INIT_POSE);
+        // drivetrain.setPose(Constants.SIM_INIT_POSE);
     }
 
     public void simPeriodic() {}
 
     public void autoInit() {
-        drivetrain.setAutoCurrentLimit();
-        // Offset gyro to zero
-        drivetrain.offsetGyro();
-        // Then offset by 180 degrees
-        drivetrain.offsetGyro(Rotation2d.k180deg);
+        // drivetrain.setAutoCurrentLimit();
+        // // Offset gyro to zero
+        // drivetrain.offsetGyro();
+        // // Then offset by 180 degrees
+        // drivetrain.offsetGyro(Rotation2d.k180deg);
     }
 
     public void disabledPeriodic() {}
