@@ -143,7 +143,18 @@ public class Drivetrain extends SubsystemBase {
                                 (state) -> Logger.recordOutput("Drive/StraightSysIdState", state.toString())),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> {
-                                    Logger.recordOutput("Drive/SysIdVoltage", voltage);
+                                    Logger.recordOutput("Drivetrain/SysIdVoltage", voltage);
+                                    final double linearVel =
+                                            Math.hypot(
+                                                    getChassisSpeeds().vxMetersPerSecond,
+                                                    getChassisSpeeds().vxMetersPerSecond);
+                                    double distance = 0;
+                                    for (var position : getModulePositions()) {
+                                        distance += position.distanceMeters;
+                                    }
+                                    distance /= 4.0;
+                                    Logger.recordOutput("Drivetrain/LinearVelocityMetersPerSecond", linearVel);
+                                    Logger.recordOutput("Drivetrain/LinearDistanceMeters", distance);
                                     for (int i = 0; i < 4; i++) {
                                         modules[i].runCharacterization(voltage.baseUnitMagnitude());
                                     }
@@ -165,11 +176,11 @@ public class Drivetrain extends SubsystemBase {
                                 null,
                                 null,
                                 null,
-                                (state) -> Logger.recordOutput("Drive/SpinSysIdState", state.toString())),
+                                (state) -> Logger.recordOutput("Drivetrain/SpinSysIdState", state.toString())),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> {
                                     updateAngularLogging();
-                                    Logger.recordOutput("Drive/SysIdVoltage", voltage);
+                                    Logger.recordOutput("Drivetrain/SysIdVoltage", voltage);
                                     for (int i = 0; i < 4; i++) {
                                         modules[i].runCharacterization(voltage.baseUnitMagnitude(), moduleRotations[i]);
                                     }
@@ -223,8 +234,8 @@ public class Drivetrain extends SubsystemBase {
         if (previousFPGATime != null && previousRotation != null) {
             final double rotationDelta = getGyroRotation().minus(previousRotation).getRadians();
             final double timeDelta = Timer.getFPGATimestamp() - previousFPGATime;
-            Logger.recordOutput("Drive/AngularVelocityRadPerSec", rotationDelta / timeDelta);
-            Logger.recordOutput("Drive/RotationRadians", getGyroRotation().getRadians());
+            Logger.recordOutput("Drivetrain/AngularVelocityRadPerSec", rotationDelta / timeDelta);
+            Logger.recordOutput("Drivetrain/RotationRadians", getGyroRotation().getRadians());
         }
         previousFPGATime = Timer.getFPGATimestamp();
         previousRotation = getGyroRotation();
@@ -257,8 +268,8 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         gyroIO.updateInputs(gyroInputs);
-        Logger.processInputs("Drive/Gyro", gyroInputs);
-        Logger.recordOutput("Gyro/GForce", gyroInputs.xyAcceleration / 9.81);
+        Logger.processInputs("Drivetrain/Gyro", gyroInputs);
+        Logger.recordOutput("Drivetrain/GForce", gyroInputs.xyAcceleration / 9.81);
         for (var module : modules) {
             module.periodic();
         }

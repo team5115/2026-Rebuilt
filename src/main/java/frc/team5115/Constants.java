@@ -34,7 +34,7 @@ public final class Constants {
         REPLAY
     }
 
-    public static final Pose2d SIM_INIT_POSE = new Pose2d(3, 3, Rotation2d.kZero);
+    public static final Pose2d SIM_INIT_POSE = new Pose2d(1.55, 0.8, Rotation2d.kZero);
 
     public static final boolean SINGLE_MODE = true;
     public static final double RUMBLE_STRENGTH = 0.5;
