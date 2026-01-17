@@ -99,14 +99,18 @@ public class RobotContainer {
 
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
+        autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
+
         autoChooser.addOption(
-                "Shooter SysID (Quasi Forward)", shooter.sysIdQuasistatic(Direction.kForward));
+                "Shooter SysID (Quasistatic Forward)", shooter.sysIdQuasistatic(Direction.kForward));
         autoChooser.addOption(
-                "Shooter SysID (Quasi Reverse)", shooter.sysIdQuasistatic(Direction.kReverse));
+                "Shooter SysID (Quasistatic Reverse)", shooter.sysIdQuasistatic(Direction.kReverse));
         autoChooser.addOption(
-                "Shooter SysID (Dynam Forward)", shooter.sysIdDynamic(Direction.kForward));
+                "Shooter SysID (Dynamic Forward)", shooter.sysIdDynamic(Direction.kForward));
         autoChooser.addOption(
-                "Shooter SysID (Dynam Reverse)", shooter.sysIdDynamic(Direction.kReverse));
+                "Shooter SysID (Dynamic Reverse)", shooter.sysIdDynamic(Direction.kReverse));
+
+        autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
 
         driverController = new DriverController();
         driverController.configureButtonBindings(drivetrain, shooter, speedSupplier);
