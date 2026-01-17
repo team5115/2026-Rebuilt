@@ -179,6 +179,8 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Shooter SysID (Dynamic Reverse)", shooter.sysIdDynamic(Direction.kReverse));
 
+        autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
+
         driverController.configureButtonBindings(drivetrain, intake, agitator, indexer, shooter);
         driverController.configureRumbleBindings(drivetrain);
         configureBlingBindings();

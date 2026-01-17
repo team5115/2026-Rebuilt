@@ -135,6 +135,18 @@ public class Shooter extends SubsystemBase {
         return sysID.dynamic(direction);
     }
 
+    public Command allSysIds() {
+        final double pauseBetweenRoutines = 3.0;
+        return Commands.sequence(
+                sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+                Commands.waitSeconds(pauseBetweenRoutines),
+                sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+                Commands.waitSeconds(pauseBetweenRoutines),
+                sysIdDynamic(SysIdRoutine.Direction.kForward),
+                Commands.waitSeconds(pauseBetweenRoutines),
+                sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    }
+
     public void getSparks(ArrayList<SparkMax> sparks) {
         io.getSparks(sparks);
     }
