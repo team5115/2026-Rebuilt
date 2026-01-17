@@ -118,6 +118,7 @@ public class DriveCommands {
      * @return the controller responce curve [0,1]
      */
     private static double responseCurve(double x, double n, double k) {
+        x = Math.abs(MathUtil.clamp(x, -1, +1));
         return (Math.pow(x + k, n) + (x - 1) * Math.pow(k, n)) / Math.pow(1 + k, n);
     }
 }
