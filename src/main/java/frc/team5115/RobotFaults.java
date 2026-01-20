@@ -13,99 +13,81 @@ import java.util.ArrayList;
 
 public class RobotFaults {
     private static final String NO_FAULTS = "No Faults";
-    public final String sparkFaults;
-    public final boolean cameraDisconnected;
-    public final boolean joysticksDisconnected;
-    public final boolean gyroDisconnected;
-    public final boolean drivetrainNull;
-    public final boolean visionNull;
-    public final boolean climberNull;
-    public final boolean elevatorNull;
-    public final boolean dispenserNull;
-    public final boolean intakeNull;
-    public final boolean elevatorShorted;
-    private final String cachedToString;
+    // public final String sparkFaults;
+    // public final boolean cameraDisconnected;
+    // public final boolean joysticksDisconnected;
+    // public final boolean gyroDisconnected;
+    // public final boolean drivetrainNull;
+    // public final boolean visionNull;
+    // public final boolean climberNull;
+    // public final boolean elevatorNull;
+    // public final boolean dispenserNull;
+    // public final boolean intakeNull;
+    // public final boolean elevatorShorted;
+
+    public final ArrayList<String> sparkFaults = new ArrayList<String>();
+    // private final String cachedToString;
 
     public RobotFaults(
-            String sparkFaults,
-            boolean cameraDisconnected,
-            boolean joysticksDisconnected,
-            boolean gyroDisconnected,
-            boolean drivetrainNull,
-            boolean visionNull,
-            boolean climberNull,
-            boolean elevatorNull,
-            boolean dispenserNull,
-            boolean intakeNull,
-            boolean elevatorShorted) {
+            String sparkFaults
+            ) {
         this.sparkFaults = sparkFaults;
-        this.cameraDisconnected = cameraDisconnected;
-        this.joysticksDisconnected = joysticksDisconnected;
-        this.gyroDisconnected = gyroDisconnected;
-        this.drivetrainNull = drivetrainNull;
-        this.visionNull = visionNull;
-        this.climberNull = climberNull;
-        this.elevatorNull = elevatorNull;
-        this.dispenserNull = dispenserNull;
-        this.intakeNull = intakeNull;
-        this.elevatorShorted = elevatorShorted;
-        cachedToString = cacheString();
     }
 
-    public String cacheString() {
-        final StringBuilder builder = new StringBuilder();
-        if (!sparkFaults.isEmpty()) {
-            builder.append("SparkFaults:[ ");
-            builder.append(sparkFaults);
-            builder.append("] ; ");
-        }
-        if (cameraDisconnected) {
-            builder.append("CameraDisconnected; ");
-        }
-        if (joysticksDisconnected) {
-            builder.append("JoysticksDisconnected; ");
-        }
-        if (gyroDisconnected) {
-            builder.append("GyroDisconnected; ");
-        }
-        if (drivetrainNull) {
-            builder.append("DrivetrainNull; ");
-        }
-        if (visionNull) {
-            builder.append("VisionNull; ");
-        }
-        if (climberNull) {
-            builder.append("ClimberNull; ");
-        }
-        if (elevatorNull) {
-            builder.append("ElevatorNull; ");
-        }
-        if (dispenserNull) {
-            builder.append("DispenserNull; ");
-        }
-        if (intakeNull) {
-            builder.append("IntakeNull; ");
-        }
-        if (elevatorShorted) {
-            builder.append("5V Short; ");
-        }
-        if (builder.isEmpty()) {
-            return NO_FAULTS;
-        } else {
-            return "HAS FAULTS! " + builder.toString();
-        }
-    }
+    // public String cacheString() {
+    //     final StringBuilder builder = new StringBuilder();
+    //     if (!sparkFaults.isEmpty()) {
+    //         builder.append("SparkFaults:[ ");
+    //         builder.append(sparkFaults);
+    //         builder.append("] ; ");
+    //     }
+    //     if (cameraDisconnected) {
+    //         builder.append("CameraDisconnected; ");
+    //     }
+    //     if (joysticksDisconnected) {
+    //         builder.append("JoysticksDisconnected; ");
+    //     }
+    //     if (gyroDisconnected) {
+    //         builder.append("GyroDisconnected; ");
+    //     }
+    //     if (drivetrainNull) {
+    //         builder.append("DrivetrainNull; ");
+    //     }
+    //     if (visionNull) {
+    //         builder.append("VisionNull; ");
+    //     }
+    //     if (climberNull) {
+    //         builder.append("ClimberNull; ");
+    //     }
+    //     if (elevatorNull) {
+    //         builder.append("ElevatorNull; ");
+    //     }
+    //     if (dispenserNull) {
+    //         builder.append("DispenserNull; ");
+    //     }
+    //     if (intakeNull) {
+    //         builder.append("IntakeNull; ");
+    //     }
+    //     if (elevatorShorted) {
+    //         builder.append("5V Short; ");
+    //     }
+    //     if (builder.isEmpty()) {
+    //         return NO_FAULTS;
+    //     } else {
+    //         return "HAS FAULTS! " + builder.toString();
+    //     }
+    // }
 
     @Override
     public String toString() {
-        return cachedToString;
+        return sparkFaults.toString();
     }
 
     public boolean hasFaults() {
-        return !cachedToString.equals(NO_FAULTS);
+        return sparkFaults.size() > 0;
     }
 
-    public static RobotFaults fromSubsystems(
+    public static void fromSubsystems(
             Drivetrain drivetrain,
             PhotonVision vision,
             Climber climber,
@@ -131,25 +113,14 @@ public class RobotFaults {
         if (dealgaefacationinator5000 != null) {
             dealgaefacationinator5000.getSparks(sparks);
         }
-        StringBuilder sparkFaults = new StringBuilder();
+        sparkFaults = new ArrayList<String>();
         for (var spark : sparks) {
-            appendSparkFaults(sparkFaults, spark.getFaults(), spark.getDeviceId());
-        }
-        return new RobotFaults(
-                sparkFaults.toString(),
-                vision == null ? true : vision.areAnyCamerasDisconnected(),
-                !joysticksConnected,
-                drivetrain == null ? true : !drivetrain.isGyroConnected(),
-                drivetrain == null,
-                vision == null,
-                climber == null,
-                elevator == null,
-                dispenser == null,
-                intake == null,
-                elevator.isShorting());
+            appendSparkFaults(spark.getFaults(), spark.getDeviceId());
+        };
     }
 
-    private static void appendSparkFaults(StringBuilder mainBuilder, Faults faults, int id) {
+    private static void appendSparkFaults(Faults faults, int id) {
+
         final StringBuilder builder = new StringBuilder();
         if (faults.other) {
             builder.append("OtherFault,");
@@ -177,11 +148,11 @@ public class RobotFaults {
         }
         if (!builder.isEmpty()) {
             // SparkFaults:[ { ID_0,GateDriverFault },{ ID_1,FirmwareFault}, ] ;
-            mainBuilder.append("{ ID_");
-            mainBuilder.append(id);
-            mainBuilder.append(",");
-            mainBuilder.append(builder);
-            mainBuilder.append(" },");
+            sparkFaults.add("{ ID_");
+            sparkFaults.add(id);
+            sparkFaults.add(",");
+            sparkFaults.add(builder);
+            sparkFaults.add(" },");
         }
     }
 }
