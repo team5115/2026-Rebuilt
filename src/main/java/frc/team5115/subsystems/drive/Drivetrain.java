@@ -338,40 +338,13 @@ public class Drivetrain extends SubsystemBase {
         return new Trigger(() -> aligning);
     }
 
-    /** Drives to nearest scoring spot until all pids at goal */
-    public Command autoAlignToScoringSpot(AutoConstants.Side side) {
-        return Commands.sequence(
-                Commands.print("AutoDriving! " + side.toString()),
-                selectNearestScoringSpot(side),
-                alignSelectedSpot().until(() -> alignedAtGoal()));
-    }
-
-    public Command autoAlignToSource() {
-        return Commands.sequence(
-                Commands.print("AutoDriving to nearest source!"),
-                selectNearestSource(),
-                alignSelectedSpot().until(() -> alignedAtGoal()));
-    }
-
     public ChassisSpeeds getChassisSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
 
-    /**
-     * Choose the scoring spot based on nearest scoring spot. Will also reset the pids.
-     *
-     * @param side the side to score on
-     * @return an Instant Command
-     */
-    public Command selectNearestScoringSpot(AutoConstants.Side side) {
-        return selectAndResetAutoAlign(() -> AutoConstants.getNearestScoringSpot(getPose(), side));
-    }
+    // mangos are great
 
-    public Command selectNearestSource() {
-        return selectAndResetAutoAlign(() -> AutoConstants.getNearestSource(getPose()));
-    }
-
-    private Command selectAndResetAutoAlign(Supplier<Pose2d> goalPose) {
+    public Command selectAndResetAutoAlign(Supplier<Pose2d> goalPose) {
         return Commands.runOnce(
                 () -> {
                     selectedPose = goalPose.get();

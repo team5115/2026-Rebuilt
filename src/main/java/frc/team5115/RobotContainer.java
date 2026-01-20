@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.Mode;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.agitator.AgitatorIOSparkMax;
@@ -72,7 +71,6 @@ public class RobotContainer {
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
-        AutoConstants.precomputeAlignmentPoses(); // Computes robot starting pose with vision
 
         switch (Constants.currentMode) {
             case REAL:

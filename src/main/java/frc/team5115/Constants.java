@@ -4,12 +4,10 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 import com.pathplanner.lib.config.RobotConfig;
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
@@ -17,8 +15,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -128,77 +124,7 @@ public final class Constants {
 
     public static class AutoConstants {
         public static final double MAX_AUTOALIGN_LINEAR_SPEED = 4.0; // m/s
-        private static final List<Pose2d> leftScoringPoses = new ArrayList<Pose2d>();
-        private static final List<Pose2d> rightScoringPoses = new ArrayList<Pose2d>();
-        private static final List<Pose2d> centerScoringPoses = new ArrayList<Pose2d>();
-        private static final List<Pose2d> sourcePoses = new ArrayList<Pose2d>();
-
-        public enum Side {
-            LEFT(leftScoringPoses),
-            RIGHT(rightScoringPoses),
-            CENTER(centerScoringPoses);
-
-            public final List<Pose2d> poses;
-
-            Side(final List<Pose2d> poses) {
-                this.poses = poses;
-            }
-        }
-
-        private static final double forwardOffset = 0.46; // distance from the april tag
-        private static final Transform2d transformLeft =
-                new Transform2d(new Translation2d(forwardOffset, -0.36), Rotation2d.k180deg);
-        private static final Transform2d transformRight =
-                new Transform2d(new Translation2d(forwardOffset, +0.0), Rotation2d.k180deg);
-        private static final Transform2d transformCenter =
-                new Transform2d(new Translation2d(forwardOffset, -0.25), Rotation2d.k180deg);
-
-        public static Pose2d getNearestScoringSpot(final Pose2d robot, final Side side) {
-            return robot.nearest(side.poses);
-        }
-
-        public static Pose2d getNearestSource(final Pose2d robot) {
-            return robot.nearest(sourcePoses);
-        }
-
-        private static void precomputeSourcePoses() {
-            final double blueX = 1.427;
-            final double redX = 16.108;
-            final double lowY = 0.787;
-            final double highY = 7.200;
-
-            sourcePoses.add(new Pose2d(blueX, lowY, Rotation2d.fromDegrees(55)));
-            sourcePoses.add(new Pose2d(blueX, highY, Rotation2d.fromDegrees(-55)));
-            sourcePoses.add(new Pose2d(redX, lowY, Rotation2d.fromDegrees(180 - 55)));
-            sourcePoses.add(new Pose2d(redX, highY, Rotation2d.fromDegrees(55 - 180)));
-        }
-
-        public static void precomputeAlignmentPoses() {
-            for (final AprilTag tag : VisionConstants.FIELD_LAYOUT.getTags()) {
-                if (((tag.ID >= 6 && tag.ID <= 11) || (tag.ID >= 17 && tag.ID <= 22))) {
-                    final Pose2d tagPose = tag.pose.toPose2d();
-                    leftScoringPoses.add(tagPose.transformBy(transformLeft));
-                    rightScoringPoses.add(tagPose.transformBy(transformRight));
-                    centerScoringPoses.add(tagPose.transformBy(transformCenter));
-                }
-            }
-            precomputeSourcePoses();
-        }
-
-        // Calculated using AndyMark april tag json combined with field cad
-        // 0.818973 is the distance from the center of the reef to the center of an edge
-        private static final Translation2d blueReefCenter =
-                new Translation2d(5.321046 - 0.818973, 4.02082);
-        private static final Translation2d redReefCenter =
-                new Translation2d(12.227306 + 0.818973, 4.02082);
-
-        public static double getReefX(boolean isRedAlliance) {
-            return isRedAlliance ? redReefCenter.getX() : blueReefCenter.getX();
-        }
-
-        public static double getReefY(boolean isRedAlliance) {
-            return isRedAlliance ? redReefCenter.getY() : blueReefCenter.getY();
-        }
+        // I love mangos
     }
 
     public static class VisionConstants {
