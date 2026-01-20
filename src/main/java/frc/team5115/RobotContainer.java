@@ -194,14 +194,14 @@ public class RobotContainer {
     public void robotPeriodic() {
         if (Constants.currentMode == Mode.REAL) {
             if (faultPrintTimeout <= 0) {
-                final var faults =
-                        RobotFaults.fromSubsystems(
-                                drivetrain,
-                                vision,
-                                intake,
-                                shooter,
-                                indexer,
-                                driverController.joysticksConnected());
+                final var faults = new RobotFaults();
+                faults.fromSubsystems(
+                        drivetrain,
+                        vision,
+                        intake,
+                        shooter,
+                        indexer,
+                        driverController.joysticksConnected());
                 hasFaults = faults.hasFaults();
                 if (hasFaults) {
                     System.err.println(faults.toString());
