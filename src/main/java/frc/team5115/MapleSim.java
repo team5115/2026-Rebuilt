@@ -1,11 +1,9 @@
 package frc.team5115;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.team5115.Constants.SwerveConstants;
@@ -26,7 +24,7 @@ public class MapleSim {
     }
 
     public static void setupArena() {
-        SimulatedArena.getInstance().addGamePiece(new CrescendoNoteOnField(new Translation2d(3, 3)));
+        SimulatedArena.getInstance().addGamePiece(new CrescendoNoteOnField(new Translation2d(3, 4.5)));
     }
 
     public static void simPeriodic() {
@@ -50,14 +48,14 @@ public class MapleSim {
                                 12, // Steer motor gear ratio.
                                 Volts.of(0.1), // Drive friction voltage.
                                 Volts.of(0.1), // Steer friction voltage
-                                Inches.of(3), // Wheel radius
-                                KilogramSquareMeters.of(0.01), // Steer MOI
+                                Meters.of(SwerveConstants.WHEEL_RADIUS_METERS), // Wheel radius
+                                KilogramSquareMeters.of(0.03), // Steer MOI
                                 1.2)) // Wheel COF
                 // Configures the track length and track width (spacing between swerve modules)
                 .withTrackLengthTrackWidth(
-                        Inches.of(SwerveConstants.TRACK_WIDTH_X), Inches.of(SwerveConstants.TRACK_WIDTH_Y))
+                        Meters.of(SwerveConstants.TRACK_WIDTH_X), Meters.of(SwerveConstants.TRACK_WIDTH_Y))
                 // Configures the bumper size (dimensions of the robot bumper)
-                .withBumperSize(Inches.of(30), Inches.of(30)); // TODO: correct numbers
+                .withBumperSize(SwerveConstants.BUMPER_WIDTH_X, SwerveConstants.BUMPER_WIDTH_Y);
     }
 
     public static void initInstance() {
@@ -66,7 +64,7 @@ public class MapleSim {
                         // Specify Configuration
                         MapleSim.getDriveSimConfig(),
                         // Specify starting pose
-                        new Pose2d(3, 3, new Rotation2d()));
+                        Constants.SIM_INIT_POSE);
         SimulatedArena.getInstance().addDriveTrainSimulation(swerveSim);
     }
 

@@ -1,5 +1,6 @@
 package frc.team5115.subsystems.vision;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -48,6 +49,7 @@ public class PhotonVision extends SubsystemBase {
                 -25d);
 
         public final PhotonCameraSim cameraSim;
+        public final PhotonCamera camera;
         public final PhotonPoseEstimator poseEstimator;
         public final Transform3d robotToCamera;
 
@@ -93,13 +95,16 @@ public class PhotonVision extends SubsystemBase {
                 Transform3d robotToCamera) {
             this.robotToCamera = robotToCamera;
             SimCameraProperties cameraProp = new SimCameraProperties();
-            PhotonCamera camera = new PhotonCamera(name);
+            camera = new PhotonCamera(name);
             cameraProp.setCalibration(width, height, Rotation2d.fromDegrees(fovDeg));
             cameraProp.setFPS(fps);
             cameraProp.setAvgLatencyMs(avgLatencyMs);
             cameraProp.setLatencyStdDevMs(stdDevLatencyMs);
             cameraProp.setCalibError(avgErrPx, stdDevErrPx);
-            cameraSim = new PhotonCameraSim(camera, cameraProp);
+            cameraSim =
+                    Constants.currentMode == Constants.Mode.SIM
+                            ? new PhotonCameraSim(camera, cameraProp)
+                            : null;
             poseEstimator = new PhotonPoseEstimator(VisionConstants.FIELD_LAYOUT, robotToCamera);
         }
     }
@@ -112,22 +117,22 @@ public class PhotonVision extends SubsystemBase {
     public Optional<String> validateVisionPose(EstimatedRobotPose pose, PhotonPipelineResult result) {
         // Reject measurement if average ambiguity is below threshold
 
-        for (var target : pose.targetsUsed) {
-            final int id = target.fiducialId;
-            // Valid ids are: 6,  7,  8,  9,  10, 11
-            // Valid ids are: 17, 18, 19, 20, 21, 22
-            final boolean isValid = (6 <= id && id <= 11) || (17 <= id && id <= 22);
-            if (!isValid) {
-                return Optional.of("NotReef, " + id);
-            }
-        }
+        // for (var target : pose.targetsUsed) {
+        //     final int id = target.fiducialId;
+        //     // Valid ids are: 6,  7,  8,  9,  10, 11
+        //     // Valid ids are: 17, 18, 19, 20, 21, 22
+        //     final boolean isValid = (6 <= id && id <= 11) || (17 <= id && id <= 22);
+        //     if (!isValid) {
+        //         return Optional.of("NotReef, " + id);
+        //     }
+        // }
 
         try {
             double totalAmbiguity = 0;
             for (var target : pose.targetsUsed) {
                 totalAmbiguity += target.getPoseAmbiguity();
                 if (Math.abs(target.getYaw()) < VisionConstants.tagYawThreshold) {
-                    return Optional.of("TagYaw, " + target.getYaw() + "Too Parallel");
+                    // return Optional.of("TagYaw, " + target.getYaw() + "Too Parallel");
                 }
             }
             final double averageAmbiguity = totalAmbiguity / pose.targetsUsed.size();
@@ -161,7 +166,7 @@ public class PhotonVision extends SubsystemBase {
         if (pose.targetsUsed.size() > 1) {
             double totalDistance = 0;
             for (var target : pose.targetsUsed) {
-                target.getAlternateCameraToTarget().getTranslation().getDistance(Translation3d.kZero);
+                target.getAlternateCameraToTarget().getTranslation().getNorm();
             }
             final double averageDistance = totalDistance / pose.targetsUsed.size();
             final double factor =
@@ -194,25 +199,25 @@ public class PhotonVision extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        io.setReferencePose(drivetrain.getPose());
-        io.updateVisionSimPose(drivetrain.getPose());
+        final Pose3d robotPose = new Pose3d(drivetrain.getPose());
         for (Camera camera : Camera.values()) {
+            final Pose3d cameraPose = robotPose.transformBy(camera.robotToCamera);
+            final String loggingPrefix = String.format("Vision/%s/", camera.camera.getName());
             final var unread = io.getAllUnreadResults(camera);
             for (final var result : unread) {
-                // update the camera's pose estimator
-                final var option = io.updatePose(camera, result);
+                // Update the camera's pose estimator
+                // Use this camera's field-relative pose as a reference pose
+                final var option = io.updatePose(camera, result, cameraPose);
                 if (option.isPresent()) {
                     final EstimatedRobotPose pose = option.get();
                     final var validation = validateVisionPose(pose, result);
                     final boolean success = validation.isEmpty();
-                    Logger.recordOutput("Vision/ErrorMsg", validation.orElse("Valid"));
-                    Logger.recordOutput("Vision/Good Measurement?", success);
+                    Logger.recordOutput(loggingPrefix + "ErrorMsg", validation.orElse("Valid"));
+                    Logger.recordOutput(loggingPrefix + "Good Measurement?", success);
 
                     if (success) {
                         Logger.recordOutput("Vision/EstimatedPose", pose.estimatedPose);
-                        if (Constants.currentMode == Constants.Mode.REAL) {
-                            drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
-                        }
+                        drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
                     }
                 }
             }

@@ -8,15 +8,83 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.team5115.Constants;
 import frc.team5115.Constants.SwerveConstants;
+import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
+import frc.team5115.subsystems.indexer.Indexer;
+import frc.team5115.subsystems.shooter.Shooter;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
 
+    private static final double LINEAR_N = 6.0;
+    private static final double LINEAR_K = 1.0;
+
+    // TODO maybe modify slow mode speed?
+    private static final double SLOW_MODE_MULTIPLIER = 0.15;
+
+    private static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
+    private static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
+
     private DriveCommands() {}
+
+    /**
+     * Runs forever, shooting indefinitely. Stops the indexer and shooter when done
+     *
+     * @param drivetrain
+     * @param agitator
+     * @param indexer
+     * @param shooter
+     * @return a Command that runs forever.
+     */
+    public static Command smartShoot(
+            Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
+        return Commands.parallel(
+                agitator.fast(),
+                shooter.maintainSpeed(
+                        () ->
+                                (Constants.isRedAlliance() ? RED_HUB : BLUE_HUB)
+                                        .getDistance(drivetrain.getPose().getTranslation())),
+                shooter.waitForSetpoint().andThen(indexer.index()));
+    }
+
+    /** Drive field relative but maintain a heading pointed towards the hub */
+    public static Command lockedOnHub(
+            Drivetrain drivetrain,
+            BooleanSupplier slowMode,
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier) {
+        return Commands.run(
+                () -> {
+                    double linearMagnitude =
+                            MathUtil.applyDeadband(
+                                    Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
+                    Rotation2d linearDirection;
+                    if (xSupplier.getAsDouble() == 0 && ySupplier.getAsDouble() == 0) {
+                        linearDirection = new Rotation2d();
+                    } else {
+                        linearDirection = new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+                    }
+
+                    linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
+                    final Translation2d linearVelocity =
+                            new Pose2d(new Translation2d(), linearDirection)
+                                    .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+                                    .getTranslation();
+
+                    // Convert to ChassisSpeeds & send command
+                    final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
+                    final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+                    final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+
+                    // Get the angle to point towards the orbit point
+                    drivetrain.runOrbit(vx, vy, Constants.isRedAlliance() ? RED_HUB : BLUE_HUB);
+                },
+                drivetrain);
+    }
 
     /**
      * Field or robot relative drive command using two joysticks (controlling linear and angular
@@ -44,8 +112,8 @@ public class DriveCommands {
                     double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
                     // Square values
-                    linearMagnitude = linearMagnitude * linearMagnitude;
-                    omega = Math.copySign(omega * omega, omega);
+                    linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
+                    omega = Math.copySign(responseCurve(omega, 3.0, 0.32), omega);
 
                     // Calcaulate new linear velocity
                     Translation2d linearVelocity =
@@ -54,8 +122,7 @@ public class DriveCommands {
                                     .getTranslation();
 
                     // Convert to ChassisSpeeds & send command
-                    // TODO maybe modify slow mode speed?
-                    final double multiplier = slowMode.getAsBoolean() ? 0.15 : 1.0;
+                    final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
                     final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
                     final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
                     omega *= SwerveConstants.MAX_ANGULAR_SPEED * multiplier;
@@ -68,22 +135,16 @@ public class DriveCommands {
                 drivetrain);
     }
 
-    // public static Command cleanStart(
-    //         Height height, Elevator elevator, Dealgaefacationinator5000 dealgae) {
-    //     return Commands.sequence(
-    //             elevator.setHeightAndWait(height, 5),
-    //             Commands.print("Cleaner at Height"),
-    //             Commands.waitSeconds(0.2),
-    //             elevator.waitForSetpoint(5),
-    //             dealgae.extend(),
-    //             elevator.setHeightAndWait((height == Height.L2 ? Height.CLEAN2 : Height.CLEAN3),
-    // 5));
-    // }
-
-    // public static Command cleanEnd(Elevator elevator, Dealgaefacationinator5000 dealgae) {
-    //     return Commands.sequence(
-    //             dealgae.retract(), Commands.waitSeconds(0.5), elevator.setHeight(Height.INTAKE));
-    // }
+    /**
+     * @param x input value [0,1]
+     * @param n power [0,infinity)
+     * @param k offset [0,infinity)
+     * @return the controller responce curve [0,1]
+     */
+    private static double responseCurve(double x, double n, double k) {
+        x = Math.abs(MathUtil.clamp(x, -1, +1));
+        return (Math.pow(x + k, n) + (x - 1) * Math.pow(k, n)) / Math.pow(1 + k, n);
+    }
 }
 
 // meow meow meow meooooowwwwwww :3

@@ -1,22 +1,22 @@
 package frc.team5115;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+
 import com.pathplanner.lib.config.RobotConfig;
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
-import frc.team5115.subsystems.elevator.Elevator;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public final class Constants {
     private static final boolean isReplay = false;
@@ -34,34 +34,22 @@ public final class Constants {
         REPLAY
     }
 
-    public static final boolean SINGLE_MODE = false;
+    public static final Pose2d SIM_INIT_POSE = new Pose2d(1.55, 0.8, Rotation2d.kZero);
+
+    public static final boolean SINGLE_MODE = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
-    public static final byte PNEUMATIC_HUB_ID = 2;
-    public static final byte CLIMB_FORWARD_CHANNEL = 0;
-    public static final byte CLIMB_REVERSE_CHANNEL = 1;
-    public static final byte DEALGAE_FORWARD_CHANNEL = 2;
-    public static final byte DEALGAE_REVERSE_CHANNEL = 3;
-
-    public static final byte ELEVATOR_MOTOR_ID = 11;
     public static final byte INTAKE_MOTOR_ID = 12;
-    public static final byte DISPENSER_MOTOR_ID = 13;
-    public static final byte DEALGAE_MOTOR_ID = 14;
-
-    public static final byte CLIMB_INAKE_SENSOR = 2;
-    public static final byte BACK_CORAL_SENSOR = 0;
-    public static final byte FRONT_CORAL_SENSOR = 3;
-
-    public static final byte ELEVATOR_FIRST_SENSOR_ID = 1;
-    public static final byte ELEVATOR_SECOND_SENSOR_ID = 4;
-    public static final byte ELEVATOR_THIRD_SENSOR_ID = 9;
-    // public static final byte ELEVATOR_FOURTH_SENSOR_ID = 6;
-
-    public static final byte BLOCK_ACTUATOR_ID = 9;
+    public static final byte SHOOTER_MOTOR_ID = -1; // TODO determine motor ID
+    public static final byte INDEXER_MOTOR_ID = -1; // TODO determine motor ID
+    public static final byte AGITATOR_MOTOR_ID = -1; // TODO determine motor ID
 
     public static final byte LED_STRIP_PWM_ID = 0;
 
     public static final double LOOP_PERIOD_SECS = 0.02;
+
+    public static final double INDEX_SPEED = 0.22;
+    public static final double INTAKE_SPEED = 1.0;
 
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;
@@ -89,10 +77,20 @@ public final class Constants {
 
         public static final double MAX_LINEAR_SPEED = 5; // meters per second
 
-        // TODO set TRACK_WIDTH to its new value for this year
-        private static final double TRACK_WIDTH = Units.inchesToMeters(26.25);
-        public static final double TRACK_WIDTH_X = TRACK_WIDTH;
-        public static final double TRACK_WIDTH_Y = TRACK_WIDTH;
+        // 29" wide, 25.75" front to back
+        private static final Distance FRAME_WIDTH_X = Inches.of(29);
+        private static final Distance FRAME_WIDTH_Y = Inches.of(25.75);
+        private static final Distance BUMPER_DEPTH = Inches.of(2.75);
+        private static final Distance MODULE_INSET = Inches.of(1.75);
+
+        public static final Distance BUMPER_WIDTH_X = FRAME_WIDTH_X.plus(BUMPER_DEPTH.times(2));
+        public static final Distance BUMPER_WIDTH_Y = FRAME_WIDTH_Y.plus(BUMPER_DEPTH.times(2));
+
+        public static final double TRACK_WIDTH_X =
+                FRAME_WIDTH_X.minus(MODULE_INSET.times(2)).in(Meters);
+        public static final double TRACK_WIDTH_Y =
+                FRAME_WIDTH_Y.minus(MODULE_INSET.times(2)).in(Meters);
+
         public static final double DRIVE_BASE_RADIUS =
                 Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0);
         public static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;
@@ -110,10 +108,10 @@ public final class Constants {
                     new Translation2d(TRACK_WIDTH_X / -2.0, TRACK_WIDTH_Y / -2.0)
                 };
 
-        public static final Rotation2d FRONT_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(270);
-        public static final Rotation2d FRONT_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(0);
-        public static final Rotation2d BACK_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(180);
-        public static final Rotation2d BACK_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(90);
+        public static final Rotation2d FRONT_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(90);
+        public static final Rotation2d FRONT_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(180);
+        public static final Rotation2d BACK_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(0);
+        public static final Rotation2d BACK_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(270);
 
         // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear
         // 15 teeth on the bevel pinion, 13 teeth on the driving motor
@@ -124,121 +122,9 @@ public final class Constants {
         public static final int TurningMotorCurrentLimit = 20; // amps
     }
 
-    public static class ElevatorConstants {
-        // Heights and radius in meters
-        public static final double MAX_HEIGHT = Elevator.Height.L4.position;
-        public static final double MIN_HEIGHT = Elevator.Height.MINIMUM.position;
-        public static final double DRUM_RADIUS = 0.05;
-        public static final double CARRIAGE_MASS_KG = 9.072; // 20 lbs
-        public static final double GEARING = 12.0; // numbers greater than 1 represent reductions
-
-        // Below conversion factor found empirically
-        public static final double METERS_PER_ROTATION =
-                0.007778940626786609 / 52.0 * 57.0 * 20.0 / GEARING * 63.0 / 62.625;
-
-        public static final int STALL_CURRENT_AMPS = 40;
-        public static final int FREE_CURRENT_AMPS = 40;
-        // Kv values for neo and neo 550
-        // Kf for closed loop velocity control is 1 / kv
-        public static final double KV_NEO = 473;
-        public static final double KV_NEO_550 = 917;
-
-        public static final double sparkP = 0.00001;
-        public static final double sparkI = 0;
-        public static final double sparkD = 0;
-
-        public static final double SLOW_PID_HEIGHT_METERS = 0.01 * 6.0;
-
-        public static final double FIRST_MAGNET_HEIGHT = 0;
-        public static final double SECOND_MAGNET_HEIGHT = 0.1637495863622731; // meters
-        public static final double THIRD_MAGNET_HEIGHT = 0.6174441447379277; // meters
-
-        public static final double MAX_VEL = 10.0; // m/s
-        public static final double MAX_ACCEL = 20.0; // m/s^2
-        public static final double KP = 3.0;
-        public static final double KI = 0;
-        public static final double KD = 0;
-        public static final double KS = 0.38176; // volts
-        public static final double KG = 0.33756; // volts
-        public static final double KV = 9.0313; // volts / m/s
-        public static final double KA = 0.44379; // volts / m/s^2
-
-        public static final double SLOW_CONSTANT = 0.75;
-    }
-
     public static class AutoConstants {
         public static final double MAX_AUTOALIGN_LINEAR_SPEED = 4.0; // m/s
-        private static final List<Pose2d> leftScoringPoses = new ArrayList<Pose2d>();
-        private static final List<Pose2d> rightScoringPoses = new ArrayList<Pose2d>();
-        private static final List<Pose2d> centerScoringPoses = new ArrayList<Pose2d>();
-        private static final List<Pose2d> sourcePoses = new ArrayList<Pose2d>();
-
-        public enum Side {
-            LEFT(leftScoringPoses),
-            RIGHT(rightScoringPoses),
-            CENTER(centerScoringPoses);
-
-            public final List<Pose2d> poses;
-
-            Side(final List<Pose2d> poses) {
-                this.poses = poses;
-            }
-        }
-
-        private static final double forwardOffset = 0.46; // distance from the april tag
-        private static final Transform2d transformLeft =
-                new Transform2d(new Translation2d(forwardOffset, -0.36), Rotation2d.k180deg);
-        private static final Transform2d transformRight =
-                new Transform2d(new Translation2d(forwardOffset, +0.0), Rotation2d.k180deg);
-        private static final Transform2d transformCenter =
-                new Transform2d(new Translation2d(forwardOffset, -0.25), Rotation2d.k180deg);
-
-        public static Pose2d getNearestScoringSpot(final Pose2d robot, final Side side) {
-            return robot.nearest(side.poses);
-        }
-
-        public static Pose2d getNearestSource(final Pose2d robot) {
-            return robot.nearest(sourcePoses);
-        }
-
-        private static void precomputeSourcePoses() {
-            final double blueX = 1.427;
-            final double redX = 16.108;
-            final double lowY = 0.787;
-            final double highY = 7.200;
-
-            sourcePoses.add(new Pose2d(blueX, lowY, Rotation2d.fromDegrees(55)));
-            sourcePoses.add(new Pose2d(blueX, highY, Rotation2d.fromDegrees(-55)));
-            sourcePoses.add(new Pose2d(redX, lowY, Rotation2d.fromDegrees(180 - 55)));
-            sourcePoses.add(new Pose2d(redX, highY, Rotation2d.fromDegrees(55 - 180)));
-        }
-
-        public static void precomputeAlignmentPoses() {
-            for (final AprilTag tag : VisionConstants.FIELD_LAYOUT.getTags()) {
-                if (((tag.ID >= 6 && tag.ID <= 11) || (tag.ID >= 17 && tag.ID <= 22))) {
-                    final Pose2d tagPose = tag.pose.toPose2d();
-                    leftScoringPoses.add(tagPose.transformBy(transformLeft));
-                    rightScoringPoses.add(tagPose.transformBy(transformRight));
-                    centerScoringPoses.add(tagPose.transformBy(transformCenter));
-                }
-            }
-            precomputeSourcePoses();
-        }
-
-        // Calculated using AndyMark april tag json combined with field cad
-        // 0.818973 is the distance from the center of the reef to the center of an edge
-        private static final Translation2d blueReefCenter =
-                new Translation2d(5.321046 - 0.818973, 4.02082);
-        private static final Translation2d redReefCenter =
-                new Translation2d(12.227306 + 0.818973, 4.02082);
-
-        public static double getReefX(boolean isRedAlliance) {
-            return isRedAlliance ? redReefCenter.getX() : blueReefCenter.getX();
-        }
-
-        public static double getReefY(boolean isRedAlliance) {
-            return isRedAlliance ? redReefCenter.getY() : blueReefCenter.getY();
-        }
+        // I love mangos
     }
 
     public static class VisionConstants {
@@ -257,7 +143,7 @@ public final class Constants {
         // }
 
         private static AprilTagFieldLayout loadFullField() {
-            return AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+            return AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
         }
 
         public static final AprilTagFieldLayout FIELD_LAYOUT = loadFullField();
@@ -266,7 +152,7 @@ public final class Constants {
         public static final int WIDTH_PX = 1280;
         public static final int HEIGHT_PX = 720;
         public static final double DIAG_FOV_DEGREES = 90;
-        public static final double AVG_ERR_PX = 1;
+        public static final double AVG_ERR_PX = 0.5;
         public static final double STD_DEV_ERR_PX = 0;
         public static final double FPS = 30;
         public static final double AVG_LATENCY_MS = 30;
@@ -287,6 +173,11 @@ public final class Constants {
         final String gameData = DriverStation.getGameSpecificMessage();
         final var alliance = DriverStation.getAlliance();
         return isHubEnabledTest(matchTime, gameData, alliance);
+    }
+
+    @AutoLogOutput(key = "IsRedAlliance")
+    public static boolean isRedAlliance() {
+        return DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Red;
     }
 
     private static boolean isHubEnabledTest(

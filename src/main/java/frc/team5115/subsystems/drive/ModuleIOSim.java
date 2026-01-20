@@ -1,6 +1,8 @@
 package frc.team5115.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.MathUtil;
@@ -28,8 +30,7 @@ public class ModuleIOSim implements ModuleIO {
 
     public ModuleIOSim(SwerveModuleSimulation moduleSimulation) {
         this.moduleSimulation = moduleSimulation;
-        driveSim =
-                this.moduleSimulation.useGenericMotorControllerForDrive().withCurrentLimit(Amps.of(60));
+        driveSim = moduleSimulation.useGenericMotorControllerForDrive().withCurrentLimit(Amps.of(60));
         // LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.025, 6.75), DCMotor.getNEO(1));
         turnSim = moduleSimulation.useGenericControllerForSteer().withCurrentLimit(Amps.of(20));
         // LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), 0.004, 150.0 / 7.0),
@@ -41,18 +42,16 @@ public class ModuleIOSim implements ModuleIO {
         // driveSim.update(Constants.LOOP_PERIOD_SECS);
         // turnSim.update(Constants.LOOP_PERIOD_SECS);
 
-        inputs.drivePositionRad = moduleSimulation.getDriveWheelFinalPosition().baseUnitMagnitude();
-        inputs.driveVelocityRadPerSec = moduleSimulation.getDriveWheelFinalSpeed().baseUnitMagnitude();
+        inputs.drivePositionRad = moduleSimulation.getDriveWheelFinalPosition().in(Radians);
+        inputs.driveVelocityRadPerSec = moduleSimulation.getDriveWheelFinalSpeed().in(RadiansPerSecond);
         inputs.driveAppliedVolts = driveAppliedVolts;
-        inputs.driveCurrentAmps =
-                Math.abs(moduleSimulation.getDriveMotorSupplyCurrent().baseUnitMagnitude());
+        inputs.driveCurrentAmps = Math.abs(moduleSimulation.getDriveMotorSupplyCurrent().in(Amps));
 
         inputs.turnAbsolutePosition = new Rotation2d(moduleSimulation.getSteerAbsoluteAngle());
         inputs.turnVelocityRadPerSec =
-                moduleSimulation.getSteerAbsoluteEncoderSpeed().baseUnitMagnitude();
+                moduleSimulation.getSteerAbsoluteEncoderSpeed().in(RadiansPerSecond);
         inputs.turnAppliedVolts = turnAppliedVolts;
-        inputs.turnCurrentAmps =
-                Math.abs(moduleSimulation.getSteerMotorSupplyCurrent().baseUnitMagnitude());
+        inputs.turnCurrentAmps = Math.abs(moduleSimulation.getSteerMotorSupplyCurrent().in(Amps));
     }
 
     @Override

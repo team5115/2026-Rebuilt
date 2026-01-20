@@ -1,6 +1,6 @@
 package frc.team5115.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import frc.team5115.subsystems.vision.PhotonVision.Camera;
 import java.util.List;
 import java.util.Optional;
@@ -21,13 +21,9 @@ public interface PhotonVisionIO {
     }
 
     public default Optional<EstimatedRobotPose> updatePose(
-            Camera camera, PhotonPipelineResult result) {
-        return null;
+            Camera camera, PhotonPipelineResult result, Pose3d referencePose) {
+        return Optional.empty();
     }
-
-    public default void updateVisionSimPose(Pose2d pose) {}
-
-    public default void setReferencePose(Pose2d pose) {}
 
     public default boolean isCameraConnected(PhotonVisionIOInputs inputs, Camera camera) {
         return false;

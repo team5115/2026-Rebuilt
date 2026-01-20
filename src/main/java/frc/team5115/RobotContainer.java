@@ -1,33 +1,18 @@
 package frc.team5115;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.team5115.Constants.AutoConstants;
-import frc.team5115.Constants.AutoConstants.Side;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.team5115.Constants.Mode;
-import frc.team5115.commands.AutoCommands;
+import frc.team5115.subsystems.agitator.Agitator;
+import frc.team5115.subsystems.agitator.AgitatorIOSparkMax;
 import frc.team5115.subsystems.bling.Bling;
 import frc.team5115.subsystems.bling.BlingIO;
 import frc.team5115.subsystems.bling.BlingIOReal;
 import frc.team5115.subsystems.bling.BlingIOSim;
-import frc.team5115.subsystems.climber.Climber;
-import frc.team5115.subsystems.climber.ClimberIO;
-import frc.team5115.subsystems.climber.ClimberIORev;
-import frc.team5115.subsystems.climber.ClimberIOSim;
-import frc.team5115.subsystems.dealgaefacationinator5000.Dealgaefacationinator5000;
-import frc.team5115.subsystems.dealgaefacationinator5000.Dealgaefacationinator5000IO;
-import frc.team5115.subsystems.dealgaefacationinator5000.Dealgaefacationinator5000IOSim;
-import frc.team5115.subsystems.dealgaefacationinator5000.Dealgaefacationinator5000IOSparkMax;
-import frc.team5115.subsystems.dispenser.Dispenser;
-import frc.team5115.subsystems.dispenser.DispenserIO;
-import frc.team5115.subsystems.dispenser.DispenserIOSim;
-import frc.team5115.subsystems.dispenser.DispenserIOSparkMax;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.drive.GyroIO;
 import frc.team5115.subsystems.drive.GyroIONavx;
@@ -35,15 +20,18 @@ import frc.team5115.subsystems.drive.GyroIOSim;
 import frc.team5115.subsystems.drive.ModuleIO;
 import frc.team5115.subsystems.drive.ModuleIOSim;
 import frc.team5115.subsystems.drive.ModuleIOSparkMax;
-import frc.team5115.subsystems.elevator.Elevator;
-import frc.team5115.subsystems.elevator.Elevator.Height;
-import frc.team5115.subsystems.elevator.ElevatorIO;
-import frc.team5115.subsystems.elevator.ElevatorIOSim;
-import frc.team5115.subsystems.elevator.ElevatorIOSparkMax;
+import frc.team5115.subsystems.indexer.Indexer;
+import frc.team5115.subsystems.indexer.IndexerIO;
+import frc.team5115.subsystems.indexer.IndexerIOSim;
+import frc.team5115.subsystems.indexer.IndexerIOSparkMax;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.intake.IntakeIO;
 import frc.team5115.subsystems.intake.IntakeIOSim;
 import frc.team5115.subsystems.intake.IntakeIOSparkMax;
+import frc.team5115.subsystems.shooter.Shooter;
+import frc.team5115.subsystems.shooter.ShooterIO;
+import frc.team5115.subsystems.shooter.ShooterIOSim;
+import frc.team5115.subsystems.shooter.ShooterIOSparkMax;
 import frc.team5115.subsystems.vision.PhotonVision;
 import frc.team5115.subsystems.vision.PhotonVisionIO;
 import frc.team5115.subsystems.vision.PhotonVisionIOReal;
@@ -62,12 +50,11 @@ public class RobotContainer {
     private final GyroIO gyro;
     private final Drivetrain drivetrain;
     private final PhotonVision vision;
-    private final Climber climber;
-    private final Elevator elevator;
-    private final Dispenser dispenser;
     private final Intake intake;
-    private final Dealgaefacationinator5000 dealgaefacationinator5000;
     private final Bling bling;
+    private final Shooter shooter;
+    private final Indexer indexer;
+    private final Agitator agitator;
 
     // Controllers
     private final DriverController driverController;
@@ -84,22 +71,11 @@ public class RobotContainer {
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
-        AutoConstants.precomputeAlignmentPoses(); // Computes robot starting pose with vision
 
         switch (Constants.currentMode) {
             case REAL:
-                // Real robot, instantiate hardware IO implementations
-                // final GenericEntry dispenseSpeedEntry =
-                //         Shuffleboard.getTab("SmartDashboard").add("Dispenser Speed", 0).getEntry();
-                //         () -> dispenseSpeedEntry.getDouble(0.1)
-                final PneumaticHub hub = new PneumaticHub(Constants.PNEUMATIC_HUB_ID);
                 gyro = new GyroIONavx();
-                climber = new Climber(new ClimberIORev(hub));
-                elevator = new Elevator(new ElevatorIOSparkMax());
-                dispenser = new Dispenser(new DispenserIOSparkMax(), elevator::getDispenserSpeed);
                 intake = new Intake(new IntakeIOSparkMax());
-                dealgaefacationinator5000 =
-                        new Dealgaefacationinator5000(new Dealgaefacationinator5000IOSparkMax(hub));
                 drivetrain =
                         new Drivetrain(
                                 gyro,
@@ -110,6 +86,9 @@ public class RobotContainer {
                                 (pose) -> {});
                 vision = new PhotonVision(new PhotonVisionIOReal(), drivetrain);
                 bling = new Bling(new BlingIOReal());
+                shooter = new Shooter(new ShooterIOSparkMax());
+                indexer = new Indexer(new IndexerIOSparkMax());
+                agitator = new Agitator(new AgitatorIOSparkMax());
                 break;
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
@@ -119,33 +98,26 @@ public class RobotContainer {
                 var swerveSim = MapleSim.getSwerveSim();
                 gyro = new GyroIOSim(swerveSim.getGyroSimulation());
 
-                climber = new Climber(new ClimberIOSim());
-                elevator = new Elevator(new ElevatorIOSim());
-                dispenser = new Dispenser(new DispenserIOSim(), elevator::getDispenserSpeed);
                 intake = new Intake(new IntakeIOSim());
-                dealgaefacationinator5000 =
-                        new Dealgaefacationinator5000(new Dealgaefacationinator5000IOSim());
                 drivetrain =
                         new Drivetrain(
                                 gyro,
                                 new ModuleIOSim(swerveSim.getModules()[0]),
                                 new ModuleIOSim(swerveSim.getModules()[1]),
-                                new ModuleIOSim(swerveSim.getModules()[3]),
                                 new ModuleIOSim(swerveSim.getModules()[2]),
+                                new ModuleIOSim(swerveSim.getModules()[3]),
                                 swerveSim::setSimulationWorldPose);
                 vision = new PhotonVision(new PhotonVisionIOSim(), drivetrain);
                 bling = new Bling(new BlingIOSim());
+                shooter = new Shooter(new ShooterIOSim());
+                indexer = new Indexer(new IndexerIOSim());
+                agitator = new Agitator(new AgitatorIOSparkMax());
                 break;
 
             default:
                 // Replayed robot, disable IO implementations
                 gyro = new GyroIO() {};
-                climber = new Climber(new ClimberIO() {});
-                elevator = new Elevator(new ElevatorIO() {});
-                dispenser = new Dispenser(new DispenserIO() {}, elevator::getDispenserSpeed);
                 intake = new Intake(new IntakeIO() {});
-                dealgaefacationinator5000 =
-                        new Dealgaefacationinator5000(new Dealgaefacationinator5000IO() {});
                 drivetrain =
                         new Drivetrain(
                                 gyro,
@@ -154,16 +126,17 @@ public class RobotContainer {
                                 new ModuleIO() {},
                                 new ModuleIO() {},
                                 (pose) -> {});
-                // TODO set the drivetrain's resetSimulationPoseCallback ^^^
                 vision = new PhotonVision(new PhotonVisionIO() {}, drivetrain);
                 bling = new Bling(new BlingIO() {});
+                shooter = new Shooter(new ShooterIO() {});
+                indexer = new Indexer(new IndexerIO() {});
+                agitator = new Agitator(new AgitatorIOSparkMax());
                 break;
         }
         driverController = new DriverController();
 
         // Register auto commands for pathplanner
-        registerCommands(
-                drivetrain, vision, elevator, dispenser, intake, dealgaefacationinator5000, climber);
+        registerCommands(drivetrain, vision, intake, shooter, indexer);
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -196,26 +169,25 @@ public class RobotContainer {
         autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
 
         autoChooser.addOption(
-                "Elevator Quasistatic Forward", elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+                "Shooter SysID (Quasistatic Forward)", shooter.sysIdQuasistatic(Direction.kForward));
         autoChooser.addOption(
-                "Elevator Quasistatic Reverse", elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+                "Shooter SysID (Quasistatic Reverse)", shooter.sysIdQuasistatic(Direction.kReverse));
         autoChooser.addOption(
-                "Elevator Dynamic Forward", elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+                "Shooter SysID (Dynamic Forward)", shooter.sysIdDynamic(Direction.kForward));
         autoChooser.addOption(
-                "Elevator Dynamic Reverse", elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+                "Shooter SysID (Dynamic Reverse)", shooter.sysIdDynamic(Direction.kReverse));
 
-        driverController.configureButtonBindings(
-                drivetrain, dispenser, dealgaefacationinator5000, elevator, climber, intake);
-        driverController.configureRumbleBindings(drivetrain, dispenser, elevator);
+        autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
+
+        driverController.configureButtonBindings(drivetrain, intake, agitator, indexer, shooter);
+        driverController.configureRumbleBindings(drivetrain);
         configureBlingBindings();
     }
 
     private void configureBlingBindings() {
         bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
-        dispenser.coralDetected().or(elevator.coralDetected()).whileTrue(bling.greenKITT());
         drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
         drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
-        climber.extended().whileTrue(bling.purpleSolid());
         new Trigger(() -> hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
 
@@ -226,11 +198,9 @@ public class RobotContainer {
                         RobotFaults.fromSubsystems(
                                 drivetrain,
                                 vision,
-                                climber,
-                                elevator,
-                                dispenser,
                                 intake,
-                                dealgaefacationinator5000,
+                                shooter,
+                                indexer,
                                 driverController.joysticksConnected());
                 hasFaults = faults.hasFaults();
                 if (hasFaults) {
@@ -251,75 +221,14 @@ public class RobotContainer {
      *
      * @param drivetrain
      * @param vision
-     * @param elevator
-     * @param dispenser
      * @param intake
-     * @param dealgaefacationinator5000
      * @param climber
+     * @param shooter
      */
     public static void registerCommands(
-            Drivetrain drivetrain,
-            PhotonVision vision,
-            Elevator elevator,
-            Dispenser dispenser,
-            Intake intake,
-            Dealgaefacationinator5000 dealgaefacationinator5000,
-            Climber climber) {
-        // Register commands for pathplanner
-        NamedCommands.registerCommand(
-                "L2Left",
-                AutoCommands.getReefAlignCommand(drivetrain, elevator, dispenser, Side.LEFT, Height.L2));
+            Drivetrain drivetrain, PhotonVision vision, Intake intake, Shooter shooter, Indexer indexer) {
 
-        NamedCommands.registerCommand(
-                "L2Right",
-                AutoCommands.getReefAlignCommand(drivetrain, elevator, dispenser, Side.RIGHT, Height.L2));
-
-        NamedCommands.registerCommand(
-                "L2", AutoCommands.testingGetReefAlignCommand(drivetrain, elevator, dispenser, Height.L2));
-
-        NamedCommands.registerCommand(
-                "L3Left",
-                AutoCommands.getReefAlignCommand(drivetrain, elevator, dispenser, Side.LEFT, Height.L3));
-
-        NamedCommands.registerCommand(
-                "L3Right",
-                AutoCommands.getReefAlignCommand(drivetrain, elevator, dispenser, Side.RIGHT, Height.L3));
-
-        NamedCommands.registerCommand(
-                "L4Left",
-                AutoCommands.getReefAlignCommand(drivetrain, elevator, dispenser, Side.LEFT, Height.L4));
-
-        NamedCommands.registerCommand(
-                "L4Right",
-                AutoCommands.getReefAlignCommand(drivetrain, elevator, dispenser, Side.RIGHT, Height.L4));
-
-        NamedCommands.registerCommand(
-                "Intake", AutoCommands.intakeUntilCoral(dispenser, elevator, intake));
-        // Commands for raising while moving auto
-
-        NamedCommands.registerCommand(
-                "AlignIntake", AutoCommands.autoSourceIntake(dispenser, elevator, intake, drivetrain));
-
-        NamedCommands.registerCommand("RaiseElevator", AutoCommands.raiseElevator(elevator, Height.L2));
-
-        NamedCommands.registerCommand(
-                "DispenseRight", AutoCommands.scoreSequence(drivetrain, elevator, dispenser, Side.RIGHT));
-
-        NamedCommands.registerCommand(
-                "DispenseLeft", AutoCommands.scoreSequence(drivetrain, elevator, dispenser, Side.LEFT));
-
-        NamedCommands.registerCommand(
-                "L1",
-                AutoCommands.getReefAlignCommand(drivetrain, elevator, dispenser, Side.RIGHT, Height.L1));
-
-        NamedCommands.registerCommand(
-                "Clean", AutoCommands.dealgify(drivetrain, elevator, dealgaefacationinator5000));
-
-        NamedCommands.registerCommand(
-                "CleanHighL3Left",
-                AutoCommands.cleanAndScoreLeft(
-                        drivetrain, elevator, dealgaefacationinator5000, dispenser, Height.L4, Height.L3));
-
+        // TODO add named commands
         System.out.println("Registered Commands");
     }
 
@@ -334,9 +243,13 @@ public class RobotContainer {
 
     public void teleopInit() {
         drivetrain.setTeleopCurrentLimit();
-        CommandScheduler.getInstance().schedule(elevator.zero());
-        // drivetrain.offsetGyro(fRotation2d.fromDegrees(-90));
     }
+
+    public void simInit() {
+        drivetrain.setPose(Constants.SIM_INIT_POSE);
+    }
+
+    public void simPeriodic() {}
 
     public void autoInit() {
         drivetrain.setAutoCurrentLimit();

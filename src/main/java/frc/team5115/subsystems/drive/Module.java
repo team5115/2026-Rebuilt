@@ -48,7 +48,7 @@ public class Module {
 
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
+        Logger.processInputs("Drivetrain/Module" + Integer.toString(index), inputs);
 
         // Run closed loop turn control
         if (angleSetpoint != null) {

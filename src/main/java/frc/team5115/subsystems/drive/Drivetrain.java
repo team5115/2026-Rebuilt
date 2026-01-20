@@ -23,7 +23,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.team5115.Constants;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.util.LocalADStarAK;
@@ -119,7 +119,7 @@ public class Drivetrain extends SubsystemBase {
                         new PIDConstants(linear_kp, linear_ki, linear_kd),
                         new PIDConstants(angular_kp, angular_ki, angular_kd)),
                 SwerveConstants.getRobotConfig(),
-                () -> isRedAlliance(),
+                () -> Constants.isRedAlliance(),
                 this);
         Pathfinding.setPathfinder(new LocalADStarAK());
         PathPlannerLogging.setLogActivePathCallback(
@@ -143,7 +143,18 @@ public class Drivetrain extends SubsystemBase {
                                 (state) -> Logger.recordOutput("Drive/StraightSysIdState", state.toString())),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> {
-                                    Logger.recordOutput("Drive/SysIdVoltage", voltage);
+                                    Logger.recordOutput("Drivetrain/SysIdVoltage", voltage);
+                                    final double linearVel =
+                                            Math.hypot(
+                                                    getChassisSpeeds().vxMetersPerSecond,
+                                                    getChassisSpeeds().vxMetersPerSecond);
+                                    double distance = 0;
+                                    for (var position : getModulePositions()) {
+                                        distance += position.distanceMeters;
+                                    }
+                                    distance /= 4.0;
+                                    Logger.recordOutput("Drivetrain/LinearVelocityMetersPerSecond", linearVel);
+                                    Logger.recordOutput("Drivetrain/LinearDistanceMeters", distance);
                                     for (int i = 0; i < 4; i++) {
                                         modules[i].runCharacterization(voltage.baseUnitMagnitude());
                                     }
@@ -165,11 +176,11 @@ public class Drivetrain extends SubsystemBase {
                                 null,
                                 null,
                                 null,
-                                (state) -> Logger.recordOutput("Drive/SpinSysIdState", state.toString())),
+                                (state) -> Logger.recordOutput("Drivetrain/SpinSysIdState", state.toString())),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> {
                                     updateAngularLogging();
-                                    Logger.recordOutput("Drive/SysIdVoltage", voltage);
+                                    Logger.recordOutput("Drivetrain/SysIdVoltage", voltage);
                                     for (int i = 0; i < 4; i++) {
                                         modules[i].runCharacterization(voltage.baseUnitMagnitude(), moduleRotations[i]);
                                     }
@@ -223,8 +234,8 @@ public class Drivetrain extends SubsystemBase {
         if (previousFPGATime != null && previousRotation != null) {
             final double rotationDelta = getGyroRotation().minus(previousRotation).getRadians();
             final double timeDelta = Timer.getFPGATimestamp() - previousFPGATime;
-            Logger.recordOutput("Drive/AngularVelocityRadPerSec", rotationDelta / timeDelta);
-            Logger.recordOutput("Drive/RotationRadians", getGyroRotation().getRadians());
+            Logger.recordOutput("Drivetrain/AngularVelocityRadPerSec", rotationDelta / timeDelta);
+            Logger.recordOutput("Drivetrain/RotationRadians", getGyroRotation().getRadians());
         }
         previousFPGATime = Timer.getFPGATimestamp();
         previousRotation = getGyroRotation();
@@ -257,8 +268,8 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         gyroIO.updateInputs(gyroInputs);
-        Logger.processInputs("Drive/Gyro", gyroInputs);
-        Logger.recordOutput("Gyro/GForce", gyroInputs.xyAcceleration / 9.81);
+        Logger.processInputs("Drivetrain/Gyro", gyroInputs);
+        Logger.recordOutput("Drivetrain/GForce", gyroInputs.xyAcceleration / 9.81);
         for (var module : modules) {
             module.periodic();
         }
@@ -304,11 +315,6 @@ public class Drivetrain extends SubsystemBase {
         field.setRobotPose(getPose());
     }
 
-    @AutoLogOutput(key = "Drive/IsRedAlliance")
-    public boolean isRedAlliance() {
-        return DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Red;
-    }
-
     @AutoLogOutput(key = "AutoAlign/SelectedPose")
     private Pose2d selectedPose = null;
 
@@ -332,46 +338,17 @@ public class Drivetrain extends SubsystemBase {
         return new Trigger(() -> aligning);
     }
 
-    /** Drives to nearest scoring spot until all pids at goal */
-    public Command autoAlignToScoringSpot(AutoConstants.Side side) {
-        return Commands.sequence(
-                Commands.print("AutoDriving! " + side.toString()),
-                selectNearestScoringSpot(side),
-                alignSelectedSpot().until(() -> alignedAtGoal()));
-    }
-
-    public Command autoAlignToSource() {
-        return Commands.sequence(
-                Commands.print("AutoDriving to nearest source!"),
-                selectNearestSource(),
-                alignSelectedSpot().until(() -> alignedAtGoal()));
-    }
-
     public ChassisSpeeds getChassisSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
 
-    /**
-     * Choose the scoring spot based on nearest scoring spot. Will also reset the pids.
-     *
-     * @param side the side to score on
-     * @return an Instant Command
-     */
-    public Command selectNearestScoringSpot(AutoConstants.Side side) {
-        return selectAndResetAutoAlign(() -> AutoConstants.getNearestScoringSpot(getPose(), side));
-    }
+    // mangos are great
 
-    public Command selectNearestSource() {
-        return selectAndResetAutoAlign(() -> AutoConstants.getNearestSource(getPose()));
-    }
-
-    private Command selectAndResetAutoAlign(Supplier<Pose2d> goalPose) {
+    public Command selectAndResetAutoAlign(Supplier<Pose2d> goalPose) {
         return Commands.runOnce(
                 () -> {
                     selectedPose = goalPose.get();
-                    final Pose2d currentPose = getPose();
-                    anglePid.reset(
-                            currentPose.getRotation().getRadians(), getChassisSpeeds().omegaRadiansPerSecond);
+                    anglePid.reset(getRotation().getRadians(), getChassisSpeeds().omegaRadiansPerSecond);
                     translationPid.reset();
                 },
                 this);
@@ -455,6 +432,26 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
         Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedSetpointStates);
         Logger.recordOutput("ChassisSpeedsDiscrete", speeds);
+    }
+
+    /**
+     * Drive based on field-relative linear velocities with the heading locked toward a position.
+     *
+     * @param vx x linear velocity
+     * @param vy y linear velocity
+     * @param centerOfOrbit the point to maintain a heading lock on
+     */
+    public void runOrbit(double vx, double vy, Translation2d centerOfOrbit) {
+        final Pose2d pose = getPose();
+        final Rotation2d goalHeading = centerOfOrbit.minus(pose.getTranslation()).getAngle();
+        final var omega = anglePid.calculate(pose.getRotation().getRadians(), goalHeading.getRadians());
+        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, getGyroRotation()));
+
+        Logger.recordOutput("Orbit/GoalHeadingPose", new Pose2d(pose.getTranslation(), goalHeading));
+        Logger.recordOutput("Orbit/Omega", omega);
+        Logger.recordOutput(
+                "Orbit/CenterOfOrbit",
+                new Pose2d(centerOfOrbit, Constants.isRedAlliance() ? Rotation2d.kZero : Rotation2d.kPi));
     }
 
     /** Stops the drive. */
