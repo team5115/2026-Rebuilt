@@ -34,8 +34,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
-import frc.team5115.subsystems.MotorContainer;
 import frc.team5115.util.LocalADStarAK;
+import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -563,10 +563,12 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         gyroOffset = gyroOffset.plus(offset);
     }
 
-    public void getSparks(ArrayList<SparkMax> sparks) {
+    public ArrayList<SparkMax> getSparks() {
+        ArrayList<SparkMax> sparks = new ArrayList<>();
         for (var module : modules) {
-            module.getAllSparks(sparks);
+            sparks.addAll(module.getAllSparks());
         }
+        return sparks;
     }
 
     private void setDriveCurrentLimits(int amps) {

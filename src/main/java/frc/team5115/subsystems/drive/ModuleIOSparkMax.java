@@ -124,9 +124,11 @@ public class ModuleIOSparkMax implements ModuleIO {
     }
 
     @Override
-    public void getSparks(ArrayList<SparkMax> sparks) {
+    public ArrayList<SparkMax> getSparks() {
+        ArrayList<SparkMax> sparks = new ArrayList<SparkMax>();
         sparks.add(driveSparkMax);
         sparks.add(turnSparkMax);
+        return sparks;
     }
 
     @Override

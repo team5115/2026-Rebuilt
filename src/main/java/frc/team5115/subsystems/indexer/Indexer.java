@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team5115.Constants;
-import frc.team5115.subsystems.MotorContainer;
+import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
 import org.littletonrobotics.junction.Logger;
 
@@ -37,7 +37,7 @@ public class Indexer extends SubsystemBase implements MotorContainer {
     }
 
     @Override
-    public void getSparks(ArrayList<SparkMax> sparks) {
-        io.getSparks(sparks);
+    public ArrayList<SparkMax> getSparks() {
+        return io.getSparks();
     }
 }

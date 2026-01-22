@@ -1,12 +1,15 @@
 package frc.team5115;
 
-import com.revrobotics.spark.SparkBase.Faults;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkMax;
-import frc.team5115.subsystems.MotorContainer;
+import edu.wpi.first.wpilibj.Timer;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.vision.PhotonVision;
+import frc.team5115.util.MotorContainer;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class RobotFaults {
     // private static final String NO_FAULTS = "No Faults";
@@ -15,32 +18,43 @@ public class RobotFaults {
     public final MotorContainer[] motorContainers;
     public final BooleanSupplier joysticksConnected;
 
-    public final ArrayList<String> sparkFaults = new ArrayList<String>();
+    private final Timer faultUpdateTimer = new Timer();
+
+    public final ArrayList<SparkMax> sparks = new ArrayList<SparkMax>();
     public final ArrayList<String> faultArray = new ArrayList<String>();
 
     public RobotFaults(
-            Drivetrain drivetrain, PhotonVision vision, BooleanSupplier joysticksConnected, MotorContainer... motorContainers) {
+            Drivetrain drivetrain,
+            PhotonVision vision,
+            BooleanSupplier joysticksConnected,
+            MotorContainer... motorContainers) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         this.joysticksConnected = joysticksConnected;
         this.motorContainers = motorContainers;
+        this.faultUpdateTimer.start();
+
+        if (drivetrain != null) {
+            this.sparks.addAll(drivetrain.getSparks());
+        }
+        for (MotorContainer container : motorContainers) {
+            if (container != null) {
+                sparks.addAll(container.getSparks());
+            }
+        }
     }
-
-    // public String cacheString() {
-
-    // }
 
     @Override
     public String toString() {
-        return "SparkFaults:[ " + sparkFaults.toString() + "] ; " + faultArray.toString();
+        return "SparkFaults:[ " + formatSparkFaults(getSparkFaults()) + "] ; " + faultArray.toString();
     }
 
     public boolean hasFaults() {
-        return sparkFaults.size() > 0;
+        return getSparkFaults().size() > 0 || getSubsystemFaults().size() > 0;
     }
 
-    public void fromSubsystems() {
-        ArrayList<SparkMax> sparks = new ArrayList<>();
+    public ArrayList<String> getSubsystemFaults() {
+        ArrayList<String> faultArray = new ArrayList<>();
         if (vision == null || vision.areAnyCamerasDisconnected()) {
             faultArray.add("CameraDisconnected");
         }
@@ -51,56 +65,63 @@ public class RobotFaults {
             faultArray.add("GyroDisconnected");
         }
 
-        if (drivetrain != null) {
-            drivetrain.getSparks(sparks);
-        }
-        for (MotorContainer container : motorContainers) {
-            if (container != null) {
-                container.getSparks(sparks);
-            }
-        }
-
-        sparkFaults.clear();
-        for (var spark : sparks) {
-            appendSparkFaults(spark.getFaults(), spark.getDeviceId());
-        }
-        ;
+        return faultArray;
     }
 
-    private void appendSparkFaults(Faults faults, int id) {
+    public ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> getSparkFaults() {
+        ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> sparkFaults = new ArrayList<>();
+        for (var spark : this.sparks) {
+            sparkFaults.add(
+                    new AbstractMap.SimpleEntry<Integer, SparkBase.Faults>(
+                            spark.getDeviceId(), spark.getFaults()));
+        }
+        return sparkFaults;
+    }
 
+    private String formatSparkFaults(
+            ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> sparkFaults) {
         final StringBuilder builder = new StringBuilder();
-        if (faults.other) {
-            builder.append("OtherFault,");
+        for (var entry : sparkFaults) {
+            builder.append(" { ID_" + entry.getKey() + ",");
+            SparkBase.Faults faults = entry.getValue();
+            if (faults.other) {
+                builder.append("OtherFault,");
+            }
+            if (faults.motorType) {
+                builder.append("MotorTypeFault,");
+            }
+            if (faults.sensor) {
+                builder.append("SensorFault,");
+            }
+            if (faults.can) {
+                builder.append("CanFault,");
+            }
+            if (faults.temperature) {
+                builder.append("TemperatureFault,");
+            }
+            if (faults.gateDriver) {
+                builder.append("GateDriverFault,");
+            }
+            if (faults.escEeprom) {
+                builder.append("EscEepromFault,");
+            }
+            if (faults.firmware) {
+                builder.append("FirmwareFault,");
+            }
+            builder.append(" },");
         }
-        if (faults.motorType) {
-            builder.append("MotorTypeFault,");
+
+        return builder.toString();
+    }
+
+    public void periodic() {
+        if (faultUpdateTimer.hasElapsed(1)) {
+            if (this.hasFaults()) {
+                System.err.println(this.toString());
+            }
+            faultUpdateTimer.restart();
         }
-        if (faults.sensor) {
-            builder.append("SensorFault,");
-        }
-        if (faults.can) {
-            builder.append("CanFault,");
-        }
-        if (faults.temperature) {
-            builder.append("TemperatureFault,");
-        }
-        if (faults.gateDriver) {
-            builder.append("GateDriverFault,");
-        }
-        if (faults.escEeprom) {
-            builder.append("EscEepromFault,");
-        }
-        if (faults.firmware) {
-            builder.append("FirmwareFault,");
-        }
-        if (!builder.isEmpty()) {
-            // SparkFaults:[ { ID_0,GateDriverFault },{ ID_1,FirmwareFault}, ] ;
-            sparkFaults.add("{ ID_");
-            sparkFaults.add("" + id);
-            sparkFaults.add(",");
-            sparkFaults.add(builder.toString());
-            sparkFaults.add(" },");
-        }
+        Logger.recordOutput("HasFaults", this.hasFaults());
+        Logger.recordOutput("ClearForMatch", !this.hasFaults());
     }
 }
