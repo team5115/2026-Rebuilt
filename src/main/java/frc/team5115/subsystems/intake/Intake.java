@@ -5,11 +5,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team5115.Constants;
+import frc.team5115.subsystems.MotorContainer;
 import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
-public class Intake extends SubsystemBase {
+public class Intake extends SubsystemBase implements MotorContainer {
     private final IntakeIO io;
     private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
@@ -31,6 +32,7 @@ public class Intake extends SubsystemBase {
         return run(Constants.INTAKE_SPEED);
     }
 
+    @Override
     public void getSparks(ArrayList<SparkMax> sparks) {
         io.getSparks(sparks);
     }

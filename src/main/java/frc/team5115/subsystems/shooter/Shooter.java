@@ -8,11 +8,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
+import frc.team5115.subsystems.MotorContainer;
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
-public class Shooter extends SubsystemBase {
+public class Shooter extends SubsystemBase implements MotorContainer {
     private final ShooterIO io;
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
     private final SimpleMotorFeedforward feedforward;
@@ -147,6 +148,7 @@ public class Shooter extends SubsystemBase {
                 sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 
+    @Override
     public void getSparks(ArrayList<SparkMax> sparks) {
         io.getSparks(sparks);
     }
