@@ -6,20 +6,23 @@ import frc.team5115.subsystems.MotorContainer;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.vision.PhotonVision;
 import java.util.ArrayList;
+import java.util.function.BooleanSupplier;
 
 public class RobotFaults {
     // private static final String NO_FAULTS = "No Faults";
     public final Drivetrain drivetrain;
     public final PhotonVision vision;
     public final MotorContainer[] motorContainers;
+    public final BooleanSupplier joysticksConnected;
 
     public final ArrayList<String> sparkFaults = new ArrayList<String>();
     public final ArrayList<String> faultArray = new ArrayList<String>();
 
     public RobotFaults(
-            Drivetrain drivetrain, PhotonVision vision, MotorContainer... motorContainers) {
+            Drivetrain drivetrain, PhotonVision vision, BooleanSupplier joysticksConnected, MotorContainer... motorContainers) {
         this.drivetrain = drivetrain;
         this.vision = vision;
+        this.joysticksConnected = joysticksConnected;
         this.motorContainers = motorContainers;
     }
 
@@ -36,7 +39,7 @@ public class RobotFaults {
         return sparkFaults.size() > 0;
     }
 
-    public void fromSubsystems(boolean joysticksConnected) {
+    public void fromSubsystems() {
         ArrayList<SparkMax> sparks = new ArrayList<>();
         if (vision == null || vision.areAnyCamerasDisconnected()) {
             faultArray.add("CameraDisconnected");
@@ -44,7 +47,9 @@ public class RobotFaults {
         if (drivetrain == null || !drivetrain.isGyroConnected()) {
             faultArray.add("JoysticksDisconnected");
         }
-        if (!joysticksConnected) {}
+        if (!joysticksConnected.getAsBoolean()) {
+            faultArray.add("GyroDisconnected");
+        }
 
         if (drivetrain != null) {
             drivetrain.getSparks(sparks);

@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
+import frc.team5115.subsystems.MotorContainer;
 import frc.team5115.util.LocalADStarAK;
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -41,7 +42,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Drivetrain extends SubsystemBase {
+public class Drivetrain extends SubsystemBase implements MotorContainer {
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
     private final Module[] modules = new Module[4]; // FL, FR, BL, BR
