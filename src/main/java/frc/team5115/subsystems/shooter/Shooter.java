@@ -27,8 +27,8 @@ public class Shooter extends SubsystemBase {
         switch (Constants.currentMode) {
             case REAL:
             case REPLAY:
-                feedforward = new SimpleMotorFeedforward(0.17484, 0.00223, 0.00030957);
-                pid = new PIDController(8.1686E-05, 0, 0);
+                feedforward = new SimpleMotorFeedforward(0.13353, 0.002111, 0.00034391);
+                pid = new PIDController(8.9196e-5, 0, 0);
                 break;
             case SIM:
                 feedforward = new SimpleMotorFeedforward(0, 2.10E-3, 0.03);

@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.team5115.Constants;
 import java.util.ArrayList;
+import org.littletonrobotics.junction.Logger;
 
 public class ShooterIOSparkMax implements ShooterIO {
 
@@ -35,6 +36,7 @@ public class ShooterIOSparkMax implements ShooterIO {
         inputs.velocityRPM = encoder.getVelocity();
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
+        Logger.recordOutput("Shooter/Position", encoder.getPosition());
     }
 
     @Override
