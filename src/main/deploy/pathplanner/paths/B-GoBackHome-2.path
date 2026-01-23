@@ -1,0 +1,86 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.6,
+        "y": 3.75
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.60053435114504,
+        "y": 4.450763358778627
+      },
+      "isLocked": false,
+      "linkedName": "intakestop"
+    },
+    {
+      "anchor": {
+        "x": 7.2741698473282455,
+        "y": 1.106087786259542
+      },
+      "prevControl": {
+        "x": 7.868320610687023,
+        "y": 1.5998187022900767
+      },
+      "nextControl": {
+        "x": 6.836795951801072,
+        "y": 0.7426362392721717
+      },
+      "isLocked": false,
+      "linkedName": "IntakeNeutralDown"
+    },
+    {
+      "anchor": {
+        "x": 3.3410591603053437,
+        "y": 0.8131965648854953
+      },
+      "prevControl": {
+        "x": 3.9854198473282443,
+        "y": 0.4031488549618315
+      },
+      "nextControl": {
+        "x": 2.7957889655383332,
+        "y": 1.160186688828138
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.931842576028622,
+        "y": 3.0371377459749542
+      },
+      "prevControl": {
+        "x": 2.9644847328244275,
+        "y": 2.71280534351145
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "ShootFromDistanceDown"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 14.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 29.999999999999996
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": true
+}
