@@ -17,7 +17,7 @@ public class PhotonVisionIOSim implements PhotonVisionIO {
         visionSim = new VisionSystemSim("main");
         visionSim.addAprilTags(VisionConstants.FIELD_LAYOUT);
         for (Camera camera : Camera.values()) {
-            camera.cameraSim.enableRawStream(true);
+            camera.cameraSim.enableRawStream(false);
             camera.cameraSim.enableProcessedStream(true);
             camera.cameraSim.enableDrawWireframe(false);
             visionSim.addCamera(camera.cameraSim, camera.robotToCamera);
