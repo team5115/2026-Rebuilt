@@ -49,7 +49,7 @@ public class MapleSim {
                                 Volts.of(0.1), // Drive friction voltage.
                                 Volts.of(0.1), // Steer friction voltage
                                 Meters.of(SwerveConstants.WHEEL_RADIUS_METERS), // Wheel radius
-                                KilogramSquareMeters.of(0.03), // Steer MOI
+                                KilogramSquareMeters.of(0.005), // Steer MOI
                                 1.2)) // Wheel COF
                 // Configures the track length and track width (spacing between swerve modules)
                 .withTrackLengthTrackWidth(
