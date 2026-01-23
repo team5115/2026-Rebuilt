@@ -134,8 +134,7 @@ public final class Constants {
             try {
                 return new AprilTagFieldLayout(
                         Filesystem.getDeployDirectory().getAbsolutePath()
-                                + java.io.File.separatorChar
-                                + "custom-2026-rebuilt-andymark.json");
+                                + "/apriltag-fields/custom-2026-rebuilt-andymark.json");
             } catch (java.io.IOException e) {
                 e.printStackTrace();
                 return loadFullField();
