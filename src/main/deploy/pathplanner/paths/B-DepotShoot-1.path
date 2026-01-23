@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.4,
-        "y": 5.925
+        "x": 0.4372519084027364,
+        "y": 5.984818702287698
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4,
-        "y": 5.925
+        "x": 2.437251908402736,
+        "y": 5.984818702287698
       },
       "isLocked": false,
       "linkedName": "depotIntake"
@@ -59,10 +59,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Depot Auto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

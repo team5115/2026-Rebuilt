@@ -45,10 +45,10 @@
     "rotation": 29.999999999999996
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Outpost Auto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
