@@ -6,8 +6,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.team5115.Constants.AutoConstants;
-import frc.team5115.Constants.Mode;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.agitator.AgitatorIOSparkMax;
 import frc.team5115.subsystems.bling.Bling;
@@ -37,7 +35,6 @@ import frc.team5115.subsystems.vision.PhotonVision;
 import frc.team5115.subsystems.vision.PhotonVisionIO;
 import frc.team5115.subsystems.vision.PhotonVisionIOReal;
 import frc.team5115.subsystems.vision.PhotonVisionIOSim;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -56,6 +53,7 @@ public class RobotContainer {
     private final Shooter shooter;
     private final Indexer indexer;
     private final Agitator agitator;
+    private final RobotFaults faults;
 
     // Controllers
     private final DriverController driverController;
@@ -66,13 +64,11 @@ public class RobotContainer {
     // Setings
 
     private boolean hasFaults = true;
-    private double faultPrintTimeout = 0;
 
     // Works with faults
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
-        AutoConstants.precomputeAlignmentPoses(); // Computes robot starting pose with vision
 
         switch (Constants.currentMode) {
             case REAL:
@@ -137,6 +133,10 @@ public class RobotContainer {
         }
         driverController = new DriverController();
 
+        faults =
+                new RobotFaults(
+                        drivetrain, vision, driverController::joysticksConnected, intake, shooter, indexer);
+
         // Register auto commands for pathplanner
         registerCommands(drivetrain, vision, intake, shooter, indexer);
 
@@ -169,13 +169,17 @@ public class RobotContainer {
                 drivetrain.sysIdSpinDynamic(SysIdRoutine.Direction.kReverse));
 
         autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
-        
-        autoChooser.addOption("Shooter SysID (Quasistatic Forward)", shooter.sysIdQuasistatic(Direction.kForward));
-        autoChooser.addOption("Shooter SysID (Quasistatic Reverse)", shooter.sysIdQuasistatic(Direction.kReverse));
-        autoChooser.addOption("Shooter SysID (Dynamic Forward)", shooter.sysIdDynamic(Direction.kForward));
-        autoChooser.addOption("Shooter SysID (Dynamic Reverse)", shooter.sysIdDynamic(Direction.kReverse));
 
+        autoChooser.addOption(
+                "Shooter SysID (Quasistatic Forward)", shooter.sysIdQuasistatic(Direction.kForward));
+        autoChooser.addOption(
+                "Shooter SysID (Quasistatic Reverse)", shooter.sysIdQuasistatic(Direction.kReverse));
+        autoChooser.addOption(
+                "Shooter SysID (Dynamic Forward)", shooter.sysIdDynamic(Direction.kForward));
+        autoChooser.addOption(
+                "Shooter SysID (Dynamic Reverse)", shooter.sysIdDynamic(Direction.kReverse));
 
+        autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
 
         driverController.configureButtonBindings(drivetrain, intake, agitator, indexer, shooter);
         driverController.configureRumbleBindings(drivetrain);
@@ -189,30 +193,7 @@ public class RobotContainer {
         new Trigger(() -> hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
 
-    public void robotPeriodic() {
-        if (Constants.currentMode == Mode.REAL) {
-            if (faultPrintTimeout <= 0) {
-                final var faults =
-                        RobotFaults.fromSubsystems(
-                                drivetrain,
-                                vision,
-                                intake,
-                                shooter,
-                                indexer,
-                                driverController.joysticksConnected());
-                hasFaults = faults.hasFaults();
-                if (hasFaults) {
-                    System.err.println(faults.toString());
-                }
-                faultPrintTimeout = 50;
-            }
-            faultPrintTimeout -= 1;
-            Logger.recordOutput("HasFaults", hasFaults);
-            Logger.recordOutput("ClearForMatch", !hasFaults);
-        } else {
-            MapleSim.simPeriodic();
-        }
-    }
+    public void robotPeriodic() {}
 
     /**
      * Register commands for pathplanner to use in autos
@@ -239,6 +220,10 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
+    public void teleopPeriodic() {
+        faults.periodic();
+    }
+
     public void teleopInit() {
         drivetrain.setTeleopCurrentLimit();
     }
@@ -247,7 +232,9 @@ public class RobotContainer {
         drivetrain.setPose(Constants.SIM_INIT_POSE);
     }
 
-    public void simPeriodic() {}
+    public void simPeriodic() {
+        MapleSim.simPeriodic();
+    }
 
     public void autoInit() {
         drivetrain.setAutoCurrentLimit();

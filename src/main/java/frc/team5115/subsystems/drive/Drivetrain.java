@@ -35,13 +35,14 @@ import frc.team5115.Constants;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.util.LocalADStarAK;
+import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Drivetrain extends SubsystemBase {
+public class Drivetrain extends SubsystemBase implements MotorContainer {
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
     private final Module[] modules = new Module[4]; // FL, FR, BL, BR
@@ -338,40 +339,13 @@ public class Drivetrain extends SubsystemBase {
         return new Trigger(() -> aligning);
     }
 
-    /** Drives to nearest scoring spot until all pids at goal */
-    public Command autoAlignToScoringSpot(AutoConstants.Side side) {
-        return Commands.sequence(
-                Commands.print("AutoDriving! " + side.toString()),
-                selectNearestScoringSpot(side),
-                alignSelectedSpot().until(() -> alignedAtGoal()));
-    }
-
-    public Command autoAlignToSource() {
-        return Commands.sequence(
-                Commands.print("AutoDriving to nearest source!"),
-                selectNearestSource(),
-                alignSelectedSpot().until(() -> alignedAtGoal()));
-    }
-
     public ChassisSpeeds getChassisSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
 
-    /**
-     * Choose the scoring spot based on nearest scoring spot. Will also reset the pids.
-     *
-     * @param side the side to score on
-     * @return an Instant Command
-     */
-    public Command selectNearestScoringSpot(AutoConstants.Side side) {
-        return selectAndResetAutoAlign(() -> AutoConstants.getNearestScoringSpot(getPose(), side));
-    }
+    // mangos are great
 
-    public Command selectNearestSource() {
-        return selectAndResetAutoAlign(() -> AutoConstants.getNearestSource(getPose()));
-    }
-
-    private Command selectAndResetAutoAlign(Supplier<Pose2d> goalPose) {
+    public Command selectAndResetAutoAlign(Supplier<Pose2d> goalPose) {
         return Commands.runOnce(
                 () -> {
                     selectedPose = goalPose.get();
@@ -589,10 +563,12 @@ public class Drivetrain extends SubsystemBase {
         gyroOffset = gyroOffset.plus(offset);
     }
 
-    public void getSparks(ArrayList<SparkMax> sparks) {
+    public ArrayList<SparkMax> getSparks() {
+        ArrayList<SparkMax> sparks = new ArrayList<>();
         for (var module : modules) {
-            module.getAllSparks(sparks);
+            sparks.addAll(module.getAllSparks());
         }
+        return sparks;
     }
 
     private void setDriveCurrentLimits(int amps) {

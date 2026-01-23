@@ -18,5 +18,7 @@ public interface ShooterIO {
     /** Run the shooter motor at the specified voltage. */
     public default void setVoltage(double volts) {}
 
-    public default void getSparks(ArrayList<SparkMax> sparks) {}
+    public default ArrayList<SparkMax> getSparks() {
+        return new ArrayList<>();
+    }
 }

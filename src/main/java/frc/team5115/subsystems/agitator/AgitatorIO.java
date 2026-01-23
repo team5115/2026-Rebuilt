@@ -18,5 +18,7 @@ public interface AgitatorIO {
 
     public default void setPercent(double percent) {}
 
-    public default void getSparks(ArrayList<SparkMax> sparks) {}
+    public default ArrayList<SparkMax> getSparks() {
+        return new ArrayList<>();
+    }
 }

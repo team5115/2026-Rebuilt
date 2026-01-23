@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.team5115.Constants.AutoConstants.Side;
 import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
@@ -79,23 +78,6 @@ public class DriverController {
         joyDrive.start().onTrue(offsetGyro(drivetrain));
 
         joyDrive
-                .leftTrigger()
-                .and(joyDrive.rightTrigger().negate())
-                .onTrue(drivetrain.selectNearestScoringSpot(Side.LEFT))
-                .whileTrue(drivetrain.alignSelectedSpot());
-        joyDrive
-                .rightTrigger()
-                .and(joyDrive.leftTrigger().negate())
-                .onTrue(drivetrain.selectNearestScoringSpot(Side.RIGHT))
-                .whileTrue(drivetrain.alignSelectedSpot());
-
-        joyDrive
-                .leftTrigger()
-                .and(joyDrive.rightTrigger())
-                .onTrue(drivetrain.selectNearestScoringSpot(Side.CENTER))
-                .whileTrue(drivetrain.alignSelectedSpot());
-
-        joyDrive
                 .a()
                 .whileTrue(
                         DriveCommands.lockedOnHub(
@@ -139,23 +121,6 @@ public class DriverController {
         joyDrive.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
         joyDrive.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
         joyDrive.start().onTrue(offsetGyro(drivetrain));
-
-        joyDrive
-                .leftTrigger()
-                .and(joyDrive.rightTrigger().negate())
-                .onTrue(drivetrain.selectNearestScoringSpot(Side.LEFT))
-                .whileTrue(drivetrain.alignSelectedSpot());
-        joyDrive
-                .rightTrigger()
-                .and(joyDrive.leftTrigger().negate())
-                .onTrue(drivetrain.selectNearestScoringSpot(Side.RIGHT))
-                .whileTrue(drivetrain.alignSelectedSpot());
-
-        joyDrive
-                .leftTrigger()
-                .and(joyDrive.rightTrigger())
-                .onTrue(drivetrain.selectNearestScoringSpot(Side.CENTER))
-                .whileTrue(drivetrain.alignSelectedSpot());
 
         /*
         * Manipulator button bindings:

@@ -43,7 +43,9 @@ public class ShooterIOSparkMax implements ShooterIO {
     }
 
     @Override
-    public void getSparks(ArrayList<SparkMax> sparks) {
+    public ArrayList<SparkMax> getSparks() {
+        ArrayList<SparkMax> sparks = new ArrayList<>();
         sparks.add(motor);
+        return sparks;
     }
 }

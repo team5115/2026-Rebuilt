@@ -1,160 +1,127 @@
 package frc.team5115;
 
-import com.revrobotics.spark.SparkBase.Faults;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.wpilibj.Timer;
 import frc.team5115.subsystems.drive.Drivetrain;
-import frc.team5115.subsystems.indexer.Indexer;
-import frc.team5115.subsystems.intake.Intake;
-import frc.team5115.subsystems.shooter.Shooter;
 import frc.team5115.subsystems.vision.PhotonVision;
+import frc.team5115.util.MotorContainer;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class RobotFaults {
-    private static final String NO_FAULTS = "No Faults";
-    public final String sparkFaults;
-    public final boolean cameraDisconnected;
-    public final boolean joysticksDisconnected;
-    public final boolean gyroDisconnected;
-    public final boolean drivetrainNull;
-    public final boolean visionNull;
-    public final boolean intakeNull;
-    public final boolean shooterNull;
-    public final boolean indexerNull;
-    private final String cachedToString;
+    // private static final String NO_FAULTS = "No Faults";
+    public final Drivetrain drivetrain;
+    public final PhotonVision vision;
+    public final MotorContainer[] motorContainers;
+    public final BooleanSupplier joysticksConnected;
+
+    private final Timer faultUpdateTimer = new Timer();
+
+    public final ArrayList<SparkMax> sparks = new ArrayList<SparkMax>();
+    public final ArrayList<String> faultArray = new ArrayList<String>();
 
     public RobotFaults(
-            String sparkFaults,
-            boolean cameraDisconnected,
-            boolean joysticksDisconnected,
-            boolean gyroDisconnected,
-            boolean drivetrainNull,
-            boolean visionNull,
-            boolean intakeNull,
-            boolean shooterNull,
-            boolean indexerNull) {
-        this.sparkFaults = sparkFaults;
-        this.cameraDisconnected = cameraDisconnected;
-        this.joysticksDisconnected = joysticksDisconnected;
-        this.gyroDisconnected = gyroDisconnected;
-        this.drivetrainNull = drivetrainNull;
-        this.visionNull = visionNull;
-        this.intakeNull = intakeNull;
-        this.shooterNull = shooterNull;
-        this.indexerNull = indexerNull;
-        cachedToString = cacheString();
-    }
+            Drivetrain drivetrain,
+            PhotonVision vision,
+            BooleanSupplier joysticksConnected,
+            MotorContainer... motorContainers) {
+        this.drivetrain = drivetrain;
+        this.vision = vision;
+        this.joysticksConnected = joysticksConnected;
+        this.motorContainers = motorContainers;
+        this.faultUpdateTimer.start();
 
-    public String cacheString() {
-        final StringBuilder builder = new StringBuilder();
-        if (!sparkFaults.isEmpty()) {
-            builder.append("SparkFaults:[ ");
-            builder.append(sparkFaults);
-            builder.append("] ; ");
+        if (drivetrain != null) {
+            this.sparks.addAll(drivetrain.getSparks());
         }
-        if (cameraDisconnected) {
-            builder.append("CameraDisconnected; ");
-        }
-        if (joysticksDisconnected) {
-            builder.append("JoysticksDisconnected; ");
-        }
-        if (gyroDisconnected) {
-            builder.append("GyroDisconnected; ");
-        }
-        if (drivetrainNull) {
-            builder.append("DrivetrainNull; ");
-        }
-        if (visionNull) {
-            builder.append("VisionNull; ");
-        }
-        if (intakeNull) {
-            builder.append("IntakeNull; ");
-        }
-        if (builder.isEmpty()) {
-            return NO_FAULTS;
-        } else {
-            return "HAS FAULTS! " + builder.toString();
+        for (MotorContainer container : motorContainers) {
+            if (container != null) {
+                sparks.addAll(container.getSparks());
+            }
         }
     }
 
     @Override
     public String toString() {
-        return cachedToString;
+        return "SparkFaults:[ " + formatSparkFaults(getSparkFaults()) + "] ; " + faultArray.toString();
     }
 
     public boolean hasFaults() {
-        return !cachedToString.equals(NO_FAULTS);
+        return getSparkFaults().size() > 0 || getSubsystemFaults().size() > 0;
     }
 
-    public static RobotFaults fromSubsystems(
-            Drivetrain drivetrain,
-            PhotonVision vision,
-            Intake intake,
-            Shooter shooter,
-            Indexer indexer,
-            boolean joysticksConnected) {
+    public ArrayList<String> getSubsystemFaults() {
+        ArrayList<String> faultArray = new ArrayList<>();
+        if (vision == null || vision.areAnyCamerasDisconnected()) {
+            faultArray.add("CameraDisconnected");
+        }
+        if (drivetrain == null || !drivetrain.isGyroConnected()) {
+            faultArray.add("JoysticksDisconnected");
+        }
+        if (!joysticksConnected.getAsBoolean()) {
+            faultArray.add("GyroDisconnected");
+        }
 
-        ArrayList<SparkMax> sparks = new ArrayList<>();
-        if (drivetrain != null) {
-            drivetrain.getSparks(sparks);
-        }
-        if (intake != null) {
-            intake.getSparks(sparks);
-        }
-        if (shooter != null) {
-            shooter.getSparks(sparks);
-        }
-        if (indexer != null) {
-            indexer.getSparks(sparks);
-        }
-        StringBuilder sparkFaults = new StringBuilder();
-        for (var spark : sparks) {
-            appendSparkFaults(sparkFaults, spark.getFaults(), spark.getDeviceId());
-        }
-        return new RobotFaults(
-                sparkFaults.toString(),
-                vision == null ? true : vision.areAnyCamerasDisconnected(),
-                !joysticksConnected,
-                drivetrain == null ? true : !drivetrain.isGyroConnected(),
-                drivetrain == null,
-                vision == null,
-                intake == null,
-                shooter == null,
-                indexer == null);
+        return faultArray;
     }
 
-    private static void appendSparkFaults(StringBuilder mainBuilder, Faults faults, int id) {
+    public ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> getSparkFaults() {
+        ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> sparkFaults = new ArrayList<>();
+        for (var spark : this.sparks) {
+            sparkFaults.add(
+                    new AbstractMap.SimpleEntry<Integer, SparkBase.Faults>(
+                            spark.getDeviceId(), spark.getFaults()));
+        }
+        return sparkFaults;
+    }
+
+    private String formatSparkFaults(
+            ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> sparkFaults) {
         final StringBuilder builder = new StringBuilder();
-        if (faults.other) {
-            builder.append("OtherFault,");
+        for (var entry : sparkFaults) {
+            builder.append(" { ID_" + entry.getKey() + ",");
+            SparkBase.Faults faults = entry.getValue();
+            if (faults.other) {
+                builder.append("OtherFault,");
+            }
+            if (faults.motorType) {
+                builder.append("MotorTypeFault,");
+            }
+            if (faults.sensor) {
+                builder.append("SensorFault,");
+            }
+            if (faults.can) {
+                builder.append("CanFault,");
+            }
+            if (faults.temperature) {
+                builder.append("TemperatureFault,");
+            }
+            if (faults.gateDriver) {
+                builder.append("GateDriverFault,");
+            }
+            if (faults.escEeprom) {
+                builder.append("EscEepromFault,");
+            }
+            if (faults.firmware) {
+                builder.append("FirmwareFault,");
+            }
+            builder.append(" },");
         }
-        if (faults.motorType) {
-            builder.append("MotorTypeFault,");
+
+        return builder.toString();
+    }
+
+    public void periodic() {
+        if (faultUpdateTimer.hasElapsed(1)) {
+            if (this.hasFaults()) {
+                System.err.println(this.toString());
+            }
+            faultUpdateTimer.restart();
         }
-        if (faults.sensor) {
-            builder.append("SensorFault,");
-        }
-        if (faults.can) {
-            builder.append("CanFault,");
-        }
-        if (faults.temperature) {
-            builder.append("TemperatureFault,");
-        }
-        if (faults.gateDriver) {
-            builder.append("GateDriverFault,");
-        }
-        if (faults.escEeprom) {
-            builder.append("EscEepromFault,");
-        }
-        if (faults.firmware) {
-            builder.append("FirmwareFault,");
-        }
-        if (!builder.isEmpty()) {
-            // SparkFaults:[ { ID_0,GateDriverFault },{ ID_1,FirmwareFault}, ] ;
-            mainBuilder.append("{ ID_");
-            mainBuilder.append(id);
-            mainBuilder.append(",");
-            mainBuilder.append(builder);
-            mainBuilder.append(" },");
-        }
+        Logger.recordOutput("HasFaults", this.hasFaults());
+        Logger.recordOutput("ClearForMatch", !this.hasFaults());
     }
 }

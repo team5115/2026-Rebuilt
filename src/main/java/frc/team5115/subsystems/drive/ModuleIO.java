@@ -32,5 +32,7 @@ public interface ModuleIO {
     public default void setDriveCurrentLimit(int amps) {}
 
     /** This should not really be here but it must be */
-    public default void getSparks(ArrayList<SparkMax> sparks) {}
+    public default ArrayList<SparkMax> getSparks() {
+        return new ArrayList<>();
+    }
 }

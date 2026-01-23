@@ -22,5 +22,7 @@ public interface IndexerIO {
     public default void setPercent(double percent) {}
 
     /** This should not really be here but it must be */
-    public default void getSparks(ArrayList<SparkMax> sparks) {}
+    public default ArrayList<SparkMax> getSparks() {
+        return new ArrayList<>();
+    }
 }

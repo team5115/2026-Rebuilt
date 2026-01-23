@@ -156,12 +156,8 @@ public class Module {
         io.setDriveCurrentLimit(amps);
     }
 
-    /**
-     * Get the drive and turn sparks into a list
-     *
-     * @param sparks the arraylist to append the sparks into
-     */
-    public void getAllSparks(ArrayList<SparkMax> sparks) {
-        io.getSparks(sparks);
+    /** Get the drive and turn sparks into a list */
+    public ArrayList<SparkMax> getAllSparks() {
+        return io.getSparks();
     }
 }
