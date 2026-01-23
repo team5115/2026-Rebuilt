@@ -1,6 +1,5 @@
 package frc.team5115.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -199,15 +198,15 @@ public class PhotonVision extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        final Pose3d robotPose = new Pose3d(drivetrain.getPose());
+        // final Pose3d robotPose = new Pose3d(drivetrain.getPose());
         for (Camera camera : Camera.values()) {
-            final Pose3d cameraPose = robotPose.transformBy(camera.robotToCamera);
+            // final Pose3d referencePose = robotPose.transformBy(camera.robotToCamera);
             final String loggingPrefix = String.format("Vision/%s/", camera.camera.getName());
             final var unread = io.getAllUnreadResults(camera);
             for (final var result : unread) {
                 // Update the camera's pose estimator
                 // Use this camera's field-relative pose as a reference pose
-                final var option = io.updatePose(camera, result, cameraPose);
+                final var option = camera.poseEstimator.estimateCoprocMultiTagPose(result);
                 if (option.isPresent()) {
                     final EstimatedRobotPose pose = option.get();
                     final var validation = validateVisionPose(pose, result);
@@ -226,7 +225,7 @@ public class PhotonVision extends SubsystemBase {
 
     public boolean areAnyCamerasDisconnected() {
         for (Camera camera : Camera.values()) {
-            if (!io.isCameraConnected(inputs, camera)) {
+            if (!inputs.isConnected[camera.ordinal()]) {
                 return true;
             }
         }

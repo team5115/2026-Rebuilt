@@ -1,12 +1,9 @@
 package frc.team5115.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import frc.team5115.Constants.VisionConstants;
 import frc.team5115.MapleSim;
 import frc.team5115.subsystems.vision.PhotonVision.Camera;
 import java.util.List;
-import java.util.Optional;
-import org.photonvision.EstimatedRobotPose;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 
@@ -35,11 +32,5 @@ public class PhotonVisionIOSim implements PhotonVisionIO {
     @Override
     public List<PhotonPipelineResult> getAllUnreadResults(Camera camera) {
         return camera.camera.getAllUnreadResults();
-    }
-
-    @Override
-    public Optional<EstimatedRobotPose> updatePose(
-            Camera camera, PhotonPipelineResult result, Pose3d referencePose) {
-        return camera.poseEstimator.estimateLowestAmbiguityPose(result);
     }
 }
