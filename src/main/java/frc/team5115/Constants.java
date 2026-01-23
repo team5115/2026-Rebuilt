@@ -13,8 +13,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+
 import java.util.Optional;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -129,24 +131,23 @@ public final class Constants {
 
     public static class VisionConstants {
 
-        // private static AprilTagFieldLayout loadReefOnlyFieldLayout() {
-        //     try {
-        //         // throw new IOException();
-        //         return new AprilTagFieldLayout(
-        //                 Filesystem.getDeployDirectory().getAbsolutePath()
-        //                         + File.separatorChar
-        //                         + "reef_only.json");
-        //     } catch (IOException e) {
-        //         e.printStackTrace();
-        //         return loadFullField();
-        //     }
-        // }
+        private static AprilTagFieldLayout loadCustomFieldLayout() {
+            try {
+                return new AprilTagFieldLayout(
+                        Filesystem.getDeployDirectory().getAbsolutePath()
+                                + java.io.File.separatorChar
+                                + "custom-2026-rebuilt-andymark.json");
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+                return loadFullField();
+            }
+        }
 
         private static AprilTagFieldLayout loadFullField() {
             return AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
         }
 
-        public static final AprilTagFieldLayout FIELD_LAYOUT = loadFullField();
+        public static final AprilTagFieldLayout FIELD_LAYOUT = loadCustomFieldLayout();
 
         // Camera sim values
         public static final int WIDTH_PX = 1280;
