@@ -8,40 +8,56 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0526198150267128,
-        "y": 1.8049571562440536
+        "x": 2.688330152671756,
+        "y": 0.4282538167938923
       },
-      "isLocked": true,
+      "isLocked": false,
       "linkedName": "ShootFromDistanceDown"
     },
     {
       "anchor": {
-        "x": 2.05,
-        "y": 0.675
+        "x": 4.65,
+        "y": 0.625
       },
       "prevControl": {
-        "x": 2.8020393559928443,
-        "y": 0.9116100178890871
+        "x": 3.629068470536561,
+        "y": 0.622294417925996
       },
       "nextControl": {
-        "x": 1.8115246923168957,
-        "y": 0.599969821901792
+        "x": 6.19465648854962,
+        "y": 0.6290935114503815
       },
       "isLocked": false,
-      "linkedName": "prepIntakeOutpost"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.4325,
-        "y": 0.675
+        "x": 7.2741698473282455,
+        "y": 1.106087786259542
       },
       "prevControl": {
-        "x": 0.6825000000000002,
-        "y": 0.675
+        "x": 7.012537139159944,
+        "y": 0.9168229081307122
+      },
+      "nextControl": {
+        "x": 7.592166030534353,
+        "y": 1.3361259541984727
+      },
+      "isLocked": false,
+      "linkedName": "IntakeNeutralDown"
+    },
+    {
+      "anchor": {
+        "x": 7.6,
+        "y": 3.75
+      },
+      "prevControl": {
+        "x": 7.483377862595421,
+        "y": 2.9303816793893134
       },
       "nextControl": null,
-      "isLocked": true,
-      "linkedName": "outpost"
+      "isLocked": false,
+      "linkedName": "intakestop"
     }
   ],
   "rotationTargets": [],
@@ -57,11 +73,11 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 180.0
+    "velocity": 1.5,
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Outpost Auto",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 29.999999999999996
