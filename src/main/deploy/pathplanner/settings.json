@@ -1,6 +1,6 @@
 {
-  "robotWidth": 0.8509,
-  "robotLength": 0.851,
+  "robotWidth": 0.8763,
+  "robotLength": 0.794,
   "holonomicMode": true,
   "pathFolders": [
     "Depot Auto",
