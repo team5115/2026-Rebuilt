@@ -159,13 +159,13 @@ public final class Constants {
         public static final double STD_DEV_LATENCY_MS = 10;
 
         // Pose filtering values
-        public static final double distanceThreshold = 1.5; // meters
-        public static final double angleThreshold = 10.0; // degrees
+        public static final double distanceThreshold = 2.0; // meters
+        public static final double angleThreshold = 50.0; // degrees
         public static final double tagYawThreshold = 4.0; // degrees
         public static final double zTranslationThreshold = 0.15; // meters
         public static final double ambiguityThreshold = 0.5;
-        // every tag beyond seeing two tags gives us an extra meter of trusted distance
-        public static final double multiTagDistanceFactor = 1.0;
+        // every tag beyond seeing two tags gives us an extra 30% of our threshold
+        public static final double multiTagDistanceFactor = 0.3;
     }
 
     public static boolean isHubEnabled() {

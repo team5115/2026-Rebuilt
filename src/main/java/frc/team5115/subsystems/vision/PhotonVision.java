@@ -3,14 +3,12 @@ package frc.team5115.subsystems.vision;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team5115.Constants;
 import frc.team5115.Constants.VisionConstants;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.vision.PhotonVisionIO.PhotonVisionIOInputs;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -114,68 +112,11 @@ public class PhotonVision extends SubsystemBase {
     }
 
     public Optional<String> validateVisionPose(EstimatedRobotPose pose, PhotonPipelineResult result) {
-        // Reject measurement if average ambiguity is below threshold
-
-        // for (var target : pose.targetsUsed) {
-        //     final int id = target.fiducialId;
-        //     // Valid ids are: 6,  7,  8,  9,  10, 11
-        //     // Valid ids are: 17, 18, 19, 20, 21, 22
-        //     final boolean isValid = (6 <= id && id <= 11) || (17 <= id && id <= 22);
-        //     if (!isValid) {
-        //         return Optional.of("NotReef, " + id);
-        //     }
-        // }
-
-        try {
-            double totalAmbiguity = 0;
-            for (var target : pose.targetsUsed) {
-                totalAmbiguity += target.getPoseAmbiguity();
-                if (Math.abs(target.getYaw()) < VisionConstants.tagYawThreshold) {
-                    // return Optional.of("TagYaw, " + target.getYaw() + "Too Parallel");
-                }
-            }
-            final double averageAmbiguity = totalAmbiguity / pose.targetsUsed.size();
-            if (averageAmbiguity > VisionConstants.ambiguityThreshold) {
-                return Optional.of("Ambiguity, " + averageAmbiguity);
-            }
-        } catch (NoSuchElementException e) {
-            System.err.println("PhotonResult with no targets found!!!!! (this should *never* happen)");
-        }
-
+        // Check this first because it is fast
         // Reject measurement if estimated 3d pose says robot is off/under the ground
         final double distanceFromGround = Math.abs(pose.estimatedPose.getTranslation().getZ());
         if (distanceFromGround > VisionConstants.zTranslationThreshold) {
             return Optional.of("OffTheGround," + distanceFromGround);
-        }
-
-        // discard measurments when a SINGLE tag measurement is too far away
-        if (pose.targetsUsed.size() == 1) {
-            final double distanceToTag =
-                    pose.targetsUsed
-                            .get(0)
-                            .getAlternateCameraToTarget()
-                            .getTranslation()
-                            .getDistance(Translation3d.kZero);
-            if (distanceToTag > VisionConstants.distanceThreshold) {
-                return Optional.of("SingleFar, " + distanceToTag);
-            }
-        }
-
-        // Reject multi-tag measurement more than X meters away from tags on average
-        if (pose.targetsUsed.size() > 1) {
-            double totalDistance = 0;
-            for (var target : pose.targetsUsed) {
-                target.getAlternateCameraToTarget().getTranslation().getNorm();
-            }
-            final double averageDistance = totalDistance / pose.targetsUsed.size();
-            final double factor =
-                    1 + (pose.targetsUsed.size() - 2) * VisionConstants.multiTagDistanceFactor;
-            final double thresholdDistance = VisionConstants.distanceThreshold * factor;
-            if (averageDistance > thresholdDistance) {
-                Optional.of(
-                        String.format(
-                                "MultipleFar: dist=%f.3#, threshold=%f.3#", averageDistance, thresholdDistance));
-            }
         }
 
         // Reject based on existing pose angle
@@ -185,13 +126,63 @@ public class PhotonVision extends SubsystemBase {
                         .toRotation2d()
                         .minus(drivetrain.getRotation())
                         .getDegrees();
-        Logger.recordOutput("Vision/AngleDelta", delta);
+        // Logger.recordOutput("Vision/AngleDelta", delta);
         if (Math.abs(delta) > VisionConstants.angleThreshold) {
-            // return Optional.of("AngleWrong, delta=" + delta);
+            return Optional.of("AngleWrong, delta=" + delta);
         }
 
-        // we validated!!! no errors [:
+        if (pose.targetsUsed.size() == 1) {
+            return validateSingleTarget(pose, result);
+        } else {
+            return validateMultiTarget(pose, result);
+        }
+    }
 
+    private Optional<String> validateMultiTarget(
+            EstimatedRobotPose pose, PhotonPipelineResult result) {
+        final double targetCount = pose.targetsUsed.size();
+        double totalAmbiguity = 0;
+        double totalDistance = 0;
+        for (final var target : pose.targetsUsed) {
+            totalAmbiguity += target.getPoseAmbiguity();
+            totalDistance += target.getBestCameraToTarget().getTranslation().getNorm();
+        }
+        final double averageAmbiguity = totalAmbiguity / targetCount;
+        final double averageDistance = totalDistance / targetCount;
+
+        if (averageAmbiguity > VisionConstants.ambiguityThreshold) {
+            return Optional.of("MultiAmbiguous, " + averageAmbiguity);
+        }
+
+        final double factor = 1 + (targetCount - 2) * VisionConstants.multiTagDistanceFactor;
+        final double thresholdDistance = VisionConstants.distanceThreshold * factor;
+        if (averageDistance > thresholdDistance) {
+            Optional.of(
+                    String.format(
+                            "MultiFar: dist=%f.3#, threshold=%f.3#", averageDistance, thresholdDistance));
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<String> validateSingleTarget(
+            EstimatedRobotPose pose, PhotonPipelineResult result) {
+        final var target = pose.targetsUsed.get(0);
+        // throw away ambiguous
+        if (target.poseAmbiguity > VisionConstants.ambiguityThreshold) {
+            return Optional.of("SingleAmbiguous");
+        }
+
+        // throw away parallel tags
+        if (Math.abs(target.getYaw()) < VisionConstants.tagYawThreshold) {
+            return Optional.of("SingleYaw, " + target.getYaw() + " degrees");
+        }
+
+        // throw away distant tags
+        final double distanceToTag = target.getBestCameraToTarget().getTranslation().getNorm();
+        if (distanceToTag > VisionConstants.distanceThreshold) {
+            return Optional.of("SingleFar, " + distanceToTag);
+        }
         return Optional.empty();
     }
 
