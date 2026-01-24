@@ -11,7 +11,7 @@ public class IndexerIOSim implements IndexerIO {
     private double appliedVolts;
 
     public IndexerIOSim() {
-        final DCMotor motor = DCMotor.getNEO(1);
+        final DCMotor motor = DCMotor.getNeo550(1);
         sim = new DCMotorSim(LinearSystemId.createDCMotorSystem(motor, 0.0002, 1.0), motor);
     }
 

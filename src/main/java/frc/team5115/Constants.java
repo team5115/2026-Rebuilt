@@ -40,17 +40,27 @@ public final class Constants {
     public static final boolean SINGLE_MODE = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
-    public static final byte INTAKE_MOTOR_ID = 12;
-    public static final byte SHOOTER_MOTOR_ID = -1; // TODO determine motor ID
-    public static final byte INDEXER_MOTOR_ID = -1; // TODO determine motor ID
-    public static final byte AGITATOR_MOTOR_ID = -1; // TODO determine motor ID
+    // TODO set motor IDs on real robot
+    public static final byte INTAKE_MOTOR_ID = 11;
+    public static final byte AGITATOR_MOTOR_ID = 12;
+    public static final byte INDEXER_MOTOR_ID = 13;
+    public static final byte SHOOTER_MOTOR_ID = 14;
 
     public static final byte LED_STRIP_PWM_ID = 0;
 
     public static final double LOOP_PERIOD_SECS = 0.02;
 
-    public static final double INDEX_SPEED = 0.22;
+    // TODO determine digestion speeds
     public static final double INTAKE_SPEED = 1.0;
+    public static final double INTAKE_VOMIT_SPEED = -1.0;
+
+    public static final double AGITATOR_FAST_SPEED = 1.0;
+    public static final double AGITATOR_SLOW_SPEED = 0.2;
+    public static final double AGITATOR_VOMIT_SPEED = -1.0;
+
+    public static final double INDEX_SPEED = 1.0;
+    public static final double INDEX_REJECT_SPEED = -1.0;
+    public static final double INDEX_VOMIT_SPEED = -1.0;
 
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;

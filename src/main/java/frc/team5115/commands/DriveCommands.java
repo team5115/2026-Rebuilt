@@ -30,7 +30,9 @@ public class DriveCommands {
     private DriveCommands() {}
 
     /**
-     * Runs forever, shooting indefinitely. Stops the indexer and shooter when done
+     * Runs forever, maintaining shooter speed based on drivetrain odometry. First, spins up the
+     * shooter and agitator while rejecting on indexer. After reaching desired shooter speed, it
+     * indexes and continues to shoot until interrupted.
      *
      * @param drivetrain
      * @param agitator
@@ -43,7 +45,7 @@ public class DriveCommands {
         return Commands.parallel(
                 agitator.fast(),
                 shooter.maintainSpeed(() -> AutoConstants.distanceToHub(drivetrain.getPose())),
-                shooter.waitForSetpoint().andThen(indexer.index()));
+                shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
     /** Drive field relative but maintain a heading pointed towards the hub */

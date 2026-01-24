@@ -61,8 +61,9 @@ public class DriverController {
         joyDrive.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
         joyDrive.start().onTrue(offsetGyro(drivetrain));
 
-        // Slowly agitate slow by default
+        // Slowly agitate and reject by default
         agitator.setDefaultCommand(agitator.slow());
+        indexer.setDefaultCommand(indexer.reject());
 
         // TODO do we want to always intake?
         intake.setDefaultCommand(intake.intake().repeatedly());

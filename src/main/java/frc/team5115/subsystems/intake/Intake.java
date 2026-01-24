@@ -33,7 +33,7 @@ public class Intake extends SubsystemBase implements MotorContainer {
     }
 
     public Command vomit() {
-        return run(-1.0);
+        return run(Constants.INTAKE_VOMIT_SPEED);
     }
 
     @Override
