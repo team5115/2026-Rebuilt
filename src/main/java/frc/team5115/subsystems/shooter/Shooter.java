@@ -119,7 +119,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         return Commands.runEnd(
                 () -> {
                     // TODO calculate the required shooter speed
-                    setpoint(4000);
+                    setpoint(1000 * distanceToHub.getAsDouble());
                 },
                 () -> {
                     // Stop at the end

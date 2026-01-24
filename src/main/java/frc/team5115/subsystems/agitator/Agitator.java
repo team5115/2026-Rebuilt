@@ -41,11 +41,7 @@ public class Agitator extends SubsystemBase implements MotorContainer {
     }
 
     private Command run(double speed) {
-        return Commands.run(
-                () -> {
-                    io.setPercent(speed);
-                },
-                this);
+        return Commands.runOnce(() -> io.setPercent(speed), this).andThen(Commands.idle(this));
     }
 
     @Override

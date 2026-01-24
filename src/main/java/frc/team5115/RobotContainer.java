@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.team5115.subsystems.agitator.Agitator;
+import frc.team5115.subsystems.agitator.AgitatorIOSim;
 import frc.team5115.subsystems.agitator.AgitatorIOSparkMax;
 import frc.team5115.subsystems.bling.Bling;
 import frc.team5115.subsystems.bling.BlingIO;
@@ -109,7 +110,7 @@ public class RobotContainer {
                 bling = new Bling(new BlingIOSim());
                 shooter = new Shooter(new ShooterIOSim());
                 indexer = new Indexer(new IndexerIOSim());
-                agitator = new Agitator(new AgitatorIOSparkMax());
+                agitator = new Agitator(new AgitatorIOSim());
                 break;
 
             default:
