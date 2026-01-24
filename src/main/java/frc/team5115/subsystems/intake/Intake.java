@@ -25,7 +25,7 @@ public class Intake extends SubsystemBase implements MotorContainer {
     }
 
     private Command run(double speed) {
-        return Commands.runEnd(() -> io.setPercent(speed), () -> io.setPercent(0), this);
+        return Commands.startEnd(() -> io.setPercent(speed), () -> io.setPercent(0), this);
     }
 
     public Command intake() {

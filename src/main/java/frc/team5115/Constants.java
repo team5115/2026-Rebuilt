@@ -125,7 +125,23 @@ public final class Constants {
 
     public static class AutoConstants {
         public static final double MAX_AUTOALIGN_LINEAR_SPEED = 4.0; // m/s
-        // I love mangos
+
+        private static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
+        private static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
+
+        /**
+         * Get the distance from the robot to our alliance hub
+         *
+         * @param robot the position of the robot on the field
+         * @return the distance from the robot to the hub
+         */
+        public static double distanceToHub(Pose2d robot) {
+            return getHubPosition().getDistance(robot.getTranslation());
+        }
+
+        public static Translation2d getHubPosition() {
+            return isRedAlliance() ? RED_HUB : BLUE_HUB;
+        }
     }
 
     public static class VisionConstants {

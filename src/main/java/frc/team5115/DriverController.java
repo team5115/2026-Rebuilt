@@ -47,6 +47,20 @@ public class DriverController {
                         () -> -joyDrive.getLeftX(),
                         () -> -joyDrive.getRightX()));
 
+        /* Drive button bindings -
+         * x: forces the robot to stop moving
+         * left bumper: Sets robot relative to true while held down
+         * right bumper: Sets slow mode while held down
+         * left and right triggers align to score respectively
+         * both triggers aligns to the middle
+         * start resets field orientation
+         */
+
+        joyDrive.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
+        joyDrive.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
+        joyDrive.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
+        joyDrive.start().onTrue(offsetGyro(drivetrain));
+
         // Slowly agitate slow by default
         agitator.setDefaultCommand(agitator.slow());
 
@@ -62,21 +76,6 @@ public class DriverController {
 
     private void configureSingleMode(
             Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
-        /* Drive button bindings -
-         * x: forces the robot to stop moving
-         * left bumper: Sets robot relative to true while held down
-         * right bumper: Sets slow mode while held down
-         * left and right triggers align to score respectively
-         * both triggers aligns to the middle
-         * start resets field orientation
-         */
-
-        // joyDrive.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
-        // joyDrive.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
-        // joyDrive.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
-
-        joyDrive.start().onTrue(offsetGyro(drivetrain));
-
         joyDrive
                 .a()
                 .whileTrue(
@@ -89,59 +88,10 @@ public class DriverController {
         joyDrive.b().whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
 
         joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
-
-        /*
-        * Manipulator button bindings:
-        * hold left stick and move it for elevator manual control
-        * hold start for L1
-        * hold b for L2
-        * hold x for L3
-        * press back to rezero elevator
-        * hold a to vomit
-        * hold right trigger to dispense
-        * hold left trigger to reverse dispense
-        * press right bumper to extend climb piston
-        * press left bumper to retract climb piston
-        * point up on dpad to toggle climber block
-        //  * point down on dpad and press B (L2) or X (L3) to clean algae, release to stow
-        */
-
-        // TODO add binds
     }
 
     private void configureDualMode(
             Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
-        /* Drive button bindings -
-         * x: forces the robot to stop moving
-         * left bumper: Sets robot relative to true while held down
-         * right bumper: Sets slow mode while held down
-         * left and right triggers align to score respectively
-         * both triggers aligns to the middle
-         * start resets field orientation
-         */
-
-        joyDrive.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
-        joyDrive.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
-        joyDrive.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
-        joyDrive.start().onTrue(offsetGyro(drivetrain));
-
-        /*
-        * Manipulator button bindings:
-        * hold left stick and move it for elevator manual control
-        * hold start for L1
-        * hold b for L2
-        * hold x for L3
-        * press back to rezero elevator
-        * hold a to vomit
-        * hold right trigger to dispense
-        * hold left trigger to reverse dispense
-        * press right bumper to extend climb piston
-        * press left bumper to retract climb piston
-        * point up on dpad to toggle climber block
-        //  * point down on dpad and press B (L2) or X (L3) to clean algae, release to stow
-        */
-
-        // TODO add binds
         joyManip.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
     }
 

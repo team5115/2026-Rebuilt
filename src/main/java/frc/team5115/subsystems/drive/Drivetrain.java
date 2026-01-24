@@ -1,5 +1,7 @@
 package frc.team5115.subsystems.drive;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -446,16 +448,34 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
      * @param centerOfOrbit the point to maintain a heading lock on
      */
     public void runOrbit(double vx, double vy, Translation2d centerOfOrbit) {
+        final Translation2d linearVelocity = new Translation2d(vx, vy);
         final Pose2d pose = getPose();
-        final Rotation2d goalHeading = centerOfOrbit.minus(pose.getTranslation()).getAngle();
-        final var omega = anglePid.calculate(pose.getRotation().getRadians(), goalHeading.getRadians());
-        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, getGyroRotation()));
+        // Delta is the vector from the robot to the hub
+        final Translation2d delta = centerOfOrbit.minus(pose.getTranslation());
+        final Rotation2d baseHeading = delta.getAngle();
 
-        Logger.recordOutput("Orbit/GoalHeadingPose", new Pose2d(pose.getTranslation(), goalHeading));
-        Logger.recordOutput("Orbit/Omega", omega);
-        Logger.recordOutput(
-                "Orbit/CenterOfOrbit",
-                new Pose2d(centerOfOrbit, Constants.isRedAlliance() ? Rotation2d.kZero : Rotation2d.kPi));
+        // Steps to find signed tangential linear velocity (where linear velocity is v)
+        // 1. Project v into the direction of delta to get v_r (radial velocity)
+        // 2. Subtract v_r from v to get v_t (tangential velocity)
+        // 3. Rotate v_t by the inverse of the angle of delta so its pointed in the Y axis
+        // 4. Divide tangential velocity by the radius to get a rotational velocity
+        // Note the negative sign to match convention of CCW is positive.
+        final double orbitOmega =
+                linearVelocity
+                                .minus(delta.times(linearVelocity.dot(delta) / delta.getSquaredNorm()))
+                                .rotateBy(baseHeading.unaryMinus())
+                                .getY()
+                        / -delta.getNorm();
+
+        final double pidOmega =
+                anglePid.calculate(pose.getRotation().getRadians(), baseHeading.getRadians());
+        final double totalOmega = orbitOmega + pidOmega;
+
+        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, totalOmega, getGyroRotation()));
+
+        Logger.recordOutput("Orbit/OrbitOmega", RadiansPerSecond.of(orbitOmega));
+        Logger.recordOutput("Orbit/PidOmega", RadiansPerSecond.of(pidOmega));
+        Logger.recordOutput("Orbit/TotalOmega", RadiansPerSecond.of(totalOmega));
     }
 
     /** Stops the drive. */
