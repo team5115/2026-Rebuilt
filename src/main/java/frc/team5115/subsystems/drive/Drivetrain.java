@@ -141,7 +141,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                                 null,
                                 null,
                                 null,
-                                (state) -> Logger.recordOutput("Drive/StraightSysIdState", state.toString())),
+                                (state) -> Logger.recordOutput("Drivetrain/StraightSysIdState", state.toString())),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> {
                                     Logger.recordOutput("Drivetrain/SysIdVoltage", voltage);
@@ -221,6 +221,9 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                 });
 
         SmartDashboard.putData(field);
+
+        SmartDashboard.putData("Drivetrain/AnglePIDController", anglePid);
+        SmartDashboard.putData("Drivetrain/LinearPIDController", translationPid);
     }
 
     Rotation2d previousRotation = null;

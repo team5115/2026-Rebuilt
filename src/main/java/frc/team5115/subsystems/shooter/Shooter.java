@@ -3,6 +3,7 @@ package frc.team5115.subsystems.shooter;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -42,6 +43,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         }
 
         pid.setTolerance(20);
+
+        SmartDashboard.putData("Shooter/PIDController", pid);
 
         sysID =
                 new SysIdRoutine(
