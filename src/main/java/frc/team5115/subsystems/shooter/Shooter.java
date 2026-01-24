@@ -21,8 +21,6 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     private final PIDController pid;
     private final SysIdRoutine sysID;
 
-    private double setpointRPM;
-
     public Shooter(ShooterIO io) {
         this.io = io;
 
@@ -62,25 +60,13 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
 
-        final double volts =
-                feedforward.calculate(setpointRPM) + pid.calculate(inputs.velocityRPM, setpointRPM);
-        io.setVoltage(volts);
+        io.setVoltage(feedforward.calculate(pid.getSetpoint()) + pid.calculate(inputs.velocityRPM));
 
-        final double error = setpointRPM - inputs.velocityRPM;
-        Logger.recordOutput("Shooter/Setpoint RPM", setpointRPM);
+        final double error = pid.getSetpoint() - inputs.velocityRPM;
+        Logger.recordOutput("Shooter/Setpoint RPM", pid.getSetpoint());
         Logger.recordOutput("Shooter/Error RPM", error);
         Logger.recordOutput("Shooter/Error Squared", error * error);
         Logger.recordOutput("Shooter/At Setpoint?", pid.atSetpoint());
-    }
-
-    /**
-     * Update the setpoint of the shooter
-     *
-     * @param rpm the setpoint speed
-     */
-    private void setpoint(double rpm) {
-        setpointRPM = rpm;
-        pid.setSetpoint(rpm);
     }
 
     /**
@@ -90,7 +76,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      * @return an Instant Command
      */
     public Command supplySetpoint(DoubleSupplier rpm) {
-        return Commands.runOnce(() -> setpoint(rpm.getAsDouble()), this);
+        return Commands.runOnce(() -> pid.setSetpoint(rpm.getAsDouble()), this);
     }
 
     /**
@@ -100,7 +86,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      * @return an Instant Command
      */
     public Command setSetpoint(double rpm) {
-        return Commands.runOnce(() -> setpoint(rpm), this);
+        return Commands.runOnce(() -> pid.setSetpoint(rpm), this);
     }
 
     /**
@@ -122,11 +108,11 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         return Commands.runEnd(
                 () -> {
                     // TODO calculate the required shooter speed
-                    setpoint(1000 * distanceToHub.getAsDouble());
+                    pid.setSetpoint(1000 * distanceToHub.getAsDouble());
                 },
                 () -> {
                     // Stop at the end
-                    setpoint(0);
+                    pid.setSetpoint(0);
                 },
                 this);
     }
