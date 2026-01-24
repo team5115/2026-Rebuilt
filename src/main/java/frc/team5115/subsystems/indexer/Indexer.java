@@ -36,6 +36,15 @@ public class Indexer extends SubsystemBase implements MotorContainer {
         return run(Constants.INDEX_SPEED);
     }
 
+    /**
+     * Vomit forever, stopping when interrupted.
+     *
+     * @return a RunEnd Command
+     */
+    public Command vomit() {
+        return run(-1.0);
+    }
+
     @Override
     public ArrayList<SparkMax> getSparks() {
         return io.getSparks();

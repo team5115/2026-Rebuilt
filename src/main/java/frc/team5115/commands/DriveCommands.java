@@ -13,6 +13,7 @@ import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
+import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -144,6 +145,10 @@ public class DriveCommands {
     private static double responseCurve(double x, double n, double k) {
         x = Math.abs(MathUtil.clamp(x, -1, +1));
         return (Math.pow(x + k, n) + (x - 1) * Math.pow(k, n)) / Math.pow(1 + k, n);
+    }
+
+    public static Command vomit(Agitator agitator, Indexer indexer, Intake intake) {
+        return Commands.parallel(agitator.vomit(), indexer.vomit(), intake.vomit());
     }
 }
 

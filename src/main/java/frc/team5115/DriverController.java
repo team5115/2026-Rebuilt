@@ -56,7 +56,7 @@ public class DriverController {
         if (Constants.SINGLE_MODE) {
             configureSingleMode(drivetrain, intake, agitator, indexer, shooter);
         } else {
-            configureDualMode(drivetrain, intake);
+            configureDualMode(drivetrain, intake, agitator, indexer, shooter);
         }
     }
 
@@ -88,6 +88,8 @@ public class DriverController {
 
         joyDrive.b().whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
 
+        joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
+
         /*
         * Manipulator button bindings:
         * hold left stick and move it for elevator manual control
@@ -107,7 +109,8 @@ public class DriverController {
         // TODO add binds
     }
 
-    private void configureDualMode(Drivetrain drivetrain, Intake intake) {
+    private void configureDualMode(
+            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
         /* Drive button bindings -
          * x: forces the robot to stop moving
          * left bumper: Sets robot relative to true while held down
@@ -139,6 +142,7 @@ public class DriverController {
         */
 
         // TODO add binds
+        joyManip.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
     }
 
     private Command setRobotRelative(boolean state) {

@@ -32,6 +32,10 @@ public class Intake extends SubsystemBase implements MotorContainer {
         return run(Constants.INTAKE_SPEED);
     }
 
+    public Command vomit() {
+        return run(-1.0);
+    }
+
     @Override
     public ArrayList<SparkMax> getSparks() {
         return io.getSparks();
