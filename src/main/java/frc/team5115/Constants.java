@@ -89,8 +89,9 @@ public final class Constants {
         public static final double MAX_LINEAR_SPEED = 5; // meters per second
 
         // 29" wide, 25.75" front to back
-        private static final Distance FRAME_WIDTH_X = Inches.of(29);
-        private static final Distance FRAME_WIDTH_Y = Inches.of(25.75);
+        // ! Reminder that X is front-back, Y is left-right
+        private static final Distance FRAME_WIDTH_X = Inches.of(25.75);
+        private static final Distance FRAME_WIDTH_Y = Inches.of(29);
         private static final Distance BUMPER_DEPTH = Inches.of(2.75);
         private static final Distance MODULE_INSET = Inches.of(1.75);
 
