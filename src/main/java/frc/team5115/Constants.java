@@ -1,5 +1,6 @@
 package frc.team5115;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
@@ -9,6 +10,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
@@ -195,6 +198,33 @@ public final class Constants {
         public static final double ambiguityThreshold = 0.5;
         // every tag beyond seeing two tags gives us an extra 30% of our threshold
         public static final double multiTagDistanceFactor = 0.3;
+
+        /*
+        The coordinate system for the camera to robot transforms is somewhat confusing.
+        All lengths are in meters, and angles are in degrees.
+        Positions are relative to the center of the robot.
+        Positive X means that the camera is towards the front of the robot.
+        Positive Y is directed to the left of the robot.
+        Positive yaw points to the left, i.e. 90 degrees in yaw is directly pointed left.
+        Positive pitch is actually pointed down, which is VERY important to remember.
+        Positive roll is the camera rolling towards the robot's right side.
+        */
+        // TODO camera transform is subject to change
+        private static final double cameraX = Units.inchesToMeters(12.266);
+        private static final double cameraZ = Units.inchesToMeters(20.162);
+
+        private static final double leftCamY = Units.inchesToMeters(10.719);
+        private static final double rightCamY = Units.inchesToMeters(-9.969);
+
+        private static final Rotation3d leftCamRot =
+                new Rotation3d(Degrees.of(0), Degrees.of(-22), Degrees.of(-8.297));
+        private static final Rotation3d rightCamRot =
+                new Rotation3d(Degrees.of(0), Degrees.of(-22), Degrees.of(+8.297));
+
+        public static final Transform3d LEFT_CAM_TO_ROBOT =
+                new Transform3d(cameraX, leftCamY, cameraZ, leftCamRot);
+        public static final Transform3d RIGHT_CAM_TO_ROBOT =
+                new Transform3d(cameraX, rightCamY, cameraZ, rightCamRot);
     }
 
     public static boolean isHubEnabled() {
