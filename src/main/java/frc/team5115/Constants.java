@@ -2,6 +2,7 @@ package frc.team5115;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Pounds;
 
 import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -136,6 +138,7 @@ public final class Constants {
 
     public static class AutoConstants {
         public static final double MAX_AUTOALIGN_LINEAR_SPEED = 4.0; // m/s
+        public static final Mass ROBOT_MASS = Pounds.of(83); // TODO update weight estimation
 
         private static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
         private static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);

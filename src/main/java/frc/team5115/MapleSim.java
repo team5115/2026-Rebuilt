@@ -2,10 +2,10 @@ package frc.team5115;
 
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.GyroSimulation;
@@ -43,7 +43,7 @@ public class MapleSim {
                 .withSwerveModule(generateSwerveModuleConfig())
                 .withCustomModuleTranslations(SwerveConstants.MODULE_TRANSLATIONS)
                 .withBumperSize(SwerveConstants.BUMPER_WIDTH_X, SwerveConstants.BUMPER_WIDTH_Y)
-                .withRobotMass(Pounds.of(85)); // TODO set robot mass
+                .withRobotMass(AutoConstants.ROBOT_MASS); // TODO set robot mass
     }
 
     private static SwerveModuleSimulationConfig generateSwerveModuleConfig() {
