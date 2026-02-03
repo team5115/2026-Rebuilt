@@ -4,27 +4,29 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.GyroSimulation;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
-import org.ironmaple.simulation.seasonspecific.crescendo2024.CrescendoNoteOnField;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 
 public class MapleSim {
-
     private static SwerveDriveSimulation swerveSim;
 
-    public static SimulatedArena getInstance() {
-        return SimulatedArena.getInstance();
+    public static void initializeArena() {
+        swerveSim = new SwerveDriveSimulation(generateDriveSimConfig(), Constants.SIM_INIT_POSE);
+        final Arena2026Rebuilt arena = (Arena2026Rebuilt) SimulatedArena.getInstance();
+        arena.addDriveTrainSimulation(swerveSim);
+        arena.setEfficiencyMode(true);
     }
 
-    public static void setupArena() {
-        SimulatedArena.getInstance().addGamePiece(new CrescendoNoteOnField(new Translation2d(3, 4.5)));
+    public static void resetForAuto() {
+        // SimulatedArena.getInstance().resetFieldForAuto();
     }
 
     public static void simPeriodic() {
@@ -32,40 +34,29 @@ public class MapleSim {
 
         Logger.recordOutput("FieldSimulation/RobotPosition", swerveSim.getSimulatedDriveTrainPose());
         Logger.recordOutput(
-                "FieldSimulation/Note", SimulatedArena.getInstance().getGamePiecesArrayByType("Note"));
+                "FieldSimulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
     }
 
-    public static DriveTrainSimulationConfig getDriveSimConfig() {
+    private static DriveTrainSimulationConfig generateDriveSimConfig() {
         return DriveTrainSimulationConfig.Default()
-                // Specify gyro type (for realistic gyro drifting and error simulation)
                 .withGyro(() -> new GyroSimulation(0, 0))
-                // Specify swerve module (for realistic swerve dynamics)
-                .withSwerveModule(
-                        new SwerveModuleSimulationConfig(
-                                DCMotor.getNEO(1), // Drive motor is a NEO
-                                DCMotor.getNeo550(1), // Steer motor is a NEO 550
-                                5.007, // Drive motor gear ratio.
-                                12, // Steer motor gear ratio.
-                                Volts.of(0.1), // Drive friction voltage.
-                                Volts.of(0.1), // Steer friction voltage
-                                Meters.of(SwerveConstants.WHEEL_RADIUS_METERS), // Wheel radius
-                                KilogramSquareMeters.of(0.005), // Steer MOI
-                                1.2)) // Wheel COF
-                // Configures the track length and track width (spacing between swerve modules)
-                .withTrackLengthTrackWidth(
-                        Meters.of(SwerveConstants.TRACK_WIDTH_X), Meters.of(SwerveConstants.TRACK_WIDTH_Y))
-                // Configures the bumper size (dimensions of the robot bumper)
-                .withBumperSize(SwerveConstants.BUMPER_WIDTH_X, SwerveConstants.BUMPER_WIDTH_Y);
+                .withSwerveModule(generateSwerveModuleConfig())
+                .withCustomModuleTranslations(SwerveConstants.MODULE_TRANSLATIONS)
+                .withBumperSize(SwerveConstants.BUMPER_WIDTH_X, SwerveConstants.BUMPER_WIDTH_Y)
+                .withRobotMass(AutoConstants.ROBOT_MASS); // TODO set robot mass
     }
 
-    public static void initInstance() {
-        swerveSim =
-                new SwerveDriveSimulation(
-                        // Specify Configuration
-                        MapleSim.getDriveSimConfig(),
-                        // Specify starting pose
-                        Constants.SIM_INIT_POSE);
-        SimulatedArena.getInstance().addDriveTrainSimulation(swerveSim);
+    private static SwerveModuleSimulationConfig generateSwerveModuleConfig() {
+        return new SwerveModuleSimulationConfig(
+                DCMotor.getNEO(1), // Drive motor is a NEO
+                DCMotor.getNeo550(1), // Steer motor is a NEO 550
+                SwerveConstants.DrivingMotorReduction, // Drive motor gear ratio.
+                12, // Steer motor gear ratio.
+                Volts.of(0.1), // Drive friction voltage.
+                Volts.of(0.1), // Steer friction voltage
+                Meters.of(SwerveConstants.WHEEL_RADIUS_METERS), // Wheel radius
+                KilogramSquareMeters.of(0.005), // Steer MOI
+                1.2); // Wheel COF
     }
 
     public static SwerveDriveSimulation getSwerveSim() {

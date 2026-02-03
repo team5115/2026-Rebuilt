@@ -21,15 +21,18 @@
   "driveMotorType": "NEO",
   "driveCurrentLimit": 25.0,
   "wheelCOF": 1.55,
-  "flModuleX": 0.273,
-  "flModuleY": 0.273,
-  "frModuleX": 0.273,
-  "frModuleY": -0.273,
-  "blModuleX": -0.273,
-  "blModuleY": 0.273,
-  "brModuleX": -0.273,
-  "brModuleY": -0.273,
+  "flModuleX": 0.282575,
+  "flModuleY": 0.32385,
+  "frModuleX": 0.282575,
+  "frModuleY": -0.32385,
+  "blModuleX": -0.282575,
+  "blModuleY": 0.32385,
+  "brModuleX": -0.282575,
+  "brModuleY": -0.32385,
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
-  "robotFeatures": []
+  "robotFeatures": [
+    "{\"name\":\"Circle\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":-0.3,\"y\":0.0},\"radius\":0.08,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.35,\"y\":0.0},\"size\":{\"width\":0.5,\"length\":0.1},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
+  ]
 }

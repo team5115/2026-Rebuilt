@@ -37,12 +37,21 @@ public class Indexer extends SubsystemBase implements MotorContainer {
     }
 
     /**
+     * Reject forever, stopping when interrupted.
+     *
+     * @return a RunEnd Command
+     */
+    public Command reject() {
+        return run(Constants.INDEX_REJECT_SPEED);
+    }
+
+    /**
      * Vomit forever, stopping when interrupted.
      *
      * @return a RunEnd Command
      */
     public Command vomit() {
-        return run(-1.0);
+        return run(Constants.INDEX_VOMIT_SPEED);
     }
 
     @Override

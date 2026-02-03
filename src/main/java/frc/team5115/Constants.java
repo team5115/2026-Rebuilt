@@ -1,16 +1,21 @@
 package frc.team5115;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Pounds;
 
 import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -40,17 +45,27 @@ public final class Constants {
     public static final boolean SINGLE_MODE = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
-    public static final byte INTAKE_MOTOR_ID = 12;
-    public static final byte SHOOTER_MOTOR_ID = -1; // TODO determine motor ID
-    public static final byte INDEXER_MOTOR_ID = -1; // TODO determine motor ID
-    public static final byte AGITATOR_MOTOR_ID = -1; // TODO determine motor ID
+    // TODO set motor IDs on real robot
+    public static final byte INTAKE_MOTOR_ID = 11;
+    public static final byte AGITATOR_MOTOR_ID = 12;
+    public static final byte INDEXER_MOTOR_ID = 13;
+    public static final byte SHOOTER_MOTOR_ID = 14;
 
     public static final byte LED_STRIP_PWM_ID = 0;
 
     public static final double LOOP_PERIOD_SECS = 0.02;
 
-    public static final double INDEX_SPEED = 0.22;
+    // TODO determine digestion speeds
     public static final double INTAKE_SPEED = 1.0;
+    public static final double INTAKE_VOMIT_SPEED = -1.0;
+
+    public static final double AGITATOR_FAST_SPEED = 1.0;
+    public static final double AGITATOR_SLOW_SPEED = 0.2;
+    public static final double AGITATOR_VOMIT_SPEED = -1.0;
+
+    public static final double INDEX_SPEED = 1.0;
+    public static final double INDEX_REJECT_SPEED = -1.0;
+    public static final double INDEX_VOMIT_SPEED = -1.0;
 
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;
@@ -79,8 +94,9 @@ public final class Constants {
         public static final double MAX_LINEAR_SPEED = 5; // meters per second
 
         // 29" wide, 25.75" front to back
-        private static final Distance FRAME_WIDTH_X = Inches.of(29);
-        private static final Distance FRAME_WIDTH_Y = Inches.of(25.75);
+        // ! Reminder that X is front-back, Y is left-right
+        private static final Distance FRAME_WIDTH_X = Inches.of(25.75);
+        private static final Distance FRAME_WIDTH_Y = Inches.of(29);
         private static final Distance BUMPER_DEPTH = Inches.of(2.75);
         private static final Distance MODULE_INSET = Inches.of(1.75);
 
@@ -125,7 +141,24 @@ public final class Constants {
 
     public static class AutoConstants {
         public static final double MAX_AUTOALIGN_LINEAR_SPEED = 4.0; // m/s
-        // I love mangos
+        public static final Mass ROBOT_MASS = Pounds.of(83); // TODO update weight estimation
+
+        private static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
+        private static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
+
+        /**
+         * Get the distance from the robot to our alliance hub
+         *
+         * @param robot the position of the robot on the field
+         * @return the distance from the robot to the hub
+         */
+        public static double distanceToHub(Pose2d robot) {
+            return getHubPosition().getDistance(robot.getTranslation());
+        }
+
+        public static Translation2d getHubPosition() {
+            return isRedAlliance() ? RED_HUB : BLUE_HUB;
+        }
     }
 
     public static class VisionConstants {
@@ -165,6 +198,33 @@ public final class Constants {
         public static final double ambiguityThreshold = 0.5;
         // every tag beyond seeing two tags gives us an extra 30% of our threshold
         public static final double multiTagDistanceFactor = 0.3;
+
+        /*
+        The coordinate system for the camera to robot transforms is somewhat confusing.
+        All lengths are in meters, and angles are in degrees.
+        Positions are relative to the center of the robot.
+        Positive X means that the camera is towards the front of the robot.
+        Positive Y is directed to the left of the robot.
+        Positive yaw points to the left, i.e. 90 degrees in yaw is directly pointed left.
+        Positive pitch is actually pointed down, which is VERY important to remember.
+        Positive roll is the camera rolling towards the robot's right side.
+        */
+        // TODO camera transform is subject to change
+        private static final double cameraX = Units.inchesToMeters(12.266);
+        private static final double cameraZ = Units.inchesToMeters(20.162);
+
+        private static final double leftCamY = Units.inchesToMeters(10.719);
+        private static final double rightCamY = Units.inchesToMeters(-9.969);
+
+        private static final Rotation3d leftCamRot =
+                new Rotation3d(Degrees.of(0), Degrees.of(-22), Degrees.of(-8.297));
+        private static final Rotation3d rightCamRot =
+                new Rotation3d(Degrees.of(0), Degrees.of(-22), Degrees.of(+8.297));
+
+        public static final Transform3d LEFT_CAM_TO_ROBOT =
+                new Transform3d(cameraX, leftCamY, cameraZ, leftCamRot);
+        public static final Transform3d RIGHT_CAM_TO_ROBOT =
+                new Transform3d(cameraX, rightCamY, cameraZ, rightCamRot);
     }
 
     public static boolean isHubEnabled() {

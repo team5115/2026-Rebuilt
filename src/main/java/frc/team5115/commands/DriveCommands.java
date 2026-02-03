@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.team5115.Constants;
+import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
@@ -27,13 +27,12 @@ public class DriveCommands {
     // TODO maybe modify slow mode speed?
     private static final double SLOW_MODE_MULTIPLIER = 0.15;
 
-    private static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
-    private static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
-
     private DriveCommands() {}
 
     /**
-     * Runs forever, shooting indefinitely. Stops the indexer and shooter when done
+     * Runs forever, maintaining shooter speed based on drivetrain odometry. First, spins up the
+     * shooter and agitator while rejecting on indexer. After reaching desired shooter speed, it
+     * indexes and continues to shoot until interrupted.
      *
      * @param drivetrain
      * @param agitator
@@ -45,11 +44,8 @@ public class DriveCommands {
             Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
                 agitator.fast(),
-                shooter.maintainSpeed(
-                        () ->
-                                (Constants.isRedAlliance() ? RED_HUB : BLUE_HUB)
-                                        .getDistance(drivetrain.getPose().getTranslation())),
-                shooter.waitForSetpoint().andThen(indexer.index()));
+                shooter.maintainSpeed(() -> AutoConstants.distanceToHub(drivetrain.getPose())),
+                shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
     /** Drive field relative but maintain a heading pointed towards the hub */
@@ -82,7 +78,7 @@ public class DriveCommands {
                     final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
 
                     // Get the angle to point towards the orbit point
-                    drivetrain.runOrbit(vx, vy, Constants.isRedAlliance() ? RED_HUB : BLUE_HUB);
+                    drivetrain.runOrbit(vx, vy, AutoConstants.getHubPosition());
                 },
                 drivetrain);
     }

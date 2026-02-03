@@ -1,7 +1,6 @@
 package frc.team5115;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -91,10 +90,8 @@ public class RobotContainer {
                 break;
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
-                MapleSim.getInstance();
-                MapleSim.setupArena();
-                MapleSim.initInstance();
-                var swerveSim = MapleSim.getSwerveSim();
+                MapleSim.initializeArena();
+                final var swerveSim = MapleSim.getSwerveSim();
                 gyro = new GyroIOSim(swerveSim.getGyroSimulation());
 
                 intake = new Intake(new IntakeIOSim());
@@ -136,10 +133,16 @@ public class RobotContainer {
 
         faults =
                 new RobotFaults(
-                        drivetrain, vision, driverController::joysticksConnected, intake, shooter, indexer);
+                        drivetrain,
+                        vision,
+                        driverController::joysticksConnected,
+                        intake,
+                        agitator,
+                        indexer,
+                        shooter);
 
         // Register auto commands for pathplanner
-        registerCommands(drivetrain, vision, intake, shooter, indexer);
+        registerCommands();
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -194,20 +197,8 @@ public class RobotContainer {
         new Trigger(() -> hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
 
-    public void robotPeriodic() {}
-
-    /**
-     * Register commands for pathplanner to use in autos
-     *
-     * @param drivetrain
-     * @param vision
-     * @param intake
-     * @param climber
-     * @param shooter
-     */
-    public static void registerCommands(
-            Drivetrain drivetrain, PhotonVision vision, Intake intake, Shooter shooter, Indexer indexer) {
-
+    /** Register commands for pathplanner to use in autos. */
+    private void registerCommands() {
         // TODO add named commands
         System.out.println("Registered Commands");
     }
@@ -221,29 +212,27 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
-    public void teleopPeriodic() {
+    public void robotPeriodic() {
         faults.periodic();
-    }
-
-    public void teleopInit() {
-        drivetrain.setTeleopCurrentLimit();
-    }
-
-    public void simInit() {
-        drivetrain.setPose(Constants.SIM_INIT_POSE);
     }
 
     public void simPeriodic() {
         MapleSim.simPeriodic();
     }
 
+    public void teleopInit() {
+        drivetrain.setTeleopCurrentLimit();
+    }
+
     public void autoInit() {
         drivetrain.setAutoCurrentLimit();
         // Offset gyro to zero
         drivetrain.offsetGyro();
-        // Then offset by 180 degrees
-        drivetrain.offsetGyro(Rotation2d.k180deg);
-    }
+        // Offset the gyro to compensate for auto starting pose
+        drivetrain.offsetGyro(drivetrain.getPose().getRotation().unaryMinus());
 
-    public void disabledPeriodic() {}
+        if (Constants.currentMode == Constants.Mode.SIM) {
+            MapleSim.resetForAuto();
+        }
+    }
 }

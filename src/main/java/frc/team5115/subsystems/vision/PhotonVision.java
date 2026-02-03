@@ -1,9 +1,7 @@
 package frc.team5115.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team5115.Constants;
 import frc.team5115.Constants.VisionConstants;
@@ -24,41 +22,15 @@ public class PhotonVision extends SubsystemBase {
     private final PhotonVisionIO io;
 
     public enum Camera {
-        /*
-        The coordinate system for the camera to robot transforms is somewhat confusing.
-        All lengths are in meters, and angles are in degrees.
-        Positions are relative to the center of the robot.
-        Positive X means that the camera is towards the front of the robot.
-        Positive Y is directed to the left of the robot.
-        Positive yaw points to the left, i.e. 90 degrees in yaw is directly pointed left.
-        Positive pitch is actually pointed down, which is VERY important to remember.
-        We still don't know which way roll is tbh.
-        */
-        LEFT_POINTING(
-                "LEFT_CAMERA", 0.75 / 2.0 - 0.025, -(0.75 / 2.0 - 0.085), +0.205, +0, -13.0, +42.545),
-        RIGHT_POINTING(
-                "RIGHT_CAMERA",
-                (0.75 / 2.0 - 0.025) - Units.inchesToMeters(0.5),
-                -(0.75 / 2.0 - 0.085) + Units.inchesToMeters(24.8),
-                +0.205 + Units.inchesToMeters(0.5),
-                +0,
-                -(90d - 65d),
-                -25d);
+        LEFT_CAM_POINTS_RIGHT("Black", VisionConstants.LEFT_CAM_TO_ROBOT),
+        RIGHT_CAM_POINTS_LEFT("Red", VisionConstants.RIGHT_CAM_TO_ROBOT);
 
         public final PhotonCameraSim cameraSim;
         public final PhotonCamera camera;
         public final PhotonPoseEstimator poseEstimator;
         public final Transform3d robotToCamera;
 
-        /** Measured robot center to camera lens center, i.e. robot to cam */
-        Camera(
-                String name,
-                double xMeters,
-                double yMeters,
-                double zMeters,
-                double rollDegrees,
-                double pitchDegrees,
-                double yawDegrees) {
+        Camera(String name, Transform3d robotToCamera) {
             this(
                     name,
                     VisionConstants.WIDTH_PX,
@@ -69,14 +41,7 @@ public class PhotonVision extends SubsystemBase {
                     VisionConstants.FPS,
                     VisionConstants.AVG_LATENCY_MS,
                     VisionConstants.STD_DEV_LATENCY_MS,
-                    new Transform3d(
-                            xMeters,
-                            yMeters,
-                            zMeters,
-                            new Rotation3d(
-                                    Math.toRadians(rollDegrees),
-                                    Math.toRadians(pitchDegrees),
-                                    Math.toRadians(yawDegrees))));
+                    robotToCamera);
         }
 
         Camera(
