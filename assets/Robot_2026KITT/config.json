@@ -2,7 +2,12 @@
   "name": "2026KITT",
   "isFTC": false,
   "disableSimplification": false,
-  "rotations": [{"axis":"x","degrees":90}],
+  "rotations": [
+    {
+      "axis": "x",
+      "degrees": 90
+    }
+  ],
   "position": [
     0,
     0,
