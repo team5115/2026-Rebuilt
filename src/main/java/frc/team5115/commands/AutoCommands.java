@@ -15,8 +15,11 @@ public class AutoCommands {
     // TODO auto commands!!!
 
     //verify this works with pathplanner later 
-    public static Command Intake(Intake intake){
-        return intake.intake();
+    public static Command Intake(Intake intake, Agitator agitator){
+        return Commands.parallel(
+            intake.intake(),
+            agitator.slow()
+        );
     }
 
     public static Command Shoot(Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter){ 
