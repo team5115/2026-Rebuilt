@@ -1,0 +1,27 @@
+{
+  "name": "2026KITT",
+  "isFTC": false,
+  "disableSimplification": false,
+  "rotations": [{"axis":"x","degrees":90}],
+  "position": [
+    0,
+    0,
+    0
+  ],
+  "cameras": [
+    {
+      "name": "FL",
+      "rotations": [],
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "fov": 90
+    }
+  ]
+}
