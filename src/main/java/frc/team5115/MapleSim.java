@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
@@ -13,6 +14,7 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnField;
 import org.littletonrobotics.junction.Logger;
 
 public class MapleSim {
@@ -21,6 +23,7 @@ public class MapleSim {
     public static void initializeArena() {
         swerveSim = new SwerveDriveSimulation(generateDriveSimConfig(), Constants.SIM_INIT_POSE);
         final Arena2026Rebuilt arena = (Arena2026Rebuilt) SimulatedArena.getInstance();
+        SimulatedArena.getInstance().addGamePiece(new RebuiltFuelOnField(new Translation2d(3, 3)));
         arena.addDriveTrainSimulation(swerveSim);
         arena.setEfficiencyMode(true);
     }

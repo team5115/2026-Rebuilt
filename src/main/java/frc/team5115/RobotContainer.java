@@ -94,7 +94,7 @@ public class RobotContainer {
                 final var swerveSim = MapleSim.getSwerveSim();
                 gyro = new GyroIOSim(swerveSim.getGyroSimulation());
 
-                intake = new Intake(new IntakeIOSim());
+                intake = new Intake(new IntakeIOSim(MapleSim.getSwerveSim()));
                 drivetrain =
                         new Drivetrain(
                                 gyro,
