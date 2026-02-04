@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -210,21 +211,20 @@ public final class Constants {
         Positive roll is the camera rolling towards the robot's right side.
         */
         // TODO camera transform is subject to change
-        private static final double cameraX = Units.inchesToMeters(12.266);
-        private static final double cameraZ = Units.inchesToMeters(20.162);
+        private static final double camX = Units.inchesToMeters(+12.043);
+        private static final double camZ = Units.inchesToMeters(+20.181);
 
-        private static final double leftCamY = Units.inchesToMeters(10.719);
-        private static final double rightCamY = Units.inchesToMeters(-9.969);
+        private static final double leftY = Units.inchesToMeters(+11.719);
+        private static final double rightY = Units.inchesToMeters(-11.719);
 
-        private static final Rotation3d leftCamRot =
-                new Rotation3d(Degrees.of(0), Degrees.of(-22), Degrees.of(-8.297));
-        private static final Rotation3d rightCamRot =
-                new Rotation3d(Degrees.of(0), Degrees.of(-22), Degrees.of(+8.297));
+        private static final Angle roll = Degrees.of(+0);
+        private static final Angle pitch = Degrees.of(-22);
 
-        public static final Transform3d LEFT_CAM_TO_ROBOT =
-                new Transform3d(cameraX, leftCamY, cameraZ, leftCamRot);
-        public static final Transform3d RIGHT_CAM_TO_ROBOT =
-                new Transform3d(cameraX, rightCamY, cameraZ, rightCamRot);
+        private static final Angle leftYaw = Degrees.of(-8.297);
+        private static final Angle rightYaw = Degrees.of(+8.297);
+
+        public static final Transform3d LEFT_CAM_TO_ROBOT = new Transform3d(camX, leftY, camZ, new Rotation3d(roll, pitch, leftYaw));
+        public static final Transform3d RIGHT_CAM_TO_ROBOT = new Transform3d(camX, rightY, camZ, new Rotation3d(roll, pitch, rightYaw));
     }
 
     public static boolean isHubEnabled() {
