@@ -46,7 +46,10 @@ public class RobotFaults {
 
     @Override
     public String toString() {
-        return "SparkFaults:[ " + formatSparkFaults(getSparkFaults()) + "] ; " + faultArray.toString();
+        return "SparkFaults:[ "
+                + formatSparkFaults(getSparkFaults())
+                + "] ; "
+                + getSubsystemFaults().toString();
     }
 
     public boolean hasFaults() {
@@ -59,10 +62,10 @@ public class RobotFaults {
             faultArray.add("CameraDisconnected");
         }
         if (drivetrain == null || !drivetrain.isGyroConnected()) {
-            faultArray.add("JoysticksDisconnected");
+            faultArray.add("GyroDisconnected");
         }
         if (!joysticksConnected.getAsBoolean()) {
-            faultArray.add("GyroDisconnected");
+            faultArray.add("JoysticksDisconnected");
         }
 
         return faultArray;
@@ -82,6 +85,9 @@ public class RobotFaults {
             ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> sparkFaults) {
         final StringBuilder builder = new StringBuilder();
         for (var entry : sparkFaults) {
+            if (entry.getValue().rawBits == 0) {
+                continue;
+            }
             builder.append(" { ID_" + entry.getKey() + ",");
             SparkBase.Faults faults = entry.getValue();
             if (faults.other) {
