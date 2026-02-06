@@ -5,6 +5,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.team5115.Constants;
+import frc.team5115.MapleSim;
 
 public class IndexerIOSim implements IndexerIO {
     private final DCMotorSim sim;
@@ -26,6 +27,9 @@ public class IndexerIOSim implements IndexerIO {
     @Override
     public void setVoltage(double volts) {
         appliedVolts = MathUtil.clamp(volts, -12.0, +12.0);
+        if (appliedVolts > 0.1) {
+            MapleSim.launchFuel();
+        }
         sim.setInputVoltage(appliedVolts);
     }
 

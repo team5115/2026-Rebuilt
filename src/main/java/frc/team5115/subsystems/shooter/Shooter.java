@@ -141,4 +141,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public ArrayList<SparkMax> getSparks() {
         return io.getSparks();
     }
+
+    public double getRotationRPM() {
+        return inputs.velocityRPM;
+    }
 }
