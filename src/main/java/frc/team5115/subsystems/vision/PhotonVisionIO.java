@@ -1,6 +1,7 @@
 package frc.team5115.subsystems.vision;
 
 import frc.team5115.subsystems.vision.PhotonVision.Camera;
+import frc.team5115.util.InterfaceReplayCheck;
 import java.util.List;
 import org.littletonrobotics.junction.AutoLog;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -11,9 +12,12 @@ public interface PhotonVisionIO {
         public boolean[] isConnected = new boolean[Camera.values().length];
     }
 
-    public default void updateInputs(PhotonVisionIOInputs inputs) {}
+    public default void updateInputs(PhotonVisionIOInputs inputs) {
+        InterfaceReplayCheck.warnOnNotReplay();
+    }
 
     public default List<PhotonPipelineResult> getAllUnreadResults(Camera camera) {
+        InterfaceReplayCheck.warnOnNotReplay();
         return null;
     }
 }

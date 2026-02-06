@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
+import frc.team5115.util.InterfaceReplayCheck;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface GyroIO {
@@ -15,5 +16,7 @@ public interface GyroIO {
         public AngularVelocity angularVelocity = RadiansPerSecond.of(0);
     }
 
-    public default void updateInputs(GyroIOInputs inputs) {}
+    public default void updateInputs(GyroIOInputs inputs) {
+        InterfaceReplayCheck.warnOnNotReplay();
+    }
 }
