@@ -223,8 +223,10 @@ public final class Constants {
         private static final Angle leftYaw = Degrees.of(-8.297);
         private static final Angle rightYaw = Degrees.of(+8.297);
 
-        public static final Transform3d LEFT_CAM_TO_ROBOT = new Transform3d(camX, leftY, camZ, new Rotation3d(roll, pitch, leftYaw));
-        public static final Transform3d RIGHT_CAM_TO_ROBOT = new Transform3d(camX, rightY, camZ, new Rotation3d(roll, pitch, rightYaw));
+        public static final Transform3d LEFT_CAM_TO_ROBOT =
+                new Transform3d(camX, leftY, camZ, new Rotation3d(roll, pitch, leftYaw));
+        public static final Transform3d RIGHT_CAM_TO_ROBOT =
+                new Transform3d(camX, rightY, camZ, new Rotation3d(roll, pitch, rightYaw));
     }
 
     public static boolean isHubEnabled() {

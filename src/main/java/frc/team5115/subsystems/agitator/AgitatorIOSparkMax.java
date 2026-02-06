@@ -38,6 +38,11 @@ public class AgitatorIOSparkMax implements AgitatorIO {
     }
 
     @Override
+    public void setPercent(double percent) {
+        motor.set(percent);
+    }
+
+    @Override
     public ArrayList<SparkMax> getSparks() {
         ArrayList<SparkMax> sparks = new ArrayList<>();
         sparks.add(motor);
