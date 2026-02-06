@@ -108,6 +108,8 @@ public class RobotContainer {
                 shooter = new Shooter(new ShooterIOSim());
                 indexer = new Indexer(new IndexerIOSim());
                 agitator = new Agitator(new AgitatorIOSim());
+
+                MapleSim.fuelConfig(shooter);
                 break;
 
             default:
