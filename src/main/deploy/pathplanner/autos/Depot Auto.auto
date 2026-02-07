@@ -30,9 +30,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "B-DepotShoot-1"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Spin Up"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "B-DepotShoot-1"
+                }
+              }
+            ]
           }
         },
         {

@@ -49,6 +49,7 @@ public class MapleSim {
 
     public static void resetForAuto() {
         SimulatedArena.getInstance().resetFieldForAuto();
+        intakeSimulation.setGamePiecesCount(8);
     }
 
     public static void simPeriodic(Intake intake, Indexer indexer, Shooter shooter) {

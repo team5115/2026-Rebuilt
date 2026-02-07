@@ -24,9 +24,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "B-OutpostShoot-2"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "B-OutpostShoot-2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Spin Up"
+                }
+              }
+            ]
           }
         },
         {
@@ -55,9 +68,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "B-DepotShoot-1"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Spin Up"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "B-DepotShoot-1"
+                }
+              }
+            ]
           }
         },
         {

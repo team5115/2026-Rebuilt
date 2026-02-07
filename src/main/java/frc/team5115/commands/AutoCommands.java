@@ -25,4 +25,8 @@ public class AutoCommands {
                         shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()))
                 .withTimeout(timeout);
     }
+
+    public static Command spinUp(Shooter shooter) {
+        return shooter.maintainSpeed(() -> 2.0);
+    }
 }
