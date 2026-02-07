@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -108,7 +110,10 @@ public class MapleSim {
                                 .getSimulatedDriveTrainPose()
                                 .getRotation(), // shooter angle (same as robot angle)
                         Meters.of(Units.inchesToMeters(17.02)), // height of shooter
-                        MetersPerSecond.of(shooter.getRotationRPM() / 6000 * 20), // TODO exit velocity of fuel
+                        MetersPerSecond.of(
+                                RPM.of(shooter.getRotationRPM()).in(RadiansPerSecond)
+                                        * Shooter.FLYWHEEL_RADIUS
+                                        * 0.5), // TODO maybe update with real values?
                         Degrees.of(75)); // TODO exit angle of fuel, from the horizontal
 
         fuelOnFly.withProjectileTrajectoryDisplayCallBack(
