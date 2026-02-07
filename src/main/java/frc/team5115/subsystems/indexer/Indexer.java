@@ -58,4 +58,12 @@ public class Indexer extends SubsystemBase implements MotorContainer {
     public ArrayList<SparkMax> getSparks() {
         return io.getSparks();
     }
+
+    public boolean isIndexing() {
+        return inputs.appliedVolts > 0.5;
+    }
+
+    public boolean isRejecting() {
+        return inputs.appliedVolts < 0.5;
+    }
 }

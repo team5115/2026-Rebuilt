@@ -28,10 +28,20 @@ public class Intake extends SubsystemBase implements MotorContainer {
         return Commands.startEnd(() -> io.setPercent(speed), () -> io.setPercent(0), this);
     }
 
+    /**
+     * Intake forever, stopping when interrupted.
+     *
+     * @return a StartEnd command
+     */
     public Command intake() {
         return run(Constants.INTAKE_SPEED);
     }
 
+    /**
+     * Vomit forever, stopping when interrupted.
+     *
+     * @return a StartEnd command
+     */
     public Command vomit() {
         return run(Constants.INTAKE_VOMIT_SPEED);
     }
@@ -51,5 +61,9 @@ public class Intake extends SubsystemBase implements MotorContainer {
                     }
                 },
                 this);
+    }
+
+    public boolean isIntaking() {
+        return inputs.velocityRPM > 50;
     }
 }

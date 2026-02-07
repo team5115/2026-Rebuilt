@@ -1,9 +1,9 @@
 package frc.team5115;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -12,12 +12,16 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
+import frc.team5115.subsystems.indexer.Indexer;
+import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
+import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.GyroSimulation;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
+import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnField;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
@@ -26,9 +30,17 @@ import org.littletonrobotics.junction.Logger;
 public class MapleSim {
     private static SwerveDriveSimulation swerveSim;
     private static RebuiltFuelOnFly fuelOnFly;
+    private static IntakeSimulation intakeSimulation;
 
     public static void initializeArena() {
         swerveSim = new SwerveDriveSimulation(generateDriveSimConfig(), Constants.SIM_INIT_POSE);
+        intakeSimulation =
+                IntakeSimulation.InTheFrameIntake(
+                        "Fuel",
+                        MapleSim.getSwerveSim(),
+                        Meters.of(0.470),
+                        IntakeSimulation.IntakeSide.FRONT,
+                        25);
         final Arena2026Rebuilt arena = (Arena2026Rebuilt) SimulatedArena.getInstance();
         SimulatedArena.getInstance().addGamePiece(new RebuiltFuelOnField(new Translation2d(3, 3)));
         arena.addDriveTrainSimulation(swerveSim);
@@ -39,8 +51,20 @@ public class MapleSim {
         SimulatedArena.getInstance().resetFieldForAuto();
     }
 
-    public static void simPeriodic() {
+    public static void simPeriodic(Intake intake, Indexer indexer, Shooter shooter) {
         SimulatedArena.getInstance().simulationPeriodic();
+
+        if (intake.isIntaking()) {
+            intakeSimulation.startIntake();
+        } else {
+            intakeSimulation.stopIntake();
+        }
+
+        if (shooter.getRotationRPM() > 500
+                && indexer.isIndexing()
+                && intakeSimulation.obtainGamePieceFromIntake()) {
+            launchFuel(shooter);
+        }
 
         Logger.recordOutput("FieldSimulation/RobotPosition", swerveSim.getSimulatedDriveTrainPose());
         Logger.recordOutput(
@@ -53,7 +77,7 @@ public class MapleSim {
                 .withSwerveModule(generateSwerveModuleConfig())
                 .withCustomModuleTranslations(SwerveConstants.MODULE_TRANSLATIONS)
                 .withBumperSize(SwerveConstants.BUMPER_WIDTH_X, SwerveConstants.BUMPER_WIDTH_Y)
-                .withRobotMass(AutoConstants.ROBOT_MASS); // TODO set robot mass
+                .withRobotMass(AutoConstants.ROBOT_MASS);
     }
 
     private static SwerveModuleSimulationConfig generateSwerveModuleConfig() {
@@ -69,20 +93,22 @@ public class MapleSim {
                 1.2); // Wheel COF
     }
 
-    public static void launchFuel() {
-        SimulatedArena.getInstance().addGamePieceProjectile(fuelOnFly);
+    public static void launchFuel(Shooter shooter) {
+        SimulatedArena.getInstance().addGamePieceProjectile(configureFuel(shooter));
     }
 
-    public static void fuelConfig(Shooter shooter) {
+    public static GamePieceProjectile configureFuel(Shooter shooter) {
         fuelOnFly =
                 new RebuiltFuelOnFly(
                         swerveSim.getSimulatedDriveTrainPose().getTranslation(),
-                        new Translation2d(0.2, 0),
+                        new Translation2d(Units.inchesToMeters(-12.46), 0), // shooter position in robot
                         swerveSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-                        swerveSim.getSimulatedDriveTrainPose().getRotation(),
-                        Meters.of(Units.inchesToMeters(17.02)),
-                        MetersPerSecond.of(shooter.getRotationRPM() / 6000 * 20),
-                        Radians.of(Math.toRadians(55)));
+                        swerveSim
+                                .getSimulatedDriveTrainPose()
+                                .getRotation(), // shooter angle (same as robot angle)
+                        Meters.of(Units.inchesToMeters(17.02)), // height of shooter
+                        MetersPerSecond.of(shooter.getRotationRPM() / 6000 * 20), // TODO exit velocity of fuel
+                        Degrees.of(75)); // TODO exit angle of fuel, from the horizontal
 
         fuelOnFly.withProjectileTrajectoryDisplayCallBack(
                 (pose3ds) ->
@@ -93,6 +119,8 @@ public class MapleSim {
                                 "Flywheel/FuelProjectileUnsuccessfulShot", pose3ds.toArray(Pose3d[]::new)));
 
         fuelOnFly.enableBecomesGamePieceOnFieldAfterTouchGround();
+
+        return fuelOnFly;
     }
 
     public static SwerveDriveSimulation getSwerveSim() {

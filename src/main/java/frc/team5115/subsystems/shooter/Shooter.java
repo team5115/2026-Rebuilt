@@ -107,14 +107,28 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public Command maintainSpeed(DoubleSupplier distanceToHub) {
         return Commands.runEnd(
                 () -> {
-                    // TODO calculate the required shooter speed
-                    pid.setSetpoint(1000 * distanceToHub.getAsDouble());
+                    pid.setSetpoint(calculateSpeed(distanceToHub.getAsDouble()));
                 },
                 () -> {
                     // Stop at the end
                     pid.setSetpoint(0);
                 },
                 this);
+    }
+
+    /**
+     * Uses an empirically determined best fit function to find the shooter speed based on the
+     * distance to the hub.
+     *
+     * @param distance the distance to the hub along the ground in meters
+     * @return the ideal speed in RPM of the shooter
+     */
+    private static double calculateSpeed(double distance) {
+        // TODO determine function for required shooter speed
+        final double a = 0d; // squared term
+        final double b = 1000d; // linear term
+        final double c = 1500d; // y intercept
+        return distance * distance * a + distance * b + c;
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

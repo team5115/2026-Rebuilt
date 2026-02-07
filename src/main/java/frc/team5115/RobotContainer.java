@@ -96,7 +96,7 @@ public class RobotContainer {
                 final var swerveSim = MapleSim.getSwerveSim();
                 gyro = new GyroIOSim(swerveSim.getGyroSimulation());
 
-                intake = new Intake(new IntakeIOSim(MapleSim.getSwerveSim()));
+                intake = new Intake(new IntakeIOSim());
                 drivetrain =
                         new Drivetrain(
                                 gyro,
@@ -223,7 +223,7 @@ public class RobotContainer {
     }
 
     public void simPeriodic() {
-        MapleSim.simPeriodic();
+        MapleSim.simPeriodic(intake, indexer, shooter);
     }
 
     public void teleopInit() {
