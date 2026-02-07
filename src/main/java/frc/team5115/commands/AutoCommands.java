@@ -12,18 +12,17 @@ import frc.team5115.subsystems.shooter.Shooter;
 public class AutoCommands {
     private AutoCommands() {}
 
-    // TODO auto commands!!!
-
-    // verify this works with pathplanner later
-    public static Command Intake(Intake intake, Agitator agitator) {
+    // TODO verify auto works
+    public static Command intake(Intake intake, Agitator agitator) {
         return Commands.parallel(intake.intake(), agitator.slow());
     }
 
-    public static Command Shoot(
-            Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
+    public static Command shoot(
+            double timeout, Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
-                agitator.fast(),
-                shooter.maintainSpeed(() -> AutoConstants.distanceToHub(drivetrain.getPose())),
-                shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
+                        agitator.fast(),
+                        shooter.maintainSpeed(() -> AutoConstants.distanceToHub(drivetrain.getPose())),
+                        shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()))
+                .withTimeout(timeout);
     }
 }

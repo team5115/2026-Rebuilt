@@ -5,7 +5,6 @@ import frc.team5115.Constants.Mode;
 
 public class InterfaceReplayCheck {
     private InterfaceReplayCheck() {}
-    ;
 
     public static void warnOnNotReplay() {
         if (Constants.currentMode != Mode.REPLAY) {

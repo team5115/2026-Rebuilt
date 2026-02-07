@@ -1,10 +1,12 @@
 package frc.team5115;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.team5115.commands.AutoCommands;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.agitator.AgitatorIOSim;
 import frc.team5115.subsystems.agitator.AgitatorIOSparkMax;
@@ -109,7 +111,7 @@ public class RobotContainer {
                 indexer = new Indexer(new IndexerIOSim());
                 agitator = new Agitator(new AgitatorIOSim());
 
-                MapleSim.fuelConfig(shooter);
+                MapleSim.configureFuel(shooter);
                 break;
 
             default:
@@ -201,7 +203,9 @@ public class RobotContainer {
 
     /** Register commands for pathplanner to use in autos. */
     private void registerCommands() {
-        // TODO add named commands
+        NamedCommands.registerCommand("Intake", AutoCommands.intake(intake, agitator));
+        NamedCommands.registerCommand(
+                "Shoot", AutoCommands.shoot(5, drivetrain, agitator, indexer, shooter));
         System.out.println("Registered Commands");
     }
 
