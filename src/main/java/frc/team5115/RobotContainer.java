@@ -76,12 +76,6 @@ public class RobotContainer {
     private final BooleanConsumer hitTargetConsumer;
     private final DoubleSupplier distanceMetersSupplier;
 
-    // Setings
-
-    private boolean hasFaults = true;
-
-    // Works with faults
-
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
 
@@ -226,9 +220,12 @@ public class RobotContainer {
 
     private void configureBlingBindings() {
         bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
+
+        // TODO update bling bindings for Rebuilt game
         drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
         drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
-        new Trigger(() -> hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
+
+        new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
 
     /** Register commands for pathplanner to use in autos. */
