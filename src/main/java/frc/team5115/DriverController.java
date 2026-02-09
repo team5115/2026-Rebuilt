@@ -1,5 +1,7 @@
 package frc.team5115;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -36,7 +38,7 @@ public class DriverController {
     }
 
     public void configureButtonBindings(
-            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
+            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter, DoubleSupplier shooterSpeed) {
         // drive control
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
@@ -60,6 +62,7 @@ public class DriverController {
         joyDrive.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
         joyDrive.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
         joyDrive.start().onTrue(offsetGyro(drivetrain));
+        joyDrive.a().whileTrue(shooter.supplySetpoint(shooterSpeed)).onFalse(shooter.setSetpoint(0));
 
         // Slowly agitate and reject by default
         agitator.setDefaultCommand(agitator.slow());

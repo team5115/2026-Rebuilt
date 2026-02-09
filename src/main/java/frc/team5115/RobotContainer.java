@@ -2,6 +2,10 @@ package frc.team5115;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.function.BooleanConsumer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -37,6 +41,13 @@ import frc.team5115.subsystems.vision.PhotonVision;
 import frc.team5115.subsystems.vision.PhotonVisionIO;
 import frc.team5115.subsystems.vision.PhotonVisionIOReal;
 import frc.team5115.subsystems.vision.PhotonVisionIOSim;
+
+import static edu.wpi.first.units.Units.Meters;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -62,6 +73,11 @@ public class RobotContainer {
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
+
+    private final DoubleSupplier speedSupplier;
+    private final BooleanSupplier hitTargetSupplier;
+    private final BooleanConsumer hitTargetConsumer;
+    private final DoubleSupplier distanceMetersSupplier;
 
     // Setings
 
@@ -189,7 +205,23 @@ public class RobotContainer {
 
         autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
 
-        driverController.configureButtonBindings(drivetrain, intake, agitator, indexer, shooter);
+        final String speedKey = "ShooterSpeedInput";
+        final String targetKey = "HitTarget?";
+        final String feetKey = "Feet Distance";
+        final String inchKey = "Inch Distance";
+        SmartDashboard.putNumber(speedKey, 0);
+        SmartDashboard.putBoolean(targetKey, false);
+        SmartDashboard.putNumber(feetKey, 0);
+        SmartDashboard.putNumber(inchKey, 0);
+        speedSupplier = () -> SmartDashboard.getNumber(speedKey, 0);
+        hitTargetSupplier = () -> SmartDashboard.getBoolean(targetKey, false);
+        hitTargetConsumer = (v) -> SmartDashboard.putBoolean(targetKey, v);
+        distanceMetersSupplier =
+                () ->
+                        Units.feetToMeters(SmartDashboard.getNumber(feetKey, 0))
+                                + Units.inchesToMeters(SmartDashboard.getNumber(inchKey, 0));
+
+        driverController.configureButtonBindings(drivetrain, intake, agitator, indexer, shooter, speedSupplier);
         driverController.configureRumbleBindings(drivetrain);
         configureBlingBindings();
     }
@@ -220,6 +252,10 @@ public class RobotContainer {
     }
 
     public void robotPeriodic() {
+        if (hitTargetSupplier.getAsBoolean()) {
+            Logger.recordOutput("ShooterData/SuccessfulDistance", Meters.of(distanceMetersSupplier.getAsDouble()));
+            hitTargetConsumer.accept(false);
+        }
         faults.periodic();
     }
 
