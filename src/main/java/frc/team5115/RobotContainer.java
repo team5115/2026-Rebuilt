@@ -1,8 +1,9 @@
 package frc.team5115;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,12 +42,8 @@ import frc.team5115.subsystems.vision.PhotonVision;
 import frc.team5115.subsystems.vision.PhotonVisionIO;
 import frc.team5115.subsystems.vision.PhotonVisionIOReal;
 import frc.team5115.subsystems.vision.PhotonVisionIOSim;
-
-import static edu.wpi.first.units.Units.Meters;
-
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -221,7 +218,8 @@ public class RobotContainer {
                         Units.feetToMeters(SmartDashboard.getNumber(feetKey, 0))
                                 + Units.inchesToMeters(SmartDashboard.getNumber(inchKey, 0));
 
-        driverController.configureButtonBindings(drivetrain, intake, agitator, indexer, shooter, speedSupplier);
+        driverController.configureButtonBindings(
+                drivetrain, intake, agitator, indexer, shooter, speedSupplier);
         driverController.configureRumbleBindings(drivetrain);
         configureBlingBindings();
     }
@@ -253,7 +251,8 @@ public class RobotContainer {
 
     public void robotPeriodic() {
         if (hitTargetSupplier.getAsBoolean()) {
-            Logger.recordOutput("ShooterData/SuccessfulDistance", Meters.of(distanceMetersSupplier.getAsDouble()));
+            Logger.recordOutput(
+                    "ShooterData/SuccessfulDistance", Meters.of(distanceMetersSupplier.getAsDouble()));
             hitTargetConsumer.accept(false);
         }
         faults.periodic();

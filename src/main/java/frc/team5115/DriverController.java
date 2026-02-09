@@ -1,7 +1,5 @@
 package frc.team5115;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -12,6 +10,7 @@ import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
+import java.util.function.DoubleSupplier;
 
 public class DriverController {
     private final CommandXboxController joyDrive;
@@ -38,7 +37,12 @@ public class DriverController {
     }
 
     public void configureButtonBindings(
-            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter, DoubleSupplier shooterSpeed) {
+            Drivetrain drivetrain,
+            Intake intake,
+            Agitator agitator,
+            Indexer indexer,
+            Shooter shooter,
+            DoubleSupplier shooterSpeed) {
         // drive control
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
