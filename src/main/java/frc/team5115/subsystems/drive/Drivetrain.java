@@ -564,6 +564,10 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         return getPose().getRotation();
     }
 
+    public double getDistanceToHub() {
+        return AutoConstants.distanceToHub(getPose());
+    }
+
     @AutoLogOutput
     public Rotation2d getGyroRotation() {
         if (gyroInputs.connected) {

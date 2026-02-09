@@ -88,12 +88,15 @@ public class DriverController {
                 .a()
                 .whileTrue(
                         DriveCommands.lockedOnHub(
+                                shooter,
                                 drivetrain,
                                 () -> slowMode,
                                 () -> -joyDrive.getLeftY(),
                                 () -> -joyDrive.getLeftX()));
 
-        joyDrive.b().whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
+        joyDrive
+                .rightTrigger()
+                .whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
 
         joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
     }
