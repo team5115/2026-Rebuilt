@@ -4,8 +4,10 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.agitator.Agitator;
+import frc.team5115.subsystems.bling.Bling;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
@@ -101,6 +103,22 @@ public class Bindings {
         joyDrive.leftTrigger().whileTrue(DriveCommands.dumbShoot(agitator, indexer, shooter));
 
         joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
+
+        new Trigger(
+                        () -> {
+                            return true;
+                        })
+                .whileTrue(shooter.maintainSpeed(drivetrain::getDistanceToHub));
+    }
+
+    public void configureBlingBindings(Bling bling, Drivetrain drivetrain, RobotFaults faults) {
+        bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
+
+        // TODO update bling bindings for Rebuilt game
+        drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
+        drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
+
+        new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
 
     private void configureDualMode(

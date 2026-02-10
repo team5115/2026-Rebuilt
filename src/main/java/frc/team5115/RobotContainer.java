@@ -8,7 +8,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.team5115.commands.AutoCommands;
@@ -215,17 +214,7 @@ public class RobotContainer {
         driverController.configureButtonBindings(
                 drivetrain, intake, agitator, indexer, shooter, speedSupplier);
         driverController.configureRumbleBindings(drivetrain);
-        configureBlingBindings();
-    }
-
-    private void configureBlingBindings() {
-        bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
-
-        // TODO update bling bindings for Rebuilt game
-        drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
-        drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
-
-        new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
+        driverController.configureBlingBindings(bling, drivetrain, faults);
     }
 
     /** Register commands for pathplanner to use in autos. */
