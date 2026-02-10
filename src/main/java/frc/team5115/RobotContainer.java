@@ -1,13 +1,13 @@
 package frc.team5115;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.team5115.commands.AutoCommands;
@@ -41,12 +41,8 @@ import frc.team5115.subsystems.vision.PhotonVision;
 import frc.team5115.subsystems.vision.PhotonVisionIO;
 import frc.team5115.subsystems.vision.PhotonVisionIOReal;
 import frc.team5115.subsystems.vision.PhotonVisionIOSim;
-
-import static edu.wpi.first.units.Units.Meters;
-
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -69,7 +65,7 @@ public class RobotContainer {
     private final RobotFaults faults;
 
     // Controllers
-    private final DriverController driverController;
+    private final Bindings driverController;
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -78,12 +74,6 @@ public class RobotContainer {
     private final BooleanSupplier hitTargetSupplier;
     private final BooleanConsumer hitTargetConsumer;
     private final DoubleSupplier distanceMetersSupplier;
-
-    // Setings
-
-    private boolean hasFaults = true;
-
-    // Works with faults
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -149,7 +139,7 @@ public class RobotContainer {
                 agitator = new Agitator(new AgitatorIOSparkMax());
                 break;
         }
-        driverController = new DriverController();
+        driverController = new Bindings();
 
         faults =
                 new RobotFaults(
@@ -221,16 +211,10 @@ public class RobotContainer {
                         Units.feetToMeters(SmartDashboard.getNumber(feetKey, 0))
                                 + Units.inchesToMeters(SmartDashboard.getNumber(inchKey, 0));
 
-        driverController.configureButtonBindings(drivetrain, intake, agitator, indexer, shooter, speedSupplier);
+        driverController.configureButtonBindings(
+                drivetrain, intake, agitator, indexer, shooter, speedSupplier);
         driverController.configureRumbleBindings(drivetrain);
-        configureBlingBindings();
-    }
-
-    private void configureBlingBindings() {
-        bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
-        drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
-        drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
-        new Trigger(() -> hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
+        driverController.configureBlingBindings(bling, drivetrain, faults);
     }
 
     /** Register commands for pathplanner to use in autos. */
@@ -253,7 +237,8 @@ public class RobotContainer {
 
     public void robotPeriodic() {
         if (hitTargetSupplier.getAsBoolean()) {
-            Logger.recordOutput("ShooterData/SuccessfulDistance", Meters.of(distanceMetersSupplier.getAsDouble()));
+            Logger.recordOutput(
+                    "ShooterData/SuccessfulDistance", Meters.of(distanceMetersSupplier.getAsDouble()));
             hitTargetConsumer.accept(false);
         }
         faults.periodic();

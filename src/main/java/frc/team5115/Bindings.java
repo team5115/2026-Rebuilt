@@ -1,26 +1,27 @@
 package frc.team5115;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.agitator.Agitator;
+import frc.team5115.subsystems.bling.Bling;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
+import java.util.function.DoubleSupplier;
 
-public class DriverController {
+public class Bindings {
     private final CommandXboxController joyDrive;
     private final CommandXboxController joyManip;
 
     private boolean robotRelative = false;
     private boolean slowMode = false;
 
-    public DriverController() {
+    public Bindings() {
         joyDrive = new CommandXboxController(0);
         joyManip = Constants.SINGLE_MODE ? null : new CommandXboxController(1);
     }
@@ -38,7 +39,12 @@ public class DriverController {
     }
 
     public void configureButtonBindings(
-            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter, DoubleSupplier shooterSpeed) {
+            Drivetrain drivetrain,
+            Intake intake,
+            Agitator agitator,
+            Indexer indexer,
+            Shooter shooter,
+            DoubleSupplier shooterSpeed) {
         // drive control
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
@@ -84,14 +90,35 @@ public class DriverController {
                 .a()
                 .whileTrue(
                         DriveCommands.lockedOnHub(
+                                shooter,
                                 drivetrain,
                                 () -> slowMode,
                                 () -> -joyDrive.getLeftY(),
                                 () -> -joyDrive.getLeftX()));
 
-        joyDrive.b().whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
+        joyDrive
+                .rightTrigger()
+                .whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
+
+        joyDrive.leftTrigger().whileTrue(DriveCommands.dumbShoot(agitator, indexer, shooter));
 
         joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
+
+        new Trigger(
+                        () -> {
+                            return true;
+                        })
+                .whileTrue(shooter.maintainSpeed(drivetrain::getDistanceToHub));
+    }
+
+    public void configureBlingBindings(Bling bling, Drivetrain drivetrain, RobotFaults faults) {
+        bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
+
+        // TODO update bling bindings for Rebuilt game
+        drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
+        drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
+
+        new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
 
     private void configureDualMode(

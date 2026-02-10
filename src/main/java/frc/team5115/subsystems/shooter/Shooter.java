@@ -54,7 +54,11 @@ public class Shooter extends SubsystemBase implements MotorContainer {
                                 null,
                                 null,
                                 null,
-                                (state) -> Logger.recordOutput("Shooter/SysIdState", state.toString())),
+                                (state) -> {
+                                    Logger.recordOutput("Shooter/SysIdState", state.toString());
+                                    Logger.recordOutput("Shooter/RotationRad", inputs.position * 2 * Math.PI);
+                                    Logger.recordOutput("Shooter/Position", state.toString());
+                                }),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> io.setVoltage(voltage.baseUnitMagnitude()), null, this));
     }
