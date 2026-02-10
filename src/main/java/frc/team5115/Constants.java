@@ -9,6 +9,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -67,6 +68,26 @@ public final class Constants {
     public static final double INDEX_SPEED = 1.0;
     public static final double INDEX_REJECT_SPEED = -1.0;
     public static final double INDEX_VOMIT_SPEED = -1.0;
+
+    public static final Distance ALLIANCE_TRANSLATION = Meters.of(11.915775);
+
+    public static final Rectangle2d BLUE_SUB_ZONE =
+            new Rectangle2d(
+                    new Translation2d(Meters.of(4.6), Meters.of(5.7)),
+                    new Translation2d(Meters.of(2.0), Meters.of(2.3)));
+
+    public static final Rectangle2d BLUE_ALLIANCE_ZONE =
+            new Rectangle2d(new Translation2d(), new Translation2d(Meters.of(4.0), Meters.of(8.09625)));
+
+    public static final Rectangle2d RED_SUB_ZONE =
+            new Rectangle2d(
+                    new Translation2d(Meters.of(4.6).plus(ALLIANCE_TRANSLATION), Meters.of(5.7)),
+                    new Translation2d(Meters.of(2.0).plus(ALLIANCE_TRANSLATION), Meters.of(2.3)));
+
+    public static final Rectangle2d RED_ALLIANCE_ZONE =
+            new Rectangle2d(
+                    new Translation2d(),
+                    new Translation2d(Meters.of(4.0).plus(ALLIANCE_TRANSLATION), Meters.of(8.09625)));
 
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;
@@ -159,6 +180,24 @@ public final class Constants {
 
         public static Translation2d getHubPosition() {
             return isRedAlliance() ? RED_HUB : BLUE_HUB;
+        }
+
+        public static boolean isInZone(Pose2d robot, Rectangle2d zone) {
+            return zone.contains(robot.getTranslation());
+        }
+
+        public static boolean isInAllianceZone(Pose2d robot) {
+            return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+                            ? RED_ALLIANCE_ZONE
+                            : BLUE_ALLIANCE_ZONE)
+                    .contains(robot.getTranslation());
+        }
+
+        public static boolean isInSubZone(Pose2d robot) {
+            return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+                            ? RED_ALLIANCE_ZONE
+                            : BLUE_ALLIANCE_ZONE)
+                    .contains(robot.getTranslation());
         }
     }
 
