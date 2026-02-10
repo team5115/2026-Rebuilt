@@ -48,6 +48,16 @@ public class DriveCommands {
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
+    public static Command dumbShoot(Agitator agitator, Indexer indexer, Shooter shooter) {
+        return Commands.parallel(
+                agitator.fast(),
+                shooter.maintainSpeed(
+                        () -> {
+                            return 1.0;
+                        }),
+                shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
+    }
+
     /**
      * Drive field relative while:
      *

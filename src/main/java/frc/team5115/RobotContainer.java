@@ -66,7 +66,7 @@ public class RobotContainer {
     private final RobotFaults faults;
 
     // Controllers
-    private final DriverController driverController;
+    private final Bindings driverController;
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -140,7 +140,7 @@ public class RobotContainer {
                 agitator = new Agitator(new AgitatorIOSparkMax());
                 break;
         }
-        driverController = new DriverController();
+        driverController = new Bindings();
 
         faults =
                 new RobotFaults(

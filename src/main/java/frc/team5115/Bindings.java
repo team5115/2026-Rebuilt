@@ -12,14 +12,14 @@ import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
 import java.util.function.DoubleSupplier;
 
-public class DriverController {
+public class Bindings {
     private final CommandXboxController joyDrive;
     private final CommandXboxController joyManip;
 
     private boolean robotRelative = false;
     private boolean slowMode = false;
 
-    public DriverController() {
+    public Bindings() {
         joyDrive = new CommandXboxController(0);
         joyManip = Constants.SINGLE_MODE ? null : new CommandXboxController(1);
     }
@@ -97,6 +97,8 @@ public class DriverController {
         joyDrive
                 .rightTrigger()
                 .whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
+
+        joyDrive.leftTrigger().whileTrue(DriveCommands.dumbShoot(agitator, indexer, shooter));
 
         joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
     }
