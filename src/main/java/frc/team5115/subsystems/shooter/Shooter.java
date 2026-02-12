@@ -25,13 +25,16 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public static final double FLYWHEEL_MOI = 0.000856915; // kg*m^2
     public static final double FLYWHEEL_RADIUS = Units.inchesToMeters(4.75 / 2);
 
+    private static final double ffConversion = Math.PI / 30;
+
     public Shooter(ShooterIO io) {
         this.io = io;
 
         switch (Constants.currentMode) {
             case REAL:
             case REPLAY:
-                feedforward = new SimpleMotorFeedforward(0.17484, 0.00223, 0.00030957);
+                feedforward =
+                        new SimpleMotorFeedforward(0.21098, 0.020198 * ffConversion, 0.0046002 * ffConversion);
                 pid = new PIDController(4.1686E-05, 0, 0);
                 break;
             case SIM:
@@ -56,8 +59,10 @@ public class Shooter extends SubsystemBase implements MotorContainer {
                                 null,
                                 (state) -> {
                                     Logger.recordOutput("Shooter/SysIdState", state.toString());
-                                    Logger.recordOutput("Shooter/RotationRad", inputs.position * 2 * Math.PI);
-                                    Logger.recordOutput("Shooter/Position", state.toString());
+                                    Logger.recordOutput("Shooter/PositionRadians", inputs.position * 2 * Math.PI);
+                                    Logger.recordOutput(
+                                            "Shooter/VelocityRadPerSec",
+                                            Units.rotationsPerMinuteToRadiansPerSecond(inputs.velocityRPM));
                                 }),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> io.setVoltage(voltage.baseUnitMagnitude()), null, this));
@@ -68,6 +73,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
 
+        // TODO move to a command
         io.setVoltage(feedforward.calculate(pid.getSetpoint()) + pid.calculate(inputs.velocityRPM));
 
         final double error = pid.getSetpoint() - inputs.velocityRPM;
@@ -134,8 +140,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     private static double calculateSpeed(double distance) {
         // TODO determine function for required shooter speed
         final double a = 0d; // squared term
-        final double b = 1000d; // linear term
-        final double c = 1500d; // y intercept
+        final double b = 0d; // linear term
+        final double c = 500d; // y intercept
         return distance * distance * a + distance * b + c;
     }
 

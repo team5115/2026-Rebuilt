@@ -23,7 +23,7 @@ public class ShooterIOSparkMax implements ShooterIO {
         // Shooter motor configs
         motorConfig
                 .closedLoopRampRate(0.1)
-                .inverted(false)
+                .inverted(true)
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(40);
 
@@ -35,7 +35,7 @@ public class ShooterIOSparkMax implements ShooterIO {
         inputs.velocityRPM = encoder.getVelocity();
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
-        inputs.position = motor.getAbsoluteEncoder().getPosition();
+        inputs.position = encoder.getPosition();
     }
 
     @Override

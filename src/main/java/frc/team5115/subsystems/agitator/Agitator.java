@@ -38,7 +38,8 @@ public class Agitator extends SubsystemBase implements MotorContainer {
      * @return a Run Command
      */
     public Command fast() {
-        return run(Constants.AGITATOR_FAST_SPEED);
+        return agitate(
+                Constants.AGITATOR_FAST_SPEED, Constants.AGITATOR_SLOW_SPEED, Constants.AGITATOR_PAUSE_SEC);
     }
 
     /**
@@ -52,6 +53,20 @@ public class Agitator extends SubsystemBase implements MotorContainer {
 
     private Command run(double speed) {
         return Commands.runOnce(() -> io.setPercent(speed), this).andThen(Commands.idle(this));
+    }
+
+    private Command agitate(double speed1, double speed2, double pauseSec) {
+        return Commands.sequence(
+                        setSpeed(speed1),
+                        Commands.waitSeconds(pauseSec),
+                        setSpeed(speed2),
+                        Commands.waitSeconds(pauseSec))
+                .repeatedly()
+                .finallyDo(() -> io.setPercent(0));
+    }
+
+    private Command setSpeed(double speed) {
+        return Commands.runOnce(() -> io.setPercent(speed), this);
     }
 
     @Override

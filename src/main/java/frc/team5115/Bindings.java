@@ -75,7 +75,7 @@ public class Bindings {
         indexer.setDefaultCommand(indexer.reject());
 
         // TODO do we want to always intake?
-        intake.setDefaultCommand(intake.intake().repeatedly());
+        intake.setDefaultCommand(intake.intake());
 
         if (Constants.SINGLE_MODE) {
             configureSingleMode(drivetrain, intake, agitator, indexer, shooter);
