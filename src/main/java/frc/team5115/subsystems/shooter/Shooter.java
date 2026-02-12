@@ -13,6 +13,7 @@ import frc.team5115.Constants;
 import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase implements MotorContainer {
@@ -26,6 +27,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public static final double FLYWHEEL_RADIUS = Units.inchesToMeters(4.75 / 2);
 
     private static final double ffConversion = Math.PI / 30;
+
+    @AutoLogOutput private boolean isControlledByPIDF = false;
 
     public Shooter(ShooterIO io) {
         this.io = io;
@@ -72,44 +75,15 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
-
-        // TODO move to a command
-        io.setVoltage(feedforward.calculate(pid.getSetpoint()) + pid.calculate(inputs.velocityRPM));
-
-        final double error = pid.getSetpoint() - inputs.velocityRPM;
-        Logger.recordOutput("Shooter/Setpoint RPM", pid.getSetpoint());
-        Logger.recordOutput("Shooter/Error RPM", error);
-        Logger.recordOutput("Shooter/Error Squared", error * error);
-        Logger.recordOutput("Shooter/At Setpoint?", pid.atSetpoint());
     }
 
     /**
-     * Instant Command the shooter to spin based on a supplied speed.
-     *
-     * @param rpm a DoubleSupplier that gives the speed to spin the shooter
-     * @return an Instant Command
-     */
-    public Command supplySetpoint(DoubleSupplier rpm) {
-        return Commands.runOnce(() -> pid.setSetpoint(rpm.getAsDouble()), this);
-    }
-
-    /**
-     * Instant Command the shooter to spin at a set speed.
-     *
-     * @param rpm the speed at which to spin the shooter
-     * @return an Instant Command
-     */
-    public Command setSetpoint(double rpm) {
-        return Commands.runOnce(() -> pid.setSetpoint(rpm), this);
-    }
-
-    /**
-     * Wait until the pid reaches its setpoint
+     * Wait until the PIDF is controlling the shooter and it reaches its setpoint.
      *
      * @return a Wait Command
      */
     public Command waitForSetpoint() {
-        return Commands.waitUntil(() -> pid.atSetpoint());
+        return Commands.waitUntil(() -> pid.atSetpoint() && isControlledByPIDF);
     }
 
     /**
@@ -121,11 +95,23 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public Command maintainSpeed(DoubleSupplier distanceToHub) {
         return Commands.runEnd(
                 () -> {
-                    pid.setSetpoint(calculateSpeed(distanceToHub.getAsDouble()));
+                    isControlledByPIDF = true;
+                    final double setpoint = calculateSpeed(distanceToHub.getAsDouble());
+
+                    io.setVoltage(
+                            feedforward.calculate(setpoint) + pid.calculate(inputs.velocityRPM, setpoint));
+
+                    final double error = pid.getSetpoint() - inputs.velocityRPM;
+                    Logger.recordOutput("Shooter/Setpoint RPM", pid.getSetpoint());
+                    Logger.recordOutput("Shooter/Error RPM", error);
+                    Logger.recordOutput("Shooter/Error Squared", error * error);
+                    Logger.recordOutput("Shooter/At Setpoint?", pid.atSetpoint());
                 },
                 () -> {
                     // Stop at the end
                     pid.setSetpoint(0);
+                    io.setVoltage(0);
+                    isControlledByPIDF = false;
                 },
                 this);
     }

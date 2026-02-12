@@ -68,14 +68,10 @@ public class Bindings {
         joyDrive.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
         joyDrive.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
         joyDrive.start().onTrue(offsetGyro(drivetrain));
-        joyDrive.a().whileTrue(shooter.supplySetpoint(shooterSpeed)).onFalse(shooter.setSetpoint(0));
 
-        // Slowly agitate and reject by default
+        intake.setDefaultCommand(intake.intake());
         agitator.setDefaultCommand(agitator.slow());
         indexer.setDefaultCommand(indexer.reject());
-
-        // TODO do we want to always intake?
-        intake.setDefaultCommand(intake.intake());
 
         if (Constants.SINGLE_MODE) {
             configureSingleMode(drivetrain, intake, agitator, indexer, shooter);
