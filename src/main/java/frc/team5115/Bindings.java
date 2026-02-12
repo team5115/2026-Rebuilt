@@ -3,10 +3,8 @@ package frc.team5115;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.team5115.Constants.AutoConstants;
 import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.bling.Bling;
@@ -106,18 +104,18 @@ public class Bindings {
 
         joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
 
-        new Trigger(() -> AutoConstants.isInAllianceZone(drivetrain.getPose()))
-                .whileTrue(new RepeatCommand(shooter.maintainSpeed(drivetrain::getDistanceToHub)));
+        // new Trigger(() -> AutoConstants.isInAllianceZone(drivetrain.getPose()))
+        //         .whileTrue(new RepeatCommand(shooter.maintainSpeed(drivetrain::getDistanceToHub)));
 
-        new Trigger(() -> AutoConstants.isInSubZone(drivetrain.getPose()))
-                .whileTrue(
-                        new RepeatCommand(
-                                DriveCommands.lockedOnHub(
-                                        shooter,
-                                        drivetrain,
-                                        () -> slowMode,
-                                        () -> -joyDrive.getLeftY(),
-                                        () -> -joyDrive.getLeftX())));
+        // new Trigger(() -> AutoConstants.isInSubZone(drivetrain.getPose()))
+        //         .whileTrue(
+        //                 new RepeatCommand(
+        //                         DriveCommands.lockedOnHub(
+        //                                 shooter,
+        //                                 drivetrain,
+        //                                 () -> slowMode,
+        //                                 () -> -joyDrive.getLeftY(),
+        //                                 () -> -joyDrive.getLeftX())));
     }
 
     public void configureBlingBindings(Bling bling, Drivetrain drivetrain, RobotFaults faults) {
