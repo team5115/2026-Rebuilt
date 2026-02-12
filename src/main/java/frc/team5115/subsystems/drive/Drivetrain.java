@@ -9,7 +9,6 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -32,7 +31,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
 import frc.team5115.Constants.AutoConstants;
@@ -41,7 +39,6 @@ import frc.team5115.util.LocalADStarAK;
 import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -322,100 +319,11 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         field.setRobotPose(getPose());
     }
 
-    @AutoLogOutput(key = "AutoAlign/SelectedPose")
-    private Pose2d selectedPose = null;
-
-    @AutoLogOutput(key = "AutoAlign/Aligning?")
-    private boolean aligning = false;
-
-    @AutoLogOutput(key = "AutoAlign/AtGoal")
-    private boolean alignedAtGoal() {
-        final ChassisSpeeds chassisSpeeds = getChassisSpeeds();
-        final double linearSpeed =
-                Math.pow(chassisSpeeds.vxMetersPerSecond, 2)
-                        + Math.pow(getChassisSpeeds().vyMetersPerSecond, 2);
-        return translationPid.atSetpoint() && anglePid.atGoal() && linearSpeed < 0.1;
-    }
-
-    public Trigger alignedAtGoalTrigger() {
-        return new Trigger(() -> alignedAtGoal() && aligning);
-    }
-
-    public Trigger aligningToGoal() {
-        return new Trigger(() -> aligning);
-    }
-
     public ChassisSpeeds getChassisSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
 
     // mangos are great
-
-    public Command selectAndResetAutoAlign(Supplier<Pose2d> goalPose) {
-        return Commands.runOnce(
-                () -> {
-                    selectedPose = goalPose.get();
-                    anglePid.reset(getRotation().getRadians(), getChassisSpeeds().omegaRadiansPerSecond);
-                    translationPid.reset();
-                },
-                this);
-    }
-
-    /**
-     * Drive by auto aim pids using an already chosen `selectedPose`
-     *
-     * @return
-     */
-    public Command alignSelectedSpot() {
-        return alignByPids(
-                () -> {
-                    if (selectedPose == null) {
-                        System.err.printf("SelectedPose was found to be null! Aligning to current pose");
-                        selectedPose = getPose();
-                    }
-                    return selectedPose;
-                });
-    }
-
-    private Command alignByPids(Supplier<Pose2d> goalSupplier) {
-        return Commands.runEnd(
-                () -> {
-                    aligning = true;
-                    final var goalPose = goalSupplier.get();
-                    final var pose = getPose();
-
-                    final var omega =
-                            anglePid.calculate(
-                                    pose.getRotation().getRadians(), goalPose.getRotation().getRadians());
-
-                    final Translation2d delta = goalPose.getTranslation().minus(pose.getTranslation());
-                    final Rotation2d velocityHeading = delta.getAngle();
-                    final double distance = delta.getNorm(); // This works, check the source
-                    final double speed =
-                            MathUtil.clamp(
-                                    Math.abs(translationPid.calculate(distance, 0)),
-                                    0,
-                                    AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED);
-
-                    final Translation2d velocity = new Translation2d(speed, 0).rotateBy(velocityHeading);
-
-                    runVelocity(
-                            ChassisSpeeds.fromFieldRelativeSpeeds(
-                                    velocity.getX(), velocity.getY(), omega, getRotation()));
-
-                    Logger.recordOutput("AutoAlign/GoalPose", goalPose);
-                    Logger.recordOutput("AutoAlign/DeltaToGoal", delta);
-                    Logger.recordOutput("AutoAlign/DistanceToGoal", distance);
-                    Logger.recordOutput("AutoAlign/Omega", omega);
-                    Logger.recordOutput("AutoAlign/Velocity", velocity);
-                    Logger.recordOutput("AutoAlign/Speed", speed);
-                },
-                () -> {
-                    stop();
-                    aligning = false;
-                },
-                this);
-    }
 
     /**
      * Runs the drive at the desired velocity.

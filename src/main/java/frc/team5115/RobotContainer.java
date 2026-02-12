@@ -10,7 +10,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.team5115.Constants.AutoConstants;
 import frc.team5115.commands.AutoCommands;
+import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.agitator.AgitatorIOSim;
 import frc.team5115.subsystems.agitator.AgitatorIOSparkMax;
@@ -213,7 +215,7 @@ public class RobotContainer {
 
         driverController.configureButtonBindings(
                 drivetrain, intake, agitator, indexer, shooter, speedSupplier);
-        driverController.configureRumbleBindings(drivetrain);
+        driverController.configureRumbleBindings(drivetrain, shooter);
         driverController.configureBlingBindings(bling, drivetrain, faults);
     }
 
@@ -241,6 +243,20 @@ public class RobotContainer {
                     "ShooterData/SuccessfulDistance", Meters.of(distanceMetersSupplier.getAsDouble()));
             hitTargetConsumer.accept(false);
         }
+
+        Logger.recordOutput("LockedOnHub", DriveCommands.locked);
+        Logger.recordOutput(
+                "SubZone",
+                Constants.isRedAlliance() ? AutoConstants.RED_SUB_ZONE : AutoConstants.BLUE_SUB_ZONE);
+        Logger.recordOutput("IsInSubZone", AutoConstants.isInSubZone(drivetrain.getPose()));
+
+        Logger.recordOutput(
+                "AllianceZone",
+                Constants.isRedAlliance()
+                        ? AutoConstants.RED_ALLIANCE_ZONE
+                        : AutoConstants.BLUE_ALLIANCE_ZONE);
+        Logger.recordOutput("IsInAllianceZone", AutoConstants.isInAllianceZone(drivetrain.getPose()));
+
         faults.periodic();
     }
 

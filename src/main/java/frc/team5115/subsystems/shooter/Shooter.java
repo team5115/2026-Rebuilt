@@ -86,6 +86,10 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         return Commands.waitUntil(() -> pid.atSetpoint() && isControlledByPIDF);
     }
 
+    public boolean atSetpoint() {
+        return pid.atSetpoint();
+    }
+
     /**
      * Run forever, maintaining the required shooter speed. Stops the shooter when interrupted.
      *
