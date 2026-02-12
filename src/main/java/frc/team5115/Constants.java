@@ -48,11 +48,13 @@ public final class Constants {
     public static final boolean SINGLE_MODE = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
-    // TODO set motor IDs on real robot
     public static final byte INTAKE_MOTOR_ID = 11;
     public static final byte AGITATOR_MOTOR_ID = 12;
     public static final byte INDEXER_MOTOR_ID = 13;
     public static final byte SHOOTER_MOTOR_ID = 14;
+
+    public static final byte LEFT_SENSOR_ID = 0;
+    public static final byte RIGHT_SENSOR_ID = 1;
 
     public static final byte LED_STRIP_PWM_ID = 0;
 

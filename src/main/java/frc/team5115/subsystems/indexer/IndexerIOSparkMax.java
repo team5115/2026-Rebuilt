@@ -7,16 +7,21 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.team5115.Constants;
 import java.util.ArrayList;
 
 public class IndexerIOSparkMax implements IndexerIO {
     private final SparkMax motor;
     private final RelativeEncoder encoder;
+    private final DigitalInput leftSensor;
+    private final DigitalInput rightSensor;
 
     public IndexerIOSparkMax() {
         motor = new SparkMax(Constants.INDEXER_MOTOR_ID, MotorType.kBrushless);
         encoder = motor.getEncoder();
+        leftSensor = new DigitalInput(Constants.LEFT_SENSOR_ID);
+        rightSensor = new DigitalInput(Constants.RIGHT_SENSOR_ID);
 
         final SparkMaxConfig motorConfig = new SparkMaxConfig();
         motorConfig.smartCurrentLimit(30, 40).idleMode(IdleMode.kBrake);
@@ -28,6 +33,8 @@ public class IndexerIOSparkMax implements IndexerIO {
         inputs.velocityRPM = encoder.getVelocity();
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
+        inputs.leftSensor = !leftSensor.get();
+        inputs.rightSensor = !rightSensor.get();
     }
 
     @Override

@@ -66,4 +66,11 @@ public class Indexer extends SubsystemBase implements MotorContainer {
     public boolean isRejecting() {
         return inputs.appliedVolts < 0.5;
     }
+
+    /**
+     * @return true if either sensor detects something
+     */
+    public boolean isSensing() {
+        return inputs.leftSensor && inputs.rightSensor;
+    }
 }
