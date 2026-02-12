@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.team5115.Constants.AutoConstants;
 import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.bling.Bling;
@@ -34,8 +35,11 @@ public class Bindings {
         return Commands.runOnce(() -> drivetrain.offsetGyro(), drivetrain).ignoringDisable(true);
     }
 
-    public void configureRumbleBindings(Drivetrain drivetrain) {
-        drivetrain.alignedAtGoalTrigger().onTrue(rumble(Constants.RUMBLE_STRENGTH)).onFalse(rumble(0));
+    public void configureRumbleBindings(Drivetrain drivetrain, Shooter shooter) {
+        DriveCommands.lockedTrigger
+                .and(() -> shooter.atSetpoint())
+                .onTrue(rumble(Constants.RUMBLE_STRENGTH))
+                .onFalse(rumble(0));
     }
 
     public void configureButtonBindings(
@@ -68,14 +72,10 @@ public class Bindings {
         joyDrive.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
         joyDrive.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
         joyDrive.start().onTrue(offsetGyro(drivetrain));
-        joyDrive.a().whileTrue(shooter.supplySetpoint(shooterSpeed)).onFalse(shooter.setSetpoint(0));
 
-        // Slowly agitate and reject by default
+        intake.setDefaultCommand(intake.intake());
         agitator.setDefaultCommand(agitator.slow());
         indexer.setDefaultCommand(indexer.reject());
-
-        // TODO do we want to always intake?
-        intake.setDefaultCommand(intake.intake().repeatedly());
 
         if (Constants.SINGLE_MODE) {
             configureSingleMode(drivetrain, intake, agitator, indexer, shooter);
@@ -86,8 +86,14 @@ public class Bindings {
 
     private void configureSingleMode(
             Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
+
+        final Trigger inSubZone = new Trigger(() -> AutoConstants.isInSubZone(drivetrain.getPose()));
+        final Trigger inAllianceZone =
+                new Trigger(() -> AutoConstants.isInAllianceZone(drivetrain.getPose()));
+
         joyDrive
                 .a()
+                .or(inSubZone)
                 .whileTrue(
                         DriveCommands.lockedOnHub(
                                 shooter,
@@ -96,6 +102,11 @@ public class Bindings {
                                 () -> -joyDrive.getLeftY(),
                                 () -> -joyDrive.getLeftX()));
 
+        // If in the alliance zone but not the sub zone, maintain speed
+        inAllianceZone
+                .and(inSubZone.negate())
+                .whileTrue(shooter.maintainSpeed(drivetrain::getDistanceToHub));
+
         joyDrive
                 .rightTrigger()
                 .whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
@@ -103,27 +114,14 @@ public class Bindings {
         joyDrive.leftTrigger().whileTrue(DriveCommands.dumbShoot(agitator, indexer, shooter));
 
         joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
-
-        // new Trigger(() -> AutoConstants.isInAllianceZone(drivetrain.getPose()))
-        //         .whileTrue(new RepeatCommand(shooter.maintainSpeed(drivetrain::getDistanceToHub)));
-
-        // new Trigger(() -> AutoConstants.isInSubZone(drivetrain.getPose()))
-        //         .whileTrue(
-        //                 new RepeatCommand(
-        //                         DriveCommands.lockedOnHub(
-        //                                 shooter,
-        //                                 drivetrain,
-        //                                 () -> slowMode,
-        //                                 () -> -joyDrive.getLeftY(),
-        //                                 () -> -joyDrive.getLeftX())));
     }
 
     public void configureBlingBindings(Bling bling, Drivetrain drivetrain, RobotFaults faults) {
         bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
 
         // TODO update bling bindings for Rebuilt game
-        drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
-        drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
+        // drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
+        // drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
 
         new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }

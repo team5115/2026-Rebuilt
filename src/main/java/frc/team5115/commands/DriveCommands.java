@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.agitator.Agitator;
@@ -23,6 +24,9 @@ public class DriveCommands {
 
     private static final double LINEAR_N = 6.0;
     private static final double LINEAR_K = 1.0;
+
+    public static boolean locked = false;
+    public static Trigger lockedTrigger = new Trigger(() -> locked);
 
     // TODO maybe modify slow mode speed?
     private static final double SLOW_MODE_MULTIPLIER = 0.15;
@@ -74,6 +78,7 @@ public class DriveCommands {
             DoubleSupplier ySupplier) {
         return Commands.run(
                         () -> {
+                            locked = true;
                             double linearMagnitude =
                                     MathUtil.applyDeadband(
                                             Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
@@ -117,6 +122,7 @@ public class DriveCommands {
             DoubleSupplier omegaSupplier) {
         return Commands.run(
                 () -> {
+                    locked = false;
                     // Apply deadband
                     double linearMagnitude =
                             MathUtil.applyDeadband(

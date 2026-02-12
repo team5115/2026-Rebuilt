@@ -70,24 +70,6 @@ public final class Constants {
     public static final double INDEX_REJECT_SPEED = -1.0;
     public static final double INDEX_VOMIT_SPEED = -1.0;
 
-    public static final Distance ALLIANCE_TRANSLATION = Meters.of(11.915775);
-
-    public static final Ellipse2d BLUE_SUB_ZONE =
-            new Ellipse2d(new Translation2d(Meters.of(4.625), Meters.of(4.035)), Meters.of(3.0));
-
-    public static final Rectangle2d BLUE_ALLIANCE_ZONE =
-            new Rectangle2d(new Translation2d(), new Translation2d(Meters.of(3.0), Meters.of(8.09625)));
-
-    public static final Ellipse2d RED_SUB_ZONE =
-            new Ellipse2d(
-                    new Translation2d(Meters.of(4.625).plus(ALLIANCE_TRANSLATION), Meters.of(4.035)),
-                    Meters.of(3.0));
-
-    public static final Rectangle2d RED_ALLIANCE_ZONE =
-            new Rectangle2d(
-                    new Translation2d(),
-                    new Translation2d(Meters.of(4.0).plus(ALLIANCE_TRANSLATION), Meters.of(8.09625)));
-
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;
         public static final byte FRONT_RIGHT_DRIVE_ID = 4;
@@ -164,8 +146,28 @@ public final class Constants {
         public static final double MAX_AUTOALIGN_LINEAR_SPEED = 4.0; // m/s
         public static final Mass ROBOT_MASS = Pounds.of(83); // TODO update weight estimation
 
-        private static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
-        private static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
+        public static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
+        public static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
+
+        public static final Distance ALLIANCE_TRANSLATION = Meters.of(11.915775);
+
+        public static final Ellipse2d BLUE_SUB_ZONE =
+                new Ellipse2d(AutoConstants.BLUE_HUB, Meters.of(3.0));
+
+        public static final Rectangle2d BLUE_ALLIANCE_ZONE =
+                new Rectangle2d(
+                        new Translation2d(),
+                        new Translation2d(AutoConstants.BLUE_HUB.getMeasureX(), Meters.of(8.09625)));
+
+        public static final Ellipse2d RED_SUB_ZONE =
+                new Ellipse2d(AutoConstants.RED_HUB, Meters.of(3.0));
+
+        public static final Rectangle2d RED_ALLIANCE_ZONE =
+                new Rectangle2d(
+                        new Translation2d(
+                                AutoConstants.RED_HUB.getMeasureX().plus(AutoConstants.BLUE_HUB.getMeasureX()),
+                                Meters.of(0.0)),
+                        new Translation2d(AutoConstants.RED_HUB.getMeasureX(), Meters.of(8.09625)));
 
         /**
          * Get the distance from the robot to our alliance hub
@@ -186,14 +188,12 @@ public final class Constants {
         }
 
         public static boolean isInAllianceZone(Pose2d robot) {
-            return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-                            ? RED_ALLIANCE_ZONE
-                            : BLUE_ALLIANCE_ZONE)
+            return (Constants.isRedAlliance() ? RED_ALLIANCE_ZONE : BLUE_ALLIANCE_ZONE)
                     .contains(robot.getTranslation());
         }
 
         public static boolean isInSubZone(Pose2d robot) {
-            return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+            return (Constants.isRedAlliance()
                     ? RED_ALLIANCE_ZONE.contains(robot.getTranslation())
                             && RED_SUB_ZONE.contains(robot.getTranslation())
                     : BLUE_ALLIANCE_ZONE.contains(robot.getTranslation())
