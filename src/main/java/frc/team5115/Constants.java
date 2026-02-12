@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Pounds;
 import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Ellipse2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -71,18 +72,16 @@ public final class Constants {
 
     public static final Distance ALLIANCE_TRANSLATION = Meters.of(11.915775);
 
-    public static final Rectangle2d BLUE_SUB_ZONE =
-            new Rectangle2d(
-                    new Translation2d(Meters.of(4.6), Meters.of(5.7)),
-                    new Translation2d(Meters.of(2.0), Meters.of(2.3)));
+    public static final Ellipse2d BLUE_SUB_ZONE =
+            new Ellipse2d(new Translation2d(Meters.of(4.625), Meters.of(4.035)), Meters.of(3.0));
 
     public static final Rectangle2d BLUE_ALLIANCE_ZONE =
-            new Rectangle2d(new Translation2d(), new Translation2d(Meters.of(4.0), Meters.of(8.09625)));
+            new Rectangle2d(new Translation2d(), new Translation2d(Meters.of(3.0), Meters.of(8.09625)));
 
-    public static final Rectangle2d RED_SUB_ZONE =
-            new Rectangle2d(
-                    new Translation2d(Meters.of(4.6).plus(ALLIANCE_TRANSLATION), Meters.of(5.7)),
-                    new Translation2d(Meters.of(2.0).plus(ALLIANCE_TRANSLATION), Meters.of(2.3)));
+    public static final Ellipse2d RED_SUB_ZONE =
+            new Ellipse2d(
+                    new Translation2d(Meters.of(4.625).plus(ALLIANCE_TRANSLATION), Meters.of(4.035)),
+                    Meters.of(3.0));
 
     public static final Rectangle2d RED_ALLIANCE_ZONE =
             new Rectangle2d(
@@ -195,9 +194,10 @@ public final class Constants {
 
         public static boolean isInSubZone(Pose2d robot) {
             return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-                            ? RED_ALLIANCE_ZONE
-                            : BLUE_ALLIANCE_ZONE)
-                    .contains(robot.getTranslation());
+                    ? RED_ALLIANCE_ZONE.contains(robot.getTranslation())
+                            && RED_SUB_ZONE.contains(robot.getTranslation())
+                    : BLUE_ALLIANCE_ZONE.contains(robot.getTranslation())
+                            && BLUE_SUB_ZONE.contains(robot.getTranslation()));
         }
     }
 
