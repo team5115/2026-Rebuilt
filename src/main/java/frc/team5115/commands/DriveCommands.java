@@ -55,10 +55,7 @@ public class DriveCommands {
     public static Command dumbShoot(Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
                 agitator.fast(),
-                shooter.maintainSpeed(
-                        () -> {
-                            return 1.0;
-                        }),
+                shooter.maintainSpeed(() -> 1.0),
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
