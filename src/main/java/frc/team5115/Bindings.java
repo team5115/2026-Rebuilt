@@ -125,8 +125,7 @@ public class Bindings {
         final Trigger shooting = new Trigger(() -> indexer.isIndexing());
 
         bling.setDefaultCommand(bling.allianceKITT());
-
-        // TODO update bling bindings for Rebuilt game
+        
         inAllianceZone.whileTrue(Constants.isRedAlliance() ? bling.redScrollIn() : bling.blueScrollIn());
         inSubZone.whileTrue(bling.purpleScrollIn());
         shooting.whileTrue(bling.whiteScrollIn());
