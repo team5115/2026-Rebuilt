@@ -94,6 +94,9 @@ public class Bindings {
         joyDrive
                 .a()
                 .or(inSubZone)
+                .and(joyDrive.pov(180)
+                .or(joyDrive.pov(135))
+                .or(joyDrive.pov(225)).negate())
                 .whileTrue(
                         DriveCommands.lockedOnHub(
                                 shooter,
@@ -105,6 +108,9 @@ public class Bindings {
         // If in the alliance zone but not the sub zone, maintain speed
         inAllianceZone
                 .and(inSubZone.negate())
+                .and(joyDrive.pov(180)
+                .or(joyDrive.pov(135))
+                .or(joyDrive.pov(225)).negate())
                 .whileTrue(shooter.maintainSpeed(drivetrain::getDistanceToHub));
 
         joyDrive
