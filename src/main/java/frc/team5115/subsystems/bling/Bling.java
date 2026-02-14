@@ -3,6 +3,11 @@ package frc.team5115.subsystems.bling;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.team5115.Constants;
+
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 public class Bling extends SubsystemBase {
@@ -44,21 +49,8 @@ public class Bling extends SubsystemBase {
     }
 
     /** The classic red scrolling KITT pattern */
-    public Command redKITT() {
-        return scrollingKITT(1, 0, 0, 0);
-    }
-
-    /** The KITT pattern but green */
-    public Command greenKITT() {
-        return scrollingKITT(0, 1, 0, 0);
-    }
-
-    public Command yellowKITT() {
-        return scrollingKITT(1, 1, 0, 0);
-    }
-
-    public Command blueKITT() {
-        return scrollingKITT(0, 0, 1, 0);
+    public Command allianceKITT() {
+        return scrollingKITT(() -> Constants.isRedAlliance() ? 1 : 0, () -> 0, () -> !Constants.isRedAlliance() ? 1 : 0, () -> 0);
     }
 
     public Command blueSolid() {
@@ -67,6 +59,10 @@ public class Bling extends SubsystemBase {
 
     public Command purpleSolid() {
         return staticColor(0.35f, 0, 0.75f, 0);
+    }
+
+    public Command purpleFlashing() {
+        return seizure(333, 0.35f, 0, 0.75f, 0, 0.35f, 0, 0.75f, 0);
     }
 
     public Command yellowScrollIn() {
@@ -127,7 +123,7 @@ public class Bling extends SubsystemBase {
      * @param white [0,1]
      * @return a command that runs the pattern
      */
-    public Command scrollingKITT(double red, double green, double blue, double white) {
+    public Command scrollingKITT(DoubleSupplier redSupplier, DoubleSupplier greenSupplier, DoubleSupplier blueSupplier, DoubleSupplier whiteSupplier) {
         return Commands.startRun(
                 () -> {
                     // Start
@@ -137,6 +133,11 @@ public class Bling extends SubsystemBase {
                 },
                 () -> {
                     // Repeating
+                    double red = redSupplier.getAsDouble();
+                    double blue = blueSupplier.getAsDouble();
+                    double green = greenSupplier.getAsDouble();
+                    double white = whiteSupplier.getAsDouble();
+
                     timer++;
                     if (timer >= period) {
                         timer = 0;

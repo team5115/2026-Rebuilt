@@ -124,13 +124,13 @@ public class Bindings {
                 new Trigger(() -> AutoConstants.isInAllianceZone(drivetrain.getPose()));
         final Trigger shooting = new Trigger(() -> indexer.isIndexing());
 
-        bling.setDefaultCommand(Constants.isRedAlliance() ? bling.redKITT().ignoringDisable(true) : bling.blueKITT().ignoringDisable(true));
+        bling.setDefaultCommand(bling.allianceKITT());
 
         // TODO update bling bindings for Rebuilt game
         inAllianceZone.whileTrue(Constants.isRedAlliance() ? bling.redScrollIn() : bling.blueScrollIn());
         inSubZone.whileTrue(bling.purpleScrollIn());
         shooting.whileTrue(bling.whiteScrollIn());
-        new Trigger(() -> false);
+        new Trigger(() -> false).whileTrue(bling.purpleFlashing());
 
         new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
