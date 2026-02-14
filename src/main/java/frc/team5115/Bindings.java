@@ -94,9 +94,7 @@ public class Bindings {
         joyDrive
                 .a()
                 .or(inSubZone)
-                .and(joyDrive.pov(180)
-                .or(joyDrive.pov(135))
-                .or(joyDrive.pov(225)).negate())
+                .and(joyDrive.pov(180).or(joyDrive.pov(135)).or(joyDrive.pov(225)).negate())
                 .whileTrue(
                         DriveCommands.lockedOnHub(
                                 shooter,
@@ -108,9 +106,7 @@ public class Bindings {
         // If in the alliance zone but not the sub zone, maintain speed
         inAllianceZone
                 .and(inSubZone.negate())
-                .and(joyDrive.pov(180)
-                .or(joyDrive.pov(135))
-                .or(joyDrive.pov(225)).negate())
+                .and(joyDrive.pov(180).or(joyDrive.pov(135)).or(joyDrive.pov(225)).negate())
                 .whileTrue(shooter.maintainSpeed(drivetrain::getDistanceToHub));
 
         joyDrive
@@ -122,12 +118,19 @@ public class Bindings {
         joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
     }
 
-    public void configureBlingBindings(Bling bling, Drivetrain drivetrain, RobotFaults faults) {
-        bling.setDefaultCommand(bling.redKITT().ignoringDisable(true));
+    public void configureBlingBindings(Bling bling, Drivetrain drivetrain, Indexer indexer, RobotFaults faults) {
+        final Trigger inSubZone = new Trigger(() -> AutoConstants.isInSubZone(drivetrain.getPose()));
+        final Trigger inAllianceZone =
+                new Trigger(() -> AutoConstants.isInAllianceZone(drivetrain.getPose()));
+        final Trigger shooting = new Trigger(() -> indexer.isIndexing());
+
+        bling.setDefaultCommand(Constants.isRedAlliance() ? bling.redKITT().ignoringDisable(true) : bling.blueKITT().ignoringDisable(true));
 
         // TODO update bling bindings for Rebuilt game
-        // drivetrain.aligningToGoal().whileTrue(bling.yellowScrollIn());
-        // drivetrain.alignedAtGoalTrigger().whileTrue(bling.whiteScrollIn());
+        inAllianceZone.whileTrue(Constants.isRedAlliance() ? bling.redScrollIn() : bling.blueScrollIn());
+        inSubZone.whileTrue(bling.purpleScrollIn());
+        shooting.whileTrue(bling.whiteScrollIn());
+        new Trigger(() -> false);
 
         new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }
