@@ -1,0 +1,19 @@
+Using 8x11 cells, checker size 15 mm, marker size 11mm
+AruCo DICT_4X4 on Alex's computer
+Modified with GIMP to have better brightness/contrast/exposure.
+
+103.15 cm side to side
+73.5 cm top to bottom
+
+40.61 inches side to side
+11 squares width
+3.692 inches wide per square
+
+28.937 inces top to bottom
+8 squares tall
+3.617 inches tall per square
+
+average of 3.654 inches
+
+3.690 inches final guess
+75% is 2.7675

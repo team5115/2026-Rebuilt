@@ -1,0 +1,13 @@
+IMPORTANT THINGS TO REMEMBER!
+* Always print with a white margin, ~1 inch
+* Bigger target is better
+* Cover entire field-of-view with images
+* Have at least one image that covers the entire field-of-view
+* Get even coverage of the field-of-view
+* Rotate the target, but never tilt more than 45 degrees
+* Never bend or fold target
+* Avoid targets parallel to camera
+* Size of target's is 75% of the cell size
+
+NAMING CONVENTIONS:
+[width, inches]x[height, inches]_[rows]x[columns]_[cell size, inches]
