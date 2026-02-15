@@ -2,7 +2,6 @@ package frc.team5115.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.team5115.Constants.AutoConstants;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
@@ -21,12 +20,12 @@ public class AutoCommands {
             double timeout, Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
                         agitator.fast(),
-                        shooter.maintainSpeed(() -> AutoConstants.distanceToHub(drivetrain.getPose())),
+                        shooter.requestSpinUp(Shooter.Requester.AutonomousPeriod),
                         shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()))
                 .withTimeout(timeout);
     }
 
     public static Command spinUp(Shooter shooter) {
-        return shooter.maintainSpeed(() -> 2.0);
+        return shooter.requestSpinUp(Shooter.Requester.DumbShoot); // TODO fix auto dumb spin up
     }
 }

@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.agitator.Agitator;
@@ -24,9 +23,6 @@ public class DriveCommands {
 
     private static final double LINEAR_N = 6.0;
     private static final double LINEAR_K = 1.0;
-
-    public static boolean locked = false;
-    public static Trigger lockedTrigger = new Trigger(() -> locked);
 
     // TODO maybe modify slow mode speed?
     private static final double SLOW_MODE_MULTIPLIER = 0.15;
@@ -45,17 +41,21 @@ public class DriveCommands {
      * @return a Command that runs forever.
      */
     public static Command smartShoot(
-            Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
+            Drivetrain drivetrain,
+            Agitator agitator,
+            Indexer indexer,
+            Shooter shooter,
+            Shooter.Requester requester) {
         return Commands.parallel(
                 agitator.fast(),
-                shooter.maintainSpeed(drivetrain::getDistanceToHub),
+                shooter.requestSpinUp(requester),
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
     public static Command dumbShoot(Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
                 agitator.fast(),
-                shooter.maintainSpeed(() -> 1.0),
+                shooter.requestSpinUp(Shooter.Requester.DumbShoot), // TODO fix dumb shoot
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
@@ -73,37 +73,34 @@ public class DriveCommands {
             BooleanSupplier slowMode,
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier) {
-        return Commands.run(
-                        () -> {
-                            locked = true;
-                            double linearMagnitude =
-                                    MathUtil.applyDeadband(
-                                            Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
-                            Rotation2d linearDirection;
-                            if (xSupplier.getAsDouble() == 0 && ySupplier.getAsDouble() == 0) {
-                                linearDirection = new Rotation2d();
-                            } else {
-                                linearDirection = new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
-                            }
+        return Commands.startRun(
+                drivetrain::resetAngularPID,
+                () -> {
+                    double linearMagnitude =
+                            MathUtil.applyDeadband(
+                                    Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
+                    Rotation2d linearDirection;
+                    if (xSupplier.getAsDouble() == 0 && ySupplier.getAsDouble() == 0) {
+                        linearDirection = new Rotation2d();
+                    } else {
+                        linearDirection = new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+                    }
 
-                            linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
-                            final Translation2d linearVelocity =
-                                    new Pose2d(new Translation2d(), linearDirection)
-                                            .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
-                                            .getTranslation();
+                    linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
+                    final Translation2d linearVelocity =
+                            new Pose2d(new Translation2d(), linearDirection)
+                                    .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+                                    .getTranslation();
 
-                            // Convert to ChassisSpeeds & send command
-                            final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
-                            final double vx =
-                                    linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
-                            final double vy =
-                                    linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+                    // Convert to ChassisSpeeds & send command
+                    final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
+                    final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+                    final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
 
-                            // Get the angle to point towards the orbit point
-                            drivetrain.runOrbit(vx, vy, AutoConstants.getHubPosition());
-                        },
-                        drivetrain)
-                .alongWith(shooter.maintainSpeed(drivetrain::getDistanceToHub));
+                    // Get the angle to point towards the orbit point
+                    drivetrain.runOrbit(vx, vy, AutoConstants.getHubPosition());
+                },
+                drivetrain);
     }
 
     /**
@@ -119,7 +116,6 @@ public class DriveCommands {
             DoubleSupplier omegaSupplier) {
         return Commands.run(
                 () -> {
-                    locked = false;
                     // Apply deadband
                     double linearMagnitude =
                             MathUtil.applyDeadband(

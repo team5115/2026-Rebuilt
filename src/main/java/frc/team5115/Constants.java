@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -156,25 +157,38 @@ public final class Constants {
         public static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
         public static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
 
-        public static final Distance ALLIANCE_TRANSLATION = Meters.of(11.915775);
+        private static final Distance SUBZONE_X_SEMI_AXIS = Meters.of(3.0);
+        private static final Distance SUBZONE_Y_SEMI_AXIS = Meters.of(3.0);
+        private static final Distance FIELD_WIDTH = Meters.of(8.09625);
+        private static final Transform2d SUBZONE_CENTER_OFFSET =
+                new Transform2d(0, 0, Rotation2d.kZero);
+        private static final Distance ALLIANCE_ZONE_OFFSET = Meters.of(1.0);
 
         public static final Ellipse2d BLUE_SUB_ZONE =
-                new Ellipse2d(AutoConstants.BLUE_HUB, Meters.of(3.0));
+                new Ellipse2d(
+                        new Pose2d(AutoConstants.BLUE_HUB, Rotation2d.k180deg)
+                                .transformBy(SUBZONE_CENTER_OFFSET),
+                        SUBZONE_X_SEMI_AXIS,
+                        SUBZONE_Y_SEMI_AXIS);
 
         public static final Rectangle2d BLUE_ALLIANCE_ZONE =
                 new Rectangle2d(
                         new Translation2d(),
-                        new Translation2d(AutoConstants.BLUE_HUB.getMeasureX(), Meters.of(8.09625)));
+                        new Translation2d(
+                                AutoConstants.BLUE_HUB.getMeasureX().minus(ALLIANCE_ZONE_OFFSET), FIELD_WIDTH));
 
         public static final Ellipse2d RED_SUB_ZONE =
-                new Ellipse2d(AutoConstants.RED_HUB, Meters.of(3.0));
+                new Ellipse2d(
+                        new Pose2d(AutoConstants.RED_HUB, Rotation2d.kZero).transformBy(SUBZONE_CENTER_OFFSET),
+                        SUBZONE_X_SEMI_AXIS,
+                        SUBZONE_Y_SEMI_AXIS);
 
         public static final Rectangle2d RED_ALLIANCE_ZONE =
                 new Rectangle2d(
                         new Translation2d(
                                 AutoConstants.RED_HUB.getMeasureX().plus(AutoConstants.BLUE_HUB.getMeasureX()),
                                 Meters.of(0.0)),
-                        new Translation2d(AutoConstants.RED_HUB.getMeasureX(), Meters.of(8.09625)));
+                        new Translation2d(AutoConstants.RED_HUB.getMeasureX().plus(ALLIANCE_ZONE_OFFSET), FIELD_WIDTH));
 
         /**
          * Get the distance from the robot to our alliance hub

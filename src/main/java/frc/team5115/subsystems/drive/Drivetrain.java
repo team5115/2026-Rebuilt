@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
 import frc.team5115.Constants.AutoConstants;
@@ -60,7 +61,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
 
     private final double linearPidTolerence = 0.04;
 
-    private final ProfiledPIDController anglePid =
+    private final ProfiledPIDController angularPID =
             new ProfiledPIDController(
                     angular_kp,
                     angular_ki,
@@ -68,6 +69,9 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                     new TrapezoidProfile.Constraints(
                             SwerveConstants.MAX_ANGULAR_SPEED, SwerveConstants.MAX_ANGULAR_SPEED * 2));
     private final PIDController translationPid = new PIDController(linear_kp, linear_ki, linear_kd);
+
+    @AutoLogOutput(key = "Drivetrain/Orbitting?")
+    private boolean orbitting = true;
 
     private final SwerveDriveKinematics kinematics =
             new SwerveDriveKinematics(SwerveConstants.MODULE_TRANSLATIONS);
@@ -104,12 +108,14 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         modules[2] = new Module(blModuleIO, 2);
         modules[3] = new Module(brModuleIO, 3);
 
-        anglePid.enableContinuousInput(-Math.PI, Math.PI);
+        angularPID.enableContinuousInput(-Math.PI, Math.PI);
         translationPid.setTolerance(linearPidTolerence);
         translationPid.setIntegratorRange(
                 -AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED * 0.5,
                 AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED * 0.5);
-        anglePid.setTolerance(Math.toRadians(4));
+
+        // TODO determine anglePid tolerance
+        angularPID.setTolerance(Math.toRadians(4));
 
         AutoBuilder.configure(
                 this::getPose,
@@ -222,7 +228,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
 
         SmartDashboard.putData(field);
 
-        SmartDashboard.putData("Drivetrain/AnglePIDController", anglePid);
+        SmartDashboard.putData("Drivetrain/AnglePIDController", angularPID);
         SmartDashboard.putData("Drivetrain/LinearPIDController", translationPid);
     }
 
@@ -323,14 +329,17 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
 
-    // mangos are great
+    public void runVelocity(ChassisSpeeds speeds) {
+        runVelocity(speeds, false);
+    }
 
     /**
      * Runs the drive at the desired velocity.
      *
      * @param speeds Speeds in meters/sec
      */
-    public void runVelocity(ChassisSpeeds speeds) {
+    public void runVelocity(ChassisSpeeds speeds, boolean orbitting) {
+        this.orbitting = orbitting;
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
@@ -385,10 +394,10 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                 tangentialVelocityScalar / radius * (1 - radialVelocityScalar / radius);
 
         final double pidOmega =
-                anglePid.calculate(pose.getRotation().getRadians(), baseHeading.getRadians());
+                angularPID.calculate(pose.getRotation().getRadians(), baseHeading.getRadians());
         final double totalOmega = orbitOmega + pidOmega;
 
-        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, totalOmega, getGyroRotation()));
+        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, totalOmega, getGyroRotation()), true);
 
         Logger.recordOutput("Orbit/OrbitOmega", RadiansPerSecond.of(orbitOmega));
         Logger.recordOutput("Orbit/PidOmega", RadiansPerSecond.of(pidOmega));
@@ -397,6 +406,10 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         Logger.recordOutput("Orbit/RadialVelocity", MetersPerSecond.of(radialVelocityScalar));
         Logger.recordOutput("Orbit/TangentialVector", tangentialVelocity.rotateBy(inverseHeading));
         Logger.recordOutput("Orbit/RadialVector", radialVelocity.rotateBy(inverseHeading));
+    }
+
+    public void resetAngularPID() {
+        angularPID.reset(getRotation().getRadians());
     }
 
     /** Stops the drive. */
@@ -474,6 +487,37 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
 
     public double getDistanceToHub() {
         return AutoConstants.distanceToHub(getPose());
+    }
+
+    public boolean lockedOnHub() {
+        return angularPID.atSetpoint() && orbitting;
+    }
+
+    @AutoLogOutput(key = "InSubZone?")
+    public Trigger inSubZone() {
+        return new Trigger(() -> AutoConstants.isInSubZone(getPose()));
+    }
+
+    @AutoLogOutput(key = "InAllianceZone?")
+    public Trigger inAllianceZone() {
+        return new Trigger(() -> AutoConstants.isInAllianceZone(getPose()));
+    }
+
+    /**
+     * Check if the robot is moving within some maximum speed parameters
+     *
+     * @param maxSpeedMetersPerSec the maximum speed in meters per second of the drivebase
+     * @param maxOmegaRadsPerSec the maximum rotational speed in radians per second of the drivebase
+     * @return true if the robot is moving below the maximum speed parameters
+     */
+    public boolean movingWithinTolerance(double maxSpeedMetersPerSec, double maxOmegaRadsPerSec) {
+        final var speeds = getChassisSpeeds();
+        final double speedSquared =
+                speeds.vxMetersPerSecond * speeds.vxMetersPerSecond
+                        + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond;
+
+        return Math.abs(speeds.omegaRadiansPerSecond) < maxOmegaRadsPerSec
+                && speedSquared < maxSpeedMetersPerSec * maxSpeedMetersPerSec;
     }
 
     @AutoLogOutput

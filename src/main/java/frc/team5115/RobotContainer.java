@@ -8,11 +8,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.commands.AutoCommands;
-import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.agitator.AgitatorIOSim;
 import frc.team5115.subsystems.agitator.AgitatorIOSparkMax;
@@ -76,6 +75,7 @@ public class RobotContainer {
     private final BooleanSupplier hitTargetSupplier;
     private final BooleanConsumer hitTargetConsumer;
     private final DoubleSupplier distanceMetersSupplier;
+    private final Trigger safeToShoot;
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -94,7 +94,7 @@ public class RobotContainer {
                                 (pose) -> {});
                 vision = new PhotonVision(new PhotonVisionIOReal(), drivetrain);
                 bling = new Bling(new BlingIOReal());
-                shooter = new Shooter(new ShooterIOSparkMax());
+                shooter = new Shooter(new ShooterIOSparkMax(), drivetrain::getDistanceToHub);
                 indexer = new Indexer(new IndexerIOSparkMax());
                 agitator = new Agitator(new AgitatorIOSparkMax());
                 break;
@@ -115,7 +115,7 @@ public class RobotContainer {
                                 swerveSim::setSimulationWorldPose);
                 vision = new PhotonVision(new PhotonVisionIOSim(), drivetrain);
                 bling = new Bling(new BlingIOSim());
-                shooter = new Shooter(new ShooterIOSim());
+                shooter = new Shooter(new ShooterIOSim(), drivetrain::getDistanceToHub);
                 indexer = new Indexer(new IndexerIOSim());
                 agitator = new Agitator(new AgitatorIOSim());
 
@@ -136,7 +136,7 @@ public class RobotContainer {
                                 (pose) -> {});
                 vision = new PhotonVision(new PhotonVisionIO() {}, drivetrain);
                 bling = new Bling(new BlingIO() {});
-                shooter = new Shooter(new ShooterIO() {});
+                shooter = new Shooter(new ShooterIO() {}, drivetrain::getDistanceToHub);
                 indexer = new Indexer(new IndexerIO() {});
                 agitator = new Agitator(new AgitatorIOSparkMax());
                 break;
@@ -186,15 +186,6 @@ public class RobotContainer {
 
         autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
 
-        autoChooser.addOption(
-                "Shooter SysID (Quasistatic Forward)", shooter.sysIdQuasistatic(Direction.kForward));
-        autoChooser.addOption(
-                "Shooter SysID (Quasistatic Reverse)", shooter.sysIdQuasistatic(Direction.kReverse));
-        autoChooser.addOption(
-                "Shooter SysID (Dynamic Forward)", shooter.sysIdDynamic(Direction.kForward));
-        autoChooser.addOption(
-                "Shooter SysID (Dynamic Reverse)", shooter.sysIdDynamic(Direction.kReverse));
-
         autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
 
         final String speedKey = "ShooterSpeedInput";
@@ -213,10 +204,11 @@ public class RobotContainer {
                         Units.feetToMeters(SmartDashboard.getNumber(feetKey, 0))
                                 + Units.inchesToMeters(SmartDashboard.getNumber(inchKey, 0));
 
+        safeToShoot = safeToShoot(drivetrain, shooter);
         driverController.configureButtonBindings(
-                drivetrain, intake, agitator, indexer, shooter, speedSupplier);
-        driverController.configureRumbleBindings(drivetrain, shooter);
-        driverController.configureBlingBindings(bling, drivetrain, faults);
+                drivetrain, intake, agitator, indexer, shooter, speedSupplier, safeToShoot);
+        driverController.configureBlingBindings(
+                bling, drivetrain, indexer, shooter, faults, safeToShoot);
     }
 
     /** Register commands for pathplanner to use in autos. */
@@ -244,18 +236,17 @@ public class RobotContainer {
             hitTargetConsumer.accept(false);
         }
 
-        Logger.recordOutput("LockedOnHub", DriveCommands.locked);
         Logger.recordOutput(
                 "SubZone",
                 Constants.isRedAlliance() ? AutoConstants.RED_SUB_ZONE : AutoConstants.BLUE_SUB_ZONE);
-        Logger.recordOutput("IsInSubZone", AutoConstants.isInSubZone(drivetrain.getPose()));
 
         Logger.recordOutput(
                 "AllianceZone",
                 Constants.isRedAlliance()
                         ? AutoConstants.RED_ALLIANCE_ZONE
                         : AutoConstants.BLUE_ALLIANCE_ZONE);
-        Logger.recordOutput("IsInAllianceZone", AutoConstants.isInAllianceZone(drivetrain.getPose()));
+
+        Logger.recordOutput("IsSafeToShoot?", safeToShoot.getAsBoolean());
 
         faults.periodic();
     }
@@ -278,5 +269,27 @@ public class RobotContainer {
         if (Constants.currentMode == Constants.Mode.SIM) {
             MapleSim.resetForAuto();
         }
+    }
+
+    /**
+     * Determines if it safe to shoot. Checks that the following conditions are true:
+     *
+     * <ol>
+     *   <li>is the robot in the sub-zone?
+     *   <li>is the shooter spun up to speed?
+     *   <li>is the drivetrain heading locked onto the hub?
+     *   <li>are the drivetrain linear and rotational speeds close enough to zero?
+     * </ol>
+     *
+     * @param drivetrain
+     * @param shooter
+     * @return a Trigger of if it's safe to shoot
+     */
+    private Trigger safeToShoot(Drivetrain drivetrain, Shooter shooter) {
+        return drivetrain
+                .inSubZone()
+                .and(shooter::atSetpoint)
+                .and(drivetrain::lockedOnHub)
+                .and(() -> drivetrain.movingWithinTolerance(0.2, 0.5));
     }
 }

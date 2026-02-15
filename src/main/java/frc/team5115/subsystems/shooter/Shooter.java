@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
 import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -28,10 +29,25 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
     private static final double ffConversion = Math.PI / 30;
 
-    @AutoLogOutput private boolean isControlledByPIDF = false;
+    @AutoLogOutput private boolean usePIDF = true;
 
-    public Shooter(ShooterIO io) {
+    public enum Requester {
+        AutonomousPeriod,
+        InAllianceZone,
+        SafeShoot,
+        ManualSpinUp,
+        ManualShoot,
+        DumbShoot
+    };
+
+    private final HashSet<Requester> requests = new HashSet<>(Requester.values().length);
+    private final StringBuilder reqestsStringBuilder = new StringBuilder();
+
+    private final DoubleSupplier distanceToHub;
+
+    public Shooter(ShooterIO io, DoubleSupplier distanceToHub) {
         this.io = io;
+        this.distanceToHub = distanceToHub;
 
         switch (Constants.currentMode) {
             case REAL:
@@ -68,56 +84,81 @@ public class Shooter extends SubsystemBase implements MotorContainer {
                                             Units.rotationsPerMinuteToRadiansPerSecond(inputs.velocityRPM));
                                 }),
                         new SysIdRoutine.Mechanism(
-                                (voltage) -> io.setVoltage(voltage.baseUnitMagnitude()), null, this));
+                                (voltage) -> {
+                                    usePIDF = false;
+                                    io.setVoltage(voltage.baseUnitMagnitude());
+                                },
+                                null,
+                                this));
     }
 
     @Override
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
+
+        reqestsStringBuilder.delete(0, reqestsStringBuilder.length());
+        requests.forEach(
+                (req) -> {
+                    reqestsStringBuilder.append(req.toString());
+                    reqestsStringBuilder.append(',');
+                });
+        Logger.recordOutput("Shooter/Requests", reqestsStringBuilder.toString());
+
+        if (usePIDF) {
+            if (currentlyRequested()) {
+                pid.setSetpoint(calculateSpeed(distanceToHub.getAsDouble()));
+                io.setVoltage(feedforward.calculate(pid.getSetpoint()) + pid.calculate(inputs.velocityRPM));
+                Logger.recordOutput("Shooter/Setpoint RPM", pid.getSetpoint());
+                Logger.recordOutput("Shooter/Error RPM", pid.getError());
+                Logger.recordOutput("Shooter/Error Squared", pid.getError() * pid.getError());
+                Logger.recordOutput("Shooter/At Setpoint?", pid.atSetpoint());
+            } else {
+                io.setVoltage(0);
+                pid.reset();
+            }
+        }
+    }
+
+    @AutoLogOutput
+    public boolean currentlyRequested() {
+        return requests.size() > 0;
     }
 
     /**
-     * Wait until the PIDF is controlling the shooter and it reaches its setpoint.
+     * Add a request to hold the shooter at speed.
      *
-     * @return a Wait Command
+     * @param requester where the request is coming from
+     * @return a StartEnd command that adds the request at start and removes the request at end.
+     */
+    public Command requestSpinUp(Requester requester) {
+        return Commands.startEnd(() -> requests.add(requester), () -> requests.remove(requester));
+    }
+
+    /**
+     * Waits for the shooter to be at its setpoint.
+     *
+     * @return a Wait command that finishes when all of the following conditions are met:
+     *     <ol>
+     *       <li>the PID is at its setpoint
+     *       <li>the shooter is currently under request to be spun up to speed
+     *       <li>the PIDF is enabled (disabled during sysid)
+     *     </ol>
      */
     public Command waitForSetpoint() {
-        return Commands.waitUntil(() -> pid.atSetpoint() && isControlledByPIDF);
-    }
-
-    public boolean atSetpoint() {
-        return pid.atSetpoint();
+        return Commands.waitUntil(this::atSetpoint);
     }
 
     /**
-     * Run forever, maintaining the required shooter speed. Stops the shooter when interrupted.
-     *
-     * @param distanceToHub the current distance to the hub
-     * @return a RunEnd Command
+     * @return true under the following conditions:
+     *     <ol>
+     *       <li>the PID is at its setpoint
+     *       <li>the shooter is currently under request to be spun up to speed
+     *       <li>the PIDF is enabled (disabled during sysid)
+     *     </ol>
      */
-    public Command maintainSpeed(DoubleSupplier distanceToHub) {
-        return Commands.runEnd(
-                () -> {
-                    isControlledByPIDF = true;
-                    final double setpoint = calculateSpeed(distanceToHub.getAsDouble());
-
-                    io.setVoltage(
-                            feedforward.calculate(setpoint) + pid.calculate(inputs.velocityRPM, setpoint));
-
-                    final double error = pid.getSetpoint() - inputs.velocityRPM;
-                    Logger.recordOutput("Shooter/Setpoint RPM", pid.getSetpoint());
-                    Logger.recordOutput("Shooter/Error RPM", error);
-                    Logger.recordOutput("Shooter/Error Squared", error * error);
-                    Logger.recordOutput("Shooter/At Setpoint?", pid.atSetpoint());
-                },
-                () -> {
-                    // Stop at the end
-                    pid.setSetpoint(0);
-                    io.setVoltage(0);
-                    isControlledByPIDF = false;
-                },
-                this);
+    public boolean atSetpoint() {
+        return pid.atSetpoint() && currentlyRequested() && usePIDF;
     }
 
     /**
@@ -135,24 +176,31 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         return distance * distance * a + distance * b + c;
     }
 
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    private Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return sysID.quasistatic(direction);
     }
 
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    private Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysID.dynamic(direction);
     }
 
     public Command allSysIds() {
         final double pauseBetweenRoutines = 3.0;
         return Commands.sequence(
+                enablePIDF(false),
                 sysIdQuasistatic(SysIdRoutine.Direction.kForward),
                 Commands.waitSeconds(pauseBetweenRoutines),
                 sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
                 Commands.waitSeconds(pauseBetweenRoutines),
                 sysIdDynamic(SysIdRoutine.Direction.kForward),
                 Commands.waitSeconds(pauseBetweenRoutines),
-                sysIdDynamic(SysIdRoutine.Direction.kReverse));
+                sysIdDynamic(SysIdRoutine.Direction.kReverse),
+                Commands.waitSeconds(pauseBetweenRoutines),
+                enablePIDF(true));
+    }
+
+    private Command enablePIDF(boolean enable) {
+        return Commands.runOnce(() -> usePIDF = enable, this);
     }
 
     @Override

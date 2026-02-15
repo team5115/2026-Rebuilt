@@ -3,16 +3,18 @@ package frc.team5115.subsystems.bling;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.team5115.Constants;
-
 import java.util.function.DoubleSupplier;
-
 import org.littletonrobotics.junction.Logger;
 
 public class Bling extends SubsystemBase {
     public static final int LED_COUNT = 144; // ! must be divisble by 3
     public static final int LED_PORT = 0; // pwm
+
+    private static final DoubleSupplier zeros = () -> 0;
+    private static final DoubleSupplier redAllianceSupplier = () -> Constants.isRedAlliance() ? 1 : 0;
+    private static final DoubleSupplier blueAllianceSupplier =
+            () -> Constants.isRedAlliance() ? 0 : 1;
 
     private final BlingIO io;
     private final BlingIOInputsAutoLogged inputs = new BlingIOInputsAutoLogged();
@@ -48,9 +50,18 @@ public class Bling extends SubsystemBase {
         return staticColor(0, 0, 0, 0);
     }
 
-    /** The classic red scrolling KITT pattern */
+    /** The classic scrolling KITT pattern but based on alliance color */
     public Command allianceKITT() {
-        return scrollingKITT(() -> Constants.isRedAlliance() ? 1 : 0, () -> 0, () -> !Constants.isRedAlliance() ? 1 : 0, () -> 0);
+        return scrollingKITT(redAllianceSupplier, zeros, blueAllianceSupplier, zeros);
+    }
+
+    /** Scroll in with color based on alliance color */
+    public Command allianceScrollIn() {
+        return scrollIn(redAllianceSupplier, zeros, blueAllianceSupplier, zeros);
+    }
+
+    public Command whiteScrollIn() {
+        return scrollIn(zeros, zeros, zeros, () -> 1);
     }
 
     public Command blueSolid() {
@@ -65,28 +76,8 @@ public class Bling extends SubsystemBase {
         return seizure(333, 0.35f, 0, 0.75f, 0, 0.35f, 0, 0.75f, 0);
     }
 
-    public Command yellowScrollIn() {
-        return scrollIn(1, 1, 0, 0);
-    }
-
-    public Command greenScrollIn() {
-        return scrollIn(0, 1, 0, 0);
-    }
-
-    public Command blueScrollIn() {
-        return scrollIn(0, 0, 1, 0);
-    }
-
-    public Command whiteScrollIn() {
-        return scrollIn(0, 0, 0, 1);
-    }
-
-    public Command redScrollIn() {
-        return scrollIn(1, 0, 0, 0);
-    }
-
     public Command purpleScrollIn() {
-        return scrollIn(0.35f, 0, 0.75f, 0);
+        return scrollIn(() -> 0.35f, zeros, () -> 0.75f, zeros);
     }
 
     public Command faultFlash() {
@@ -117,13 +108,17 @@ public class Bling extends SubsystemBase {
     /**
      * The classic KITT light pattern using the color percentages passed in
      *
-     * @param red [0,1]
-     * @param green [0,1]
-     * @param blue [0,1]
-     * @param white [0,1]
+     * @param redSupplier [0,1]
+     * @param greenSupplier [0,1]
+     * @param blueSupplier [0,1]
+     * @param whiteSupplier [0,1]
      * @return a command that runs the pattern
      */
-    public Command scrollingKITT(DoubleSupplier redSupplier, DoubleSupplier greenSupplier, DoubleSupplier blueSupplier, DoubleSupplier whiteSupplier) {
+    public Command scrollingKITT(
+            DoubleSupplier redSupplier,
+            DoubleSupplier greenSupplier,
+            DoubleSupplier blueSupplier,
+            DoubleSupplier whiteSupplier) {
         return Commands.startRun(
                 () -> {
                     // Start
@@ -222,7 +217,11 @@ public class Bling extends SubsystemBase {
                 this);
     }
 
-    public Command scrollIn(double red, double green, double blue, double white) {
+    public Command scrollIn(
+            DoubleSupplier redSupplier,
+            DoubleSupplier greenSupplier,
+            DoubleSupplier blueSupplier,
+            DoubleSupplier whiteSupplier) {
         return Commands.startRun(
                 () -> {
                     // Start
@@ -234,6 +233,10 @@ public class Bling extends SubsystemBase {
                 },
                 () -> {
                     // Repeating
+                    final double red = redSupplier.getAsDouble();
+                    final double green = greenSupplier.getAsDouble();
+                    final double blue = blueSupplier.getAsDouble();
+                    final double white = whiteSupplier.getAsDouble();
                     timer++;
                     if (timer >= period) {
                         timer = 0;

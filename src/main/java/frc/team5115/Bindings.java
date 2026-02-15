@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.team5115.Constants.AutoConstants;
 import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.bling.Bling;
@@ -16,30 +15,39 @@ import frc.team5115.subsystems.shooter.Shooter;
 import java.util.function.DoubleSupplier;
 
 public class Bindings {
-    private final CommandXboxController joyDrive;
-    private final CommandXboxController joyManip;
+    private final CommandXboxController driveJoy;
+    private final CommandXboxController manipJoy;
 
     private boolean robotRelative = false;
     private boolean slowMode = false;
 
     public Bindings() {
-        joyDrive = new CommandXboxController(0);
-        joyManip = Constants.SINGLE_MODE ? null : new CommandXboxController(1);
+        driveJoy = new CommandXboxController(0);
+        // If in single mode, both Controller objects reference the controller on port 0
+        manipJoy = Constants.SINGLE_MODE ? driveJoy : new CommandXboxController(1);
     }
 
     public boolean joysticksConnected() {
-        return joyDrive.isConnected() && (Constants.SINGLE_MODE ? true : joyManip.isConnected());
+        return driveJoy.isConnected() && manipJoy.isConnected();
     }
 
     private Command offsetGyro(Drivetrain drivetrain) {
         return Commands.runOnce(() -> drivetrain.offsetGyro(), drivetrain).ignoringDisable(true);
     }
 
-    public void configureRumbleBindings(Drivetrain drivetrain, Shooter shooter) {
-        DriveCommands.lockedTrigger
-                .and(() -> shooter.atSetpoint())
-                .onTrue(rumble(Constants.RUMBLE_STRENGTH))
-                .onFalse(rumble(0));
+    /**
+     * If either controller presses down on the d-pad, disable automation.
+     *
+     * @return a Trigger that rises when automation enables and falls when automation is disabled.
+     */
+    private Trigger automationEnabled() {
+        return (manipJoy.pov(180))
+                .or(manipJoy.pov(135))
+                .or(manipJoy.pov(225))
+                .or(driveJoy.pov(180))
+                .or(driveJoy.pov(135))
+                .or(driveJoy.pov(225))
+                .negate();
     }
 
     public void configureButtonBindings(
@@ -48,95 +56,82 @@ public class Bindings {
             Agitator agitator,
             Indexer indexer,
             Shooter shooter,
-            DoubleSupplier shooterSpeed) {
-        // drive control
+            DoubleSupplier shooterSpeed,
+            Trigger safeToShoot) {
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drivetrain,
                         () -> robotRelative,
                         () -> slowMode,
-                        () -> -joyDrive.getLeftY(),
-                        () -> -joyDrive.getLeftX(),
-                        () -> -joyDrive.getRightX()));
+                        () -> -driveJoy.getLeftY(),
+                        () -> -driveJoy.getLeftX(),
+                        () -> -driveJoy.getRightX()));
 
-        /* Drive button bindings -
-         * x: forces the robot to stop moving
-         * left bumper: Sets robot relative to true while held down
-         * right bumper: Sets slow mode while held down
-         * left and right triggers align to score respectively
-         * both triggers aligns to the middle
-         * start resets field orientation
-         */
+        driveJoy.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
+        driveJoy.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
+        driveJoy.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
+        driveJoy.start().onTrue(offsetGyro(drivetrain));
 
-        joyDrive.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
-        joyDrive.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
-        joyDrive.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
-        joyDrive.start().onTrue(offsetGyro(drivetrain));
+        manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
 
         intake.setDefaultCommand(intake.intake());
         agitator.setDefaultCommand(agitator.slow());
         indexer.setDefaultCommand(indexer.reject());
 
-        if (Constants.SINGLE_MODE) {
-            configureSingleMode(drivetrain, intake, agitator, indexer, shooter);
-        } else {
-            configureDualMode(drivetrain, intake, agitator, indexer, shooter);
-        }
-    }
+        // Right trigger smart shoots
+        manipJoy
+                .rightTrigger()
+                .whileTrue(
+                        DriveCommands.smartShoot(
+                                drivetrain, agitator, indexer, shooter, Shooter.Requester.ManualShoot));
 
-    private void configureSingleMode(
-            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
+        // Left trigger dumb shoots
+        manipJoy.leftTrigger().whileTrue(DriveCommands.dumbShoot(agitator, indexer, shooter));
 
-        final Trigger inSubZone = new Trigger(() -> AutoConstants.isInSubZone(drivetrain.getPose()));
-        final Trigger inAllianceZone =
-                new Trigger(() -> AutoConstants.isInAllianceZone(drivetrain.getPose()));
+        // While in alliance zone request to spin up shooter
+        drivetrain
+                .inAllianceZone()
+                .and(automationEnabled())
+                .whileTrue(shooter.requestSpinUp(Shooter.Requester.InAllianceZone));
 
-        joyDrive
-                .a()
-                .or(inSubZone)
-                .and(joyDrive.pov(180).or(joyDrive.pov(135)).or(joyDrive.pov(225)).negate())
+        // While holding a, spin up shooter
+        driveJoy.a().whileTrue(shooter.requestSpinUp(Shooter.Requester.ManualSpinUp));
+
+        // While in the subzone, or holding a, lock on
+        drivetrain
+                .inSubZone()
+                .and(automationEnabled())
+                .or(driveJoy.a())
                 .whileTrue(
                         DriveCommands.lockedOnHub(
                                 shooter,
                                 drivetrain,
                                 () -> slowMode,
-                                () -> -joyDrive.getLeftY(),
-                                () -> -joyDrive.getLeftX()));
+                                () -> -driveJoy.getLeftY(),
+                                () -> -driveJoy.getLeftX()));
 
-        // If in the alliance zone but not the sub zone, maintain speed
-        inAllianceZone
-                .and(inSubZone.negate())
-                .and(joyDrive.pov(180).or(joyDrive.pov(135)).or(joyDrive.pov(225)).negate())
-                .whileTrue(shooter.maintainSpeed(drivetrain::getDistanceToHub));
-
-        joyDrive
-                .rightTrigger()
-                .whileTrue(DriveCommands.smartShoot(drivetrain, agitator, indexer, shooter));
-
-        joyDrive.leftTrigger().whileTrue(DriveCommands.dumbShoot(agitator, indexer, shooter));
-
-        joyDrive.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
+        safeToShoot
+                .onTrue(rumble(Constants.RUMBLE_STRENGTH))
+                .onFalse(rumble(0))
+                .and(automationEnabled())
+                .whileTrue(
+                        DriveCommands.smartShoot(
+                                drivetrain, agitator, indexer, shooter, Shooter.Requester.SafeShoot));
     }
 
-    public void configureBlingBindings(Bling bling, Drivetrain drivetrain, Indexer indexer, RobotFaults faults) {
-        final Trigger inSubZone = new Trigger(() -> AutoConstants.isInSubZone(drivetrain.getPose()));
-        final Trigger inAllianceZone =
-                new Trigger(() -> AutoConstants.isInAllianceZone(drivetrain.getPose()));
-        final Trigger shooting = new Trigger(() -> indexer.isIndexing());
-
+    public void configureBlingBindings(
+            Bling bling,
+            Drivetrain drivetrain,
+            Indexer indexer,
+            Shooter shooter,
+            RobotFaults faults,
+            Trigger safeToShoot) {
         bling.setDefaultCommand(bling.allianceKITT());
-        
-        inAllianceZone.whileTrue(Constants.isRedAlliance() ? bling.redScrollIn() : bling.blueScrollIn());
-        inSubZone.whileTrue(bling.purpleScrollIn());
-        shooting.whileTrue(bling.whiteScrollIn());
-        new Trigger(() -> false).whileTrue(bling.purpleFlashing());
-
+        drivetrain.inAllianceZone().whileTrue(bling.allianceScrollIn());
+        drivetrain.inSubZone().whileTrue(bling.purpleScrollIn());
+        safeToShoot.whileTrue(bling.purpleFlashing());
+        new Trigger(indexer::isIndexing).whileTrue(bling.whiteScrollIn());
         new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
-    }
-
-    private void configureDualMode(
-            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
-        joyManip.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
     }
 
     private Command setRobotRelative(boolean state) {
@@ -158,9 +153,9 @@ public class Bindings {
     private Command rumble(double value) {
         return Commands.runOnce(
                 () -> {
-                    joyDrive.setRumble(GenericHID.RumbleType.kBothRumble, value);
-                    if (joyManip != null) {
-                        joyManip.setRumble(GenericHID.RumbleType.kBothRumble, value);
+                    driveJoy.setRumble(GenericHID.RumbleType.kBothRumble, value);
+                    if (manipJoy != null) {
+                        manipJoy.setRumble(GenericHID.RumbleType.kBothRumble, value);
                     }
                 });
     }
