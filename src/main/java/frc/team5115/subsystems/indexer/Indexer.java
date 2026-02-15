@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team5115.Constants;
 import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Indexer extends SubsystemBase implements MotorContainer {
@@ -59,10 +60,12 @@ public class Indexer extends SubsystemBase implements MotorContainer {
         return io.getSparks();
     }
 
+    @AutoLogOutput
     public boolean isIndexing() {
         return inputs.appliedVolts > 0.5;
     }
 
+    @AutoLogOutput
     public boolean isRejecting() {
         return inputs.appliedVolts < 0.5;
     }
@@ -70,6 +73,7 @@ public class Indexer extends SubsystemBase implements MotorContainer {
     /**
      * @return true if either sensor detects something
      */
+    @AutoLogOutput
     public boolean isSensing() {
         return inputs.leftSensor && inputs.rightSensor;
     }

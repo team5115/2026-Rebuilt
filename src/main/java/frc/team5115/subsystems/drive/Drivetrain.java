@@ -70,8 +70,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                             SwerveConstants.MAX_ANGULAR_SPEED, SwerveConstants.MAX_ANGULAR_SPEED * 2));
     private final PIDController translationPid = new PIDController(linear_kp, linear_ki, linear_kd);
 
-    @AutoLogOutput(key = "Drivetrain/Orbitting?")
-    private boolean orbitting = true;
+    @AutoLogOutput private boolean orbitting = true;
 
     private final SwerveDriveKinematics kinematics =
             new SwerveDriveKinematics(SwerveConstants.MODULE_TRANSLATIONS);
@@ -114,7 +113,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                 -AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED * 0.5,
                 AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED * 0.5);
 
-        // TODO determine anglePid tolerance
+        // TODO determine angularPID tolerance
         angularPID.setTolerance(Math.toRadians(4));
 
         AutoBuilder.configure(
@@ -493,12 +492,12 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         return angularPID.atSetpoint() && orbitting;
     }
 
-    @AutoLogOutput(key = "InSubZone?")
+    @AutoLogOutput
     public Trigger inSubZone() {
         return new Trigger(() -> AutoConstants.isInSubZone(getPose()));
     }
 
-    @AutoLogOutput(key = "InAllianceZone?")
+    @AutoLogOutput
     public Trigger inAllianceZone() {
         return new Trigger(() -> AutoConstants.isInAllianceZone(getPose()));
     }

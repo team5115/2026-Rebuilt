@@ -13,19 +13,21 @@ public class AutoCommands {
 
     // TODO verify auto works
     public static Command intake(Intake intake, Agitator agitator) {
-        return Commands.parallel(intake.intake(), agitator.slow());
+        return Commands.parallel(Commands.print("Intaking!"), intake.intake(), agitator.slow());
     }
 
+    // TODO make auto shoot end once sensor stops detecting balls coming thru
     public static Command shoot(
             double timeout, Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
+                        Commands.print("Shooting!"),
                         agitator.fast(),
-                        shooter.requestSpinUp(Shooter.Requester.AutonomousPeriod),
+                        shooter.requestSpinUp(Shooter.Requester.AutonomousShoot),
                         shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()))
                 .withTimeout(timeout);
     }
 
     public static Command spinUp(Shooter shooter) {
-        return shooter.requestSpinUp(Shooter.Requester.DumbShoot); // TODO fix auto dumb spin up
+        return shooter.requestSpinUp(Shooter.Requester.AutonomouseSpinUp);
     }
 }

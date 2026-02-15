@@ -32,18 +32,19 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     @AutoLogOutput private boolean usePIDF = true;
 
     public enum Requester {
-        AutonomousPeriod,
+        AutonomouseSpinUp,
+        AutonomousShoot,
         InAllianceZone,
         SafeShoot,
         ManualSpinUp,
-        ManualShoot,
-        DumbShoot
+        ManualShoot
     };
 
     private final HashSet<Requester> requests = new HashSet<>(Requester.values().length);
     private final StringBuilder reqestsStringBuilder = new StringBuilder();
 
     private final DoubleSupplier distanceToHub;
+    @AutoLogOutput private double distanceOverride = -1;
 
     public Shooter(ShooterIO io, DoubleSupplier distanceToHub) {
         this.io = io;
@@ -106,13 +107,13 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         Logger.recordOutput("Shooter/Requests", reqestsStringBuilder.toString());
 
         if (usePIDF) {
-            if (currentlyRequested()) {
-                pid.setSetpoint(calculateSpeed(distanceToHub.getAsDouble()));
+            if (currentlyRequested() || distanceOverride >= 0) {
+                pid.setSetpoint(
+                        calculateSpeed(distanceOverride < 0 ? distanceToHub.getAsDouble() : distanceOverride));
                 io.setVoltage(feedforward.calculate(pid.getSetpoint()) + pid.calculate(inputs.velocityRPM));
                 Logger.recordOutput("Shooter/Setpoint RPM", pid.getSetpoint());
                 Logger.recordOutput("Shooter/Error RPM", pid.getError());
                 Logger.recordOutput("Shooter/Error Squared", pid.getError() * pid.getError());
-                Logger.recordOutput("Shooter/At Setpoint?", pid.atSetpoint());
             } else {
                 io.setVoltage(0);
                 pid.reset();
@@ -133,6 +134,25 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      */
     public Command requestSpinUp(Requester requester) {
         return Commands.startEnd(() -> requests.add(requester), () -> requests.remove(requester));
+    }
+
+    /**
+     * Spin up the shooter blind based on a preset distance.
+     *
+     * @param distance the distance to the hub to use to calculate the speed
+     * @return a StartEnd command that
+     */
+    public Command spinUpBlind(double distance) {
+        return Commands.startEnd(() -> distanceOverride = distance, () -> distanceOverride = -1);
+    }
+
+    /**
+     * Wait until the shooter is at it's overriden, blind speed setpoint
+     *
+     * @return a Wait command
+     */
+    public Command waitForBlindSetpoint() {
+        return Commands.waitUntil(() -> pid.atSetpoint() && distanceOverride >= 0 && usePIDF);
     }
 
     /**
@@ -157,6 +177,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      *       <li>the PIDF is enabled (disabled during sysid)
      *     </ol>
      */
+    @AutoLogOutput
     public boolean atSetpoint() {
         return pid.atSetpoint() && currentlyRequested() && usePIDF;
     }

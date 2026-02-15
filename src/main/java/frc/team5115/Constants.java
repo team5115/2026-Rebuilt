@@ -188,7 +188,8 @@ public final class Constants {
                         new Translation2d(
                                 AutoConstants.RED_HUB.getMeasureX().plus(AutoConstants.BLUE_HUB.getMeasureX()),
                                 Meters.of(0.0)),
-                        new Translation2d(AutoConstants.RED_HUB.getMeasureX().plus(ALLIANCE_ZONE_OFFSET), FIELD_WIDTH));
+                        new Translation2d(
+                                AutoConstants.RED_HUB.getMeasureX().plus(ALLIANCE_ZONE_OFFSET), FIELD_WIDTH));
 
         /**
          * Get the distance from the robot to our alliance hub

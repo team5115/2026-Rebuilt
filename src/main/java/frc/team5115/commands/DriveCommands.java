@@ -52,11 +52,11 @@ public class DriveCommands {
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
-    public static Command dumbShoot(Agitator agitator, Indexer indexer, Shooter shooter) {
+    public static Command blindShoot(Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
                 agitator.fast(),
-                shooter.requestSpinUp(Shooter.Requester.DumbShoot), // TODO fix dumb shoot
-                shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
+                shooter.spinUpBlind(1.0),
+                shooter.waitForBlindSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
     /**

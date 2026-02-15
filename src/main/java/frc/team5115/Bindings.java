@@ -1,5 +1,6 @@
 package frc.team5115;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -36,7 +37,8 @@ public class Bindings {
     }
 
     /**
-     * If either controller presses down on the d-pad, disable automation.
+     * If either controller presses down on the d-pad, disable automation. Additionally disables
+     * automation during the autonomous period.
      *
      * @return a Trigger that rises when automation enables and falls when automation is disabled.
      */
@@ -47,6 +49,7 @@ public class Bindings {
                 .or(driveJoy.pov(180))
                 .or(driveJoy.pov(135))
                 .or(driveJoy.pov(225))
+                .or(DriverStation::isAutonomousEnabled)
                 .negate();
     }
 
@@ -85,8 +88,8 @@ public class Bindings {
                         DriveCommands.smartShoot(
                                 drivetrain, agitator, indexer, shooter, Shooter.Requester.ManualShoot));
 
-        // Left trigger dumb shoots
-        manipJoy.leftTrigger().whileTrue(DriveCommands.dumbShoot(agitator, indexer, shooter));
+        // Left trigger shoots blind
+        manipJoy.leftTrigger().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter));
 
         // While in alliance zone request to spin up shooter
         drivetrain
