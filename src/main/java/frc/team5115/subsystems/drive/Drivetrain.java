@@ -365,7 +365,10 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
      * @param centerOfOrbit the point to maintain a heading lock on
      */
     public void runOrbit(double vx, double vy, Translation2d centerOfOrbit) {
-        final Translation2d linearVelocity = new Translation2d(vx, vy);
+        // We rotate driver input since normal drive is based on getGyroRotation()
+        final Rotation2d inputOffset = getRotation().minus(getGyroRotation());
+        final Translation2d linearVelocity = new Translation2d(vx, vy).rotateBy(inputOffset);
+
         final Pose2d pose = getPose();
         // Delta is the vector from the robot to the hub
         final Translation2d delta = centerOfOrbit.minus(pose.getTranslation());
@@ -396,7 +399,10 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                 angularPID.calculate(pose.getRotation().getRadians(), baseHeading.getRadians());
         final double totalOmega = orbitOmega + pidOmega;
 
-        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, totalOmega, getGyroRotation()), true);
+        runVelocity(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        linearVelocity.getX(), linearVelocity.getY(), totalOmega, getRotation()),
+                true);
 
         Logger.recordOutput("Orbit/OrbitOmega", RadiansPerSecond.of(orbitOmega));
         Logger.recordOutput("Orbit/PidOmega", RadiansPerSecond.of(pidOmega));
