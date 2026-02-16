@@ -19,12 +19,25 @@ public class Bindings {
     private final CommandXboxController driveJoy;
     private final CommandXboxController manipJoy;
 
+    private final Drivetrain drivetrain;
+    private final Intake intake;
+    private final Agitator agitator;
+    private final Indexer indexer;
+    private final Shooter shooter;
+
     private boolean robotRelative = false;
     private boolean slowMode = false;
 
-    public Bindings() {
-        driveJoy = new CommandXboxController(0);
+    public Bindings(
+            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
+        this.drivetrain = drivetrain;
+        this.intake = intake;
+        this.agitator = agitator;
+        this.indexer = indexer;
+        this.shooter = shooter;
+
         // If in single mode, both Controller objects reference the controller on port 0
+        driveJoy = new CommandXboxController(0);
         manipJoy = Constants.SINGLE_MODE ? driveJoy : new CommandXboxController(1);
     }
 
@@ -32,35 +45,56 @@ public class Bindings {
         return driveJoy.isConnected() && manipJoy.isConnected();
     }
 
-    private Command offsetGyro(Drivetrain drivetrain) {
+    private Command offsetGyro() {
         return Commands.runOnce(() -> drivetrain.offsetGyro(), drivetrain).ignoringDisable(true);
     }
 
     /**
-     * If either controller presses down on the d-pad, disable automation. Additionally disables
-     * automation during the autonomous period.
+     * Automation is enabled UNLESS one of the following conditions is true:
+     *
+     * <ol>
+     *   <li>either driver presses on the d-pad
+     *   <li>auto is enabled
+     *   <li>the robot is disabled
+     *   <li>{@code Constants.DISABLE_AUTOMATION} is true
+     * </ol>
      *
      * @return a Trigger that rises when automation enables and falls when automation is disabled.
      */
-    private Trigger automationEnabled() {
-        return (manipJoy.pov(180))
-                .or(manipJoy.pov(135))
-                .or(manipJoy.pov(225))
-                .or(driveJoy.pov(180))
-                .or(driveJoy.pov(135))
-                .or(driveJoy.pov(225))
+    public Trigger automationEnabled() {
+        return (driveJoy.povCenter().negate())
+                .or(manipJoy.povCenter().negate())
                 .or(DriverStation::isAutonomousEnabled)
+                .or(DriverStation::isDisabled)
+                .or(() -> Constants.DISABLE_AUTOMATION)
                 .negate();
     }
 
-    public void configureButtonBindings(
-            Drivetrain drivetrain,
-            Intake intake,
-            Agitator agitator,
-            Indexer indexer,
-            Shooter shooter,
-            DoubleSupplier shooterSpeed,
-            Trigger safeToShoot) {
+    /**
+     * Determines if it safe to shoot. Checks that the following conditions are true:
+     *
+     * <ol>
+     *   <li>is the robot in the sub-zone?
+     *   <li>is the hub active?
+     *   <li>is the shooter spun up to speed?
+     *   <li>is the drivetrain heading locked onto the hub?
+     *   <li>are the drivetrain linear and rotational speeds close enough to zero?
+     * </ol>
+     *
+     * @param drivetrain
+     * @param shooter
+     * @return a Trigger of if it's safe to shoot
+     */
+    public Trigger safeToShoot() {
+        return drivetrain
+                .inSubZone()
+                .and(Constants::isHubActive)
+                .and(shooter::atSetpoint)
+                .and(drivetrain::lockedOnHub)
+                .and(() -> drivetrain.movingWithinTolerance(0.2, 0.5));
+    }
+
+    public void configureButtonBindings(DoubleSupplier shooterSpeed) {
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drivetrain,
@@ -73,7 +107,7 @@ public class Bindings {
         driveJoy.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
         driveJoy.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
         driveJoy.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
-        driveJoy.start().onTrue(offsetGyro(drivetrain));
+        driveJoy.start().onTrue(offsetGyro());
 
         manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
 
@@ -113,7 +147,7 @@ public class Bindings {
                                 () -> -driveJoy.getLeftY(),
                                 () -> -driveJoy.getLeftX()));
 
-        safeToShoot
+        safeToShoot()
                 .onTrue(rumble(Constants.RUMBLE_STRENGTH))
                 .onFalse(rumble(0))
                 .and(automationEnabled())
@@ -122,17 +156,11 @@ public class Bindings {
                                 drivetrain, agitator, indexer, shooter, Shooter.Requester.SafeShoot));
     }
 
-    public void configureBlingBindings(
-            Bling bling,
-            Drivetrain drivetrain,
-            Indexer indexer,
-            Shooter shooter,
-            RobotFaults faults,
-            Trigger safeToShoot) {
+    public void configureBlingBindings(Bling bling, RobotFaults faults) {
         bling.setDefaultCommand(bling.allianceKITT());
         drivetrain.inAllianceZone().whileTrue(bling.allianceScrollIn());
         drivetrain.inSubZone().whileTrue(bling.purpleScrollIn());
-        safeToShoot.whileTrue(bling.purpleFlashing());
+        safeToShoot().whileTrue(bling.purpleFlashing());
         new Trigger(indexer::isIndexing).whileTrue(bling.whiteScrollIn());
         new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     }

@@ -8,7 +8,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.commands.AutoCommands;
@@ -66,7 +65,7 @@ public class RobotContainer {
     private final RobotFaults faults;
 
     // Controllers
-    private final Bindings driverController;
+    private final Bindings bindings;
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -75,7 +74,6 @@ public class RobotContainer {
     private final BooleanSupplier hitTargetSupplier;
     private final BooleanConsumer hitTargetConsumer;
     private final DoubleSupplier distanceMetersSupplier;
-    private final Trigger safeToShoot;
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -141,17 +139,6 @@ public class RobotContainer {
                 agitator = new Agitator(new AgitatorIOSparkMax());
                 break;
         }
-        driverController = new Bindings();
-
-        faults =
-                new RobotFaults(
-                        drivetrain,
-                        vision,
-                        driverController::joysticksConnected,
-                        intake,
-                        agitator,
-                        indexer,
-                        shooter);
 
         // Register auto commands for pathplanner
         registerCommands();
@@ -204,11 +191,14 @@ public class RobotContainer {
                         Units.feetToMeters(SmartDashboard.getNumber(feetKey, 0))
                                 + Units.inchesToMeters(SmartDashboard.getNumber(inchKey, 0));
 
-        safeToShoot = safeToShoot(drivetrain, shooter);
-        driverController.configureButtonBindings(
-                drivetrain, intake, agitator, indexer, shooter, speedSupplier, safeToShoot);
-        driverController.configureBlingBindings(
-                bling, drivetrain, indexer, shooter, faults, safeToShoot);
+        // Initialize bindings and robot faults
+        bindings = new Bindings(drivetrain, intake, agitator, indexer, shooter);
+        faults =
+                new RobotFaults(
+                        drivetrain, vision, bindings::joysticksConnected, intake, agitator, indexer, shooter);
+
+        bindings.configureButtonBindings(speedSupplier);
+        bindings.configureBlingBindings(bling, faults);
     }
 
     /** Register commands for pathplanner to use in autos. */
@@ -246,7 +236,10 @@ public class RobotContainer {
                         ? AutoConstants.RED_ALLIANCE_ZONE
                         : AutoConstants.BLUE_ALLIANCE_ZONE);
 
-        Logger.recordOutput("IsSafeToShoot?", safeToShoot.getAsBoolean());
+        Logger.recordOutput("Info/IsHubActive?", Constants.isHubActive());
+        Logger.recordOutput("Info/IsRedAlliance?", Constants.isRedAlliance());
+        Logger.recordOutput("Info/IsSafeToShoot?", bindings.safeToShoot());
+        Logger.recordOutput("Info/IsAutomationEnabled?", bindings.automationEnabled());
 
         faults.periodic();
     }
@@ -269,27 +262,5 @@ public class RobotContainer {
         if (Constants.currentMode == Constants.Mode.SIM) {
             MapleSim.resetForAuto();
         }
-    }
-
-    /**
-     * Determines if it safe to shoot. Checks that the following conditions are true:
-     *
-     * <ol>
-     *   <li>is the robot in the sub-zone?
-     *   <li>is the shooter spun up to speed?
-     *   <li>is the drivetrain heading locked onto the hub?
-     *   <li>are the drivetrain linear and rotational speeds close enough to zero?
-     * </ol>
-     *
-     * @param drivetrain
-     * @param shooter
-     * @return a Trigger of if it's safe to shoot
-     */
-    private Trigger safeToShoot(Drivetrain drivetrain, Shooter shooter) {
-        return drivetrain
-                .inSubZone()
-                .and(shooter::atSetpoint)
-                .and(drivetrain::lockedOnHub)
-                .and(() -> drivetrain.movingWithinTolerance(0.2, 0.5));
     }
 }

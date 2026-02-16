@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.Optional;
-import org.littletonrobotics.junction.AutoLogOutput;
 
 public final class Constants {
     private static final boolean isReplay = false;
@@ -47,6 +46,7 @@ public final class Constants {
     public static final Pose2d SIM_INIT_POSE = new Pose2d(1.55, 0.8, Rotation2d.kZero);
 
     public static final boolean SINGLE_MODE = true;
+    public static final boolean DISABLE_AUTOMATION = false;
     public static final double RUMBLE_STRENGTH = 0.5;
 
     public static final byte INTAKE_MOTOR_ID = 11;
@@ -290,19 +290,18 @@ public final class Constants {
                 new Transform3d(camX, rightY, camZ, new Rotation3d(roll, pitch, rightYaw));
     }
 
-    public static boolean isHubEnabled() {
+    public static boolean isHubActive() {
         final double matchTime = Timer.getMatchTime();
         final String gameData = DriverStation.getGameSpecificMessage();
         final var alliance = DriverStation.getAlliance();
-        return isHubEnabledTest(matchTime, gameData, alliance);
+        return isHubActiveTest(matchTime, gameData, alliance);
     }
 
-    @AutoLogOutput(key = "IsRedAlliance")
     public static boolean isRedAlliance() {
         return DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Red;
     }
 
-    private static boolean isHubEnabledTest(
+    private static boolean isHubActiveTest(
             double matchTime, String gameData, Optional<Alliance> alliance) {
         if (alliance.isEmpty()) {
             return true;
@@ -318,20 +317,21 @@ public final class Constants {
         }
 
         boolean blueWonAuto;
-        if (gameData.length() > 0) {
-            switch (gameData.charAt(0)) {
-                case 'B':
-                    blueWonAuto = true;
-                    break;
-                case 'R':
-                    blueWonAuto = false;
-                    break;
-                default:
-                    System.err.println("Bad game data");
-                    return true;
-            }
-        } else {
+        if (gameData.length() == 0) {
+            // Use this for testing at home
             return true;
+        }
+
+        switch (gameData.charAt(0)) {
+            case 'B':
+                blueWonAuto = true;
+                break;
+            case 'R':
+                blueWonAuto = false;
+                break;
+            default:
+                System.err.println("Bad game data");
+                return true;
         }
 
         if (matchTime >= 105) {
@@ -343,7 +343,7 @@ public final class Constants {
         if (matchTime >= 55) {
             return blueWonAuto != isBlue;
         }
-        if (matchTime > 30) {
+        if (matchTime >= 30) {
             return blueWonAuto == isBlue;
         }
         System.err.println("wtf is happening");
