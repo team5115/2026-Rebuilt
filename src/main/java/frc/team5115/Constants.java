@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.Pounds;
 import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Ellipse2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
@@ -16,6 +18,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -42,8 +46,6 @@ public final class Constants {
         /** Replaying from a log file. */
         REPLAY
     }
-
-    public static final Pose2d SIM_INIT_POSE = new Pose2d(1.55, 0.8, Rotation2d.kZero);
 
     public static final boolean SINGLE_MODE = true;
     public static final boolean DISABLE_AUTOMATION = false;
@@ -242,17 +244,17 @@ public final class Constants {
 
         public static final AprilTagFieldLayout FIELD_LAYOUT = loadCustomFieldLayout();
 
-        // Camera sim values
+        // * Camera sim values
         public static final int WIDTH_PX = 1280;
         public static final int HEIGHT_PX = 720;
         public static final double DIAG_FOV_DEGREES = 90;
-        public static final double AVG_ERR_PX = 0.5;
-        public static final double STD_DEV_ERR_PX = 0;
+        public static final double AVG_ERR_PX = 0.9;
+        public static final double STD_DEV_ERR_PX = 0.3;
         public static final double FPS = 30;
         public static final double AVG_LATENCY_MS = 30;
         public static final double STD_DEV_LATENCY_MS = 10;
 
-        // Pose filtering values
+        // * Pose filtering values
         public static final double distanceThreshold = 2.0; // meters
         public static final double angleThreshold = 50.0; // degrees
         public static final double tagYawThreshold = 4.0; // degrees
@@ -260,6 +262,20 @@ public final class Constants {
         public static final double ambiguityThreshold = 0.5;
         // every tag beyond seeing two tags gives us an extra 30% of our threshold
         public static final double multiTagDistanceFactor = 0.3;
+
+        // * Pose Estimation standard deviations *
+        // Decreasing these increases trust in vision measurements
+        private static final double VISION_STD_DEV_METERS = 0.1;
+        private static final double VISION_STD_DEV_RADS = Units.degreesToRadians(20);
+
+        // Decreasing these increases trust in the current state of the estimator
+        private static final double STATE_STD_DEV_METERS = 0.1;
+        private static final double STATE_STD_DEV_RADS = Units.degreesToRadians(10);
+
+        public static final Matrix<N3, N1> VISION_STD_DEV =
+                VecBuilder.fill(VISION_STD_DEV_METERS, VISION_STD_DEV_METERS, VISION_STD_DEV_RADS);
+        public static final Matrix<N3, N1> STATE_STD_DEV =
+                VecBuilder.fill(STATE_STD_DEV_METERS, STATE_STD_DEV_METERS, STATE_STD_DEV_RADS);
 
         /*
         The coordinate system for the camera to robot transforms is somewhat confusing.

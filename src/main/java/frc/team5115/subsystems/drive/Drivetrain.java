@@ -9,7 +9,6 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -36,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
+import frc.team5115.Constants.VisionConstants;
 import frc.team5115.util.LocalADStarAK;
 import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
@@ -88,8 +88,8 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                     rawGyroRotation,
                     lastModulePositions,
                     new Pose2d(),
-                    VecBuilder.fill(0.1, 0.1, 0.1),
-                    VecBuilder.fill(0.9, 0.9, 0.9));
+                    VisionConstants.VISION_STD_DEV,
+                    VisionConstants.STATE_STD_DEV);
 
     private final Consumer<Pose2d> resetSimulationPoseCallBack;
 

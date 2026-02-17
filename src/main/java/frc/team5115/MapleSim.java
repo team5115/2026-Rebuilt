@@ -8,7 +8,9 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -35,7 +37,10 @@ public class MapleSim {
     private static IntakeSimulation intakeSimulation;
 
     public static void initializeArena() {
-        swerveSim = new SwerveDriveSimulation(generateDriveSimConfig(), Constants.SIM_INIT_POSE);
+        final boolean startRed = true;
+        final var initPose =
+                startRed ? new Pose2d(15.0, 7.5, Rotation2d.kPi) : new Pose2d(1.5, 0.8, Rotation2d.kZero);
+        swerveSim = new SwerveDriveSimulation(generateDriveSimConfig(), initPose);
         intakeSimulation =
                 IntakeSimulation.InTheFrameIntake(
                         "Fuel",

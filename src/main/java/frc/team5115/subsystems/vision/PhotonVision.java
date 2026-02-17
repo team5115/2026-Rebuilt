@@ -84,17 +84,13 @@ public class PhotonVision extends SubsystemBase {
             return Optional.of("OffTheGround," + distanceFromGround);
         }
 
-        // Reject based on existing pose angle
-        final double delta =
-                pose.estimatedPose
-                        .getRotation()
-                        .toRotation2d()
-                        .minus(drivetrain.getRotation())
-                        .getDegrees();
-        // Logger.recordOutput("Vision/AngleDelta", delta);
-        if (Math.abs(delta) > VisionConstants.angleThreshold) {
-            return Optional.of("AngleWrong, delta=" + delta);
-        }
+        // // Reject based on existing pose angle
+        // final Rotation2d delta =
+        // pose.estimatedPose.getRotation().toRotation2d().minus(drivetrain.getRotation());
+        // final double angleError = Math.abs(delta.getDegrees());
+        // if (angleError > VisionConstants.angleThreshold) {
+        //     return Optional.of("AngleWrong, delta=" + delta);
+        // }
 
         if (pose.targetsUsed.size() == 1) {
             return validateSingleTarget(pose, result);
