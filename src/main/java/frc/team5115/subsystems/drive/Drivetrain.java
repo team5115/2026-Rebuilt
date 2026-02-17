@@ -552,12 +552,14 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
 
     @AutoLogOutput private Rotation2d gyroOffset = new Rotation2d();
 
-    public void offsetGyro() {
+    /** Set the gyro rotation angle to be zero in the current direction. */
+    public void zeroGyro() {
         gyroOffset = rawGyroRotation;
     }
 
-    public void offsetGyro(Rotation2d offset) {
-        gyroOffset = gyroOffset.plus(offset);
+    /** Set the gyro rotation angle to be zero in the current direction minus {@code offset}. */
+    public void zeroGyro(Rotation2d offset) {
+        gyroOffset = rawGyroRotation.minus(offset);
     }
 
     public ArrayList<SparkMax> getSparks() {

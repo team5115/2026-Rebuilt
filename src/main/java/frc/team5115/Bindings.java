@@ -46,7 +46,7 @@ public class Bindings {
     }
 
     private Command offsetGyro() {
-        return Commands.runOnce(() -> drivetrain.offsetGyro(), drivetrain).ignoringDisable(true);
+        return Commands.runOnce(() -> drivetrain.zeroGyro(), drivetrain).ignoringDisable(true);
     }
 
     /**

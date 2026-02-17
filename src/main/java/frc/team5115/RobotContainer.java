@@ -254,10 +254,10 @@ public class RobotContainer {
 
     public void autoInit() {
         drivetrain.setAutoCurrentLimit();
-        // Offset gyro to zero
-        drivetrain.offsetGyro();
-        // Offset the gyro to compensate for auto starting pose
-        drivetrain.offsetGyro(drivetrain.getPose().getRotation().unaryMinus());
+        // TODO offset the gyro to compensate for auto starting pose
+        // ? How exactly do we do this considering our autos start (and end) in different rotations?
+        drivetrain.zeroGyro();
+        // drivetrain.zeroGyro(drivetrain.getPose().getRotation());
 
         if (Constants.currentMode == Constants.Mode.SIM) {
             MapleSim.resetForAuto();
