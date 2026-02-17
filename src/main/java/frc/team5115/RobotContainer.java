@@ -203,10 +203,12 @@ public class RobotContainer {
 
     /** Register commands for pathplanner to use in autos. */
     private void registerCommands() {
-        NamedCommands.registerCommand("Intake", AutoCommands.intake(intake, agitator));
+        NamedCommands.registerCommand("Intake", AutoCommands.intake(intake, agitator, indexer));
         NamedCommands.registerCommand(
                 "Shoot", AutoCommands.shoot(3, drivetrain, agitator, indexer, shooter));
-        NamedCommands.registerCommand("Spin Up", AutoCommands.spinUp(shooter));
+        NamedCommands.registerCommand(
+                "Shoot Forever", AutoCommands.shoot(20, drivetrain, agitator, indexer, shooter));
+        NamedCommands.registerCommand("Spin Up", AutoCommands.spinUp(agitator, indexer, shooter));
         System.out.println("Registered Commands");
     }
 

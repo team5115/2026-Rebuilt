@@ -11,9 +11,10 @@ import frc.team5115.subsystems.shooter.Shooter;
 public class AutoCommands {
     private AutoCommands() {}
 
-    // TODO verify auto works
-    public static Command intake(Intake intake, Agitator agitator) {
-        return Commands.parallel(Commands.print("Intaking!"), intake.intake(), agitator.slow());
+    /** Intake while agitating and rejecting with indexer */
+    public static Command intake(Intake intake, Agitator agitator, Indexer indexer) {
+        return Commands.parallel(
+                Commands.print("Intaking!"), intake.intake(), agitator.slow(), indexer.reject());
     }
 
     // TODO make auto shoot end once sensor stops detecting balls coming thru
@@ -27,7 +28,12 @@ public class AutoCommands {
                 .withTimeout(timeout);
     }
 
-    public static Command spinUp(Shooter shooter) {
-        return shooter.requestSpinUp(Shooter.Requester.AutonomouseSpinUp);
+    /** Spin up the shooter, reject with indexer, and agitate slowly. */
+    public static Command spinUp(Agitator agitator, Indexer indexer, Shooter shooter) {
+        return Commands.parallel(
+                Commands.print("Spinning Up!"),
+                shooter.requestSpinUp(Shooter.Requester.AutonomouseSpinUp),
+                indexer.reject(),
+                agitator.slow());
     }
 }
