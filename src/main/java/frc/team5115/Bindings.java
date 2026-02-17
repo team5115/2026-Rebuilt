@@ -142,7 +142,7 @@ public class Bindings {
                                 drivetrain, agitator, indexer, shooter, Shooter.Requester.ManualShoot));
 
         // B shoots blind
-        manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter));
+        manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter, shooterSpeed));
 
         // While in alliance zone request to spin up shooter
         drivetrain

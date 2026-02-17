@@ -1,10 +1,10 @@
 package frc.team5115;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -70,10 +70,9 @@ public class RobotContainer {
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
 
-    private final DoubleSupplier speedSupplier;
+    private final DoubleSupplier blindSpeedSupplier;
     private final BooleanSupplier hitTargetSupplier;
     private final BooleanConsumer hitTargetConsumer;
-    private final DoubleSupplier distanceMetersSupplier;
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -117,7 +116,7 @@ public class RobotContainer {
                 indexer = new Indexer(new IndexerIOSim());
                 agitator = new Agitator(new AgitatorIOSim());
 
-                MapleSim.configureFuel(shooter);
+                MapleSim.initializeTriggers(indexer, shooter);
                 break;
 
             default:
@@ -177,19 +176,11 @@ public class RobotContainer {
 
         final String speedKey = "ShooterSpeedInput";
         final String targetKey = "HitTarget?";
-        final String feetKey = "Feet Distance";
-        final String inchKey = "Inch Distance";
         SmartDashboard.putNumber(speedKey, 0);
         SmartDashboard.putBoolean(targetKey, false);
-        SmartDashboard.putNumber(feetKey, 0);
-        SmartDashboard.putNumber(inchKey, 0);
-        speedSupplier = () -> SmartDashboard.getNumber(speedKey, 0);
+        blindSpeedSupplier = () -> SmartDashboard.getNumber(speedKey, 0);
         hitTargetSupplier = () -> SmartDashboard.getBoolean(targetKey, false);
         hitTargetConsumer = (v) -> SmartDashboard.putBoolean(targetKey, v);
-        distanceMetersSupplier =
-                () ->
-                        Units.feetToMeters(SmartDashboard.getNumber(feetKey, 0))
-                                + Units.inchesToMeters(SmartDashboard.getNumber(inchKey, 0));
 
         // Initialize bindings and robot faults
         bindings = new Bindings(drivetrain, intake, agitator, indexer, shooter);
@@ -197,7 +188,7 @@ public class RobotContainer {
                 new RobotFaults(
                         drivetrain, vision, bindings::joysticksConnected, intake, agitator, indexer, shooter);
 
-        bindings.configureButtonBindings(speedSupplier);
+        bindings.configureButtonBindings(blindSpeedSupplier);
         bindings.configureBlingBindings(bling, faults);
     }
 
@@ -224,7 +215,9 @@ public class RobotContainer {
     public void robotPeriodic() {
         if (hitTargetSupplier.getAsBoolean()) {
             Logger.recordOutput(
-                    "ShooterData/SuccessfulDistance", Meters.of(distanceMetersSupplier.getAsDouble()));
+                    "ShooterData/SuccessfulDistance", Meters.of(drivetrain.getDistanceToHub()));
+            Logger.recordOutput(
+                    "ShooterData/SuccessfulSpeed", RotationsPerSecond.of(blindSpeedSupplier.getAsDouble()));
             hitTargetConsumer.accept(false);
         }
 

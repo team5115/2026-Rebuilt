@@ -8,12 +8,15 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.indexer.Indexer;
@@ -36,8 +39,13 @@ public class MapleSim {
     private static RebuiltFuelOnFly fuelOnFly;
     private static IntakeSimulation intakeSimulation;
 
+    private static final double shotFrequency = 4;
+    private static final double shotCooldown = 1d / shotFrequency;
+    private static final Timer shotTimer = new Timer();
+    private static Trigger indexing;
+
     public static void initializeArena() {
-        final boolean startRed = true;
+        final boolean startRed = false;
         final var initPose =
                 startRed ? new Pose2d(15.0, 7.5, Rotation2d.kPi) : new Pose2d(1.5, 0.8, Rotation2d.kZero);
         swerveSim = new SwerveDriveSimulation(generateDriveSimConfig(), initPose);
@@ -59,6 +67,13 @@ public class MapleSim {
         intakeSimulation.setGamePiecesCount(8);
     }
 
+    public static void initializeTriggers(Indexer indexer, Shooter shooter) {
+        shotTimer.start();
+        indexing =
+                new Trigger(() -> shooter.getRotationRPM() > 500 && indexer.isIndexing())
+                        .debounce(Constants.LOOP_PERIOD_SECS * 2d, DebounceType.kBoth);
+    }
+
     public static void simPeriodic(Intake intake, Indexer indexer, Shooter shooter) {
         SimulatedArena.getInstance().simulationPeriodic();
 
@@ -68,8 +83,8 @@ public class MapleSim {
             intakeSimulation.stopIntake();
         }
 
-        if (shooter.getRotationRPM() > 500
-                && indexer.isIndexing()
+        if (indexing.getAsBoolean()
+                && shotTimer.get() >= shotCooldown
                 && intakeSimulation.obtainGamePieceFromIntake()) {
             launchFuel(shooter);
         }
@@ -102,10 +117,11 @@ public class MapleSim {
     }
 
     public static void launchFuel(Shooter shooter) {
-        SimulatedArena.getInstance().addGamePieceProjectile(configureFuel(shooter));
+        shotTimer.reset();
+        SimulatedArena.getInstance().addGamePieceProjectile(generateFuel(shooter));
     }
 
-    public static GamePieceProjectile configureFuel(Shooter shooter) {
+    public static GamePieceProjectile generateFuel(Shooter shooter) {
         fuelOnFly =
                 new RebuiltFuelOnFly(
                         swerveSim.getSimulatedDriveTrainPose().getTranslation(),
@@ -118,8 +134,8 @@ public class MapleSim {
                         MetersPerSecond.of(
                                 RPM.of(shooter.getRotationRPM()).in(RadiansPerSecond)
                                         * Shooter.FLYWHEEL_RADIUS
-                                        * 0.5), // TODO maybe update with real values?
-                        Degrees.of(75)); // TODO exit angle of fuel, from the horizontal
+                                        * 0.5),
+                        Degrees.of(90 - 15)); // TODO exit angle of fuel, from the horizontal
 
         fuelOnFly.withProjectileTrajectoryDisplayCallBack(
                 (pose3ds) ->

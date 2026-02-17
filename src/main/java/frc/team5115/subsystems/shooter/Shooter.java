@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     private final StringBuilder reqestsStringBuilder = new StringBuilder();
 
     private final DoubleSupplier distanceToHub;
-    @AutoLogOutput private double distanceOverride = -1;
+    @AutoLogOutput private DoubleSupplier speedOverride = null;
 
     public Shooter(ShooterIO io, DoubleSupplier distanceToHub) {
         this.io = io;
@@ -97,6 +97,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
+        Logger.recordOutput("Info/DistanceToHub", distanceToHub);
 
         reqestsStringBuilder.delete(0, reqestsStringBuilder.length());
         requests.forEach(
@@ -107,9 +108,11 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         Logger.recordOutput("Shooter/Requests", reqestsStringBuilder.toString());
 
         if (usePIDF) {
-            if (currentlyRequested() || distanceOverride >= 0) {
+            if (currentlyRequested() || speedOverride != null) {
                 pid.setSetpoint(
-                        calculateSpeed(distanceOverride < 0 ? distanceToHub.getAsDouble() : distanceOverride));
+                        speedOverride == null
+                                ? calculateSpeed(distanceToHub.getAsDouble())
+                                : speedOverride.getAsDouble());
                 io.setVoltage(feedforward.calculate(pid.getSetpoint()) + pid.calculate(inputs.velocityRPM));
                 Logger.recordOutput("Shooter/Setpoint RPM", pid.getSetpoint());
                 Logger.recordOutput("Shooter/Error RPM", pid.getError());
@@ -137,13 +140,14 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     }
 
     /**
-     * Spin up the shooter blind based on a preset distance.
+     * Spin up the shooter blind to a supplied speed.
      *
-     * @param distance the distance to the hub to use to calculate the speed
-     * @return a StartEnd command that
+     * @param speedSupplier supplies the speed in RPM to spin the shooter
+     * @return a StartEnd command that spins to the custom speed and then releases the shooter at the
+     *     end.
      */
-    public Command spinUpBlind(double distance) {
-        return Commands.startEnd(() -> distanceOverride = distance, () -> distanceOverride = -1);
+    public Command spinUpBlind(DoubleSupplier speedSupplier) {
+        return Commands.startEnd(() -> speedOverride = speedSupplier, () -> speedOverride = null);
     }
 
     /**
@@ -152,7 +156,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      * @return a Wait command
      */
     public Command waitForBlindSetpoint() {
-        return Commands.waitUntil(() -> pid.atSetpoint() && distanceOverride >= 0 && usePIDF);
+        return Commands.waitUntil(() -> pid.atSetpoint() && speedOverride != null && usePIDF);
     }
 
     /**
@@ -192,8 +196,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     private static double calculateSpeed(double distance) {
         // TODO determine function for required shooter speed
         final double a = 0d; // squared term
-        final double b = 0d; // linear term
-        final double c = 500d; // y intercept
+        final double b = 360d; // linear term
+        final double c = 1741d; // y intercept
         return distance * distance * a + distance * b + c;
     }
 
