@@ -71,6 +71,25 @@ public class Bindings {
     }
 
     /**
+     * AutoHubLock is enabled if all of the following conditions are met:
+     *
+     * <ol>
+     *   <li>the robot is inside the sub-zone
+     *   <li>automation is enabled (see: {@link #automationEnabled()})
+     *   <li>neither driver presses the left trigger
+     * </ol>
+     *
+     * @return a Trigger that indicates if automatic hub lock is enabled
+     */
+    private Trigger autoHubLockEnabled() {
+        return drivetrain
+                .inSubZone()
+                .and(automationEnabled())
+                .and(manipJoy.leftTrigger().negate())
+                .and(driveJoy.leftTrigger().negate());
+    }
+
+    /**
      * Determines if it safe to shoot. Checks that the following conditions are true:
      *
      * <ol>
@@ -122,8 +141,8 @@ public class Bindings {
                         DriveCommands.smartShoot(
                                 drivetrain, agitator, indexer, shooter, Shooter.Requester.ManualShoot));
 
-        // Left trigger shoots blind
-        manipJoy.leftTrigger().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter));
+        // B shoots blind
+        manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter));
 
         // While in alliance zone request to spin up shooter
         drivetrain
@@ -131,13 +150,8 @@ public class Bindings {
                 .and(automationEnabled())
                 .whileTrue(shooter.requestSpinUp(Shooter.Requester.InAllianceZone));
 
-        // While holding a, spin up shooter
-        driveJoy.a().whileTrue(shooter.requestSpinUp(Shooter.Requester.ManualSpinUp));
-
-        // While in the subzone, or holding a, lock on
-        drivetrain
-                .inSubZone()
-                .and(automationEnabled())
+        // While autoHubLock is enabled, or holding a, lock on
+        autoHubLockEnabled()
                 .or(driveJoy.a())
                 .whileTrue(
                         DriveCommands.lockedOnHub(
@@ -146,6 +160,9 @@ public class Bindings {
                                 () -> slowMode,
                                 () -> -driveJoy.getLeftY(),
                                 () -> -driveJoy.getLeftX()));
+
+        // If driver wants to lock onto hub, also spin up shooter
+        driveJoy.a().whileTrue(shooter.requestSpinUp(Shooter.Requester.ManualSpinUp));
 
         safeToShoot()
                 .onTrue(rumble(Constants.RUMBLE_STRENGTH))
