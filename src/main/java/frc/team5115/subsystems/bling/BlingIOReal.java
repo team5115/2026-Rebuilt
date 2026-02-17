@@ -2,6 +2,7 @@ package frc.team5115.subsystems.bling;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import frc.team5115.Constants;
 
 public class BlingIOReal implements BlingIO {
     private final AddressableLED led;
@@ -11,7 +12,7 @@ public class BlingIOReal implements BlingIO {
     private boolean running = false;
 
     public BlingIOReal() {
-        led = new AddressableLED(Bling.LED_PORT);
+        led = new AddressableLED(Constants.LED_STRIP_PWM_ID);
         ledBuffer = new AddressableLEDBuffer(Bling.LED_COUNT * 4 / 3);
         preBuffer = new int[Bling.LED_COUNT][4];
         postBuffer = new int[ledBuffer.getLength()][3];

@@ -9,7 +9,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class Bling extends SubsystemBase {
     public static final int LED_COUNT = 144; // ! must be divisble by 3
-    public static final int LED_PORT = 0; // pwm
 
     private static final DoubleSupplier zeros = () -> 0;
     private static final DoubleSupplier redAllianceSupplier = () -> Constants.isRedAlliance() ? 1 : 0;
