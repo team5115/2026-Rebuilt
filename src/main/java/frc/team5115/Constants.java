@@ -64,10 +64,11 @@ public final class Constants {
     public static final double LOOP_PERIOD_SECS = 0.02;
 
     // TODO determine digestion speeds
+
     public static final double INTAKE_SPEED = 1.0;
     public static final double INTAKE_VOMIT_SPEED = -1.0;
 
-    public static final double INDEX_SPEED = 0.7;
+    public static final double INDEX_SPEED = INTAKE_SPEED * 0.418;
     public static final double INDEX_REJECT_SPEED = -0.25;
     public static final double INDEX_VOMIT_SPEED = -0.25;
 
