@@ -33,7 +33,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
     public enum Requester {
         AutonomouseSpinUp,
-        AutonomousShoot,
+        AutonomouseShoot,
         InAllianceZone,
         SafeShoot,
         ManualSpinUp,
