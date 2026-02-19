@@ -23,7 +23,7 @@ public class AutoCommands {
         return Commands.parallel(
                         Commands.print("Shooting!"),
                         agitator.fast(),
-                        shooter.requestSpinUp(Shooter.Requester.AutonomousShoot),
+                        shooter.requestSpinUp(Shooter.Requester.AutonomouseShoot),
                         shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()))
                 .withTimeout(timeout);
     }
