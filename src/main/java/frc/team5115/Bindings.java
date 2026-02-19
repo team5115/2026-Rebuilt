@@ -176,7 +176,11 @@ public class Bindings {
     public void configureBlingBindings(Bling bling, RobotFaults faults) {
         bling.setDefaultCommand(bling.allianceKITT());
         drivetrain.inAllianceZone().whileTrue(bling.allianceScrollIn());
-        drivetrain.inAllianceZone().negate().and(Constants::isHubActive).whileTrue(bling.allianceWhiteFlashing());
+        drivetrain
+                .inAllianceZone()
+                .negate()
+                .and(Constants::isHubActive)
+                .whileTrue(bling.allianceWhiteFlashing());
         drivetrain.inSubZone().whileTrue(bling.purpleScrollIn());
         safeToShoot().whileTrue(bling.purpleFlashing());
         new Trigger(indexer::isIndexing).whileTrue(bling.whiteScrollIn());

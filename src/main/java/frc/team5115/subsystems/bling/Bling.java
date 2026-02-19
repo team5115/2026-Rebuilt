@@ -76,7 +76,8 @@ public class Bling extends SubsystemBase {
     }
 
     public Command allianceWhiteFlashing() {
-        return seizure(zeros, zeros, zeros, () -> 0.5, redAllianceSupplier, zeros, blueAllianceSupplier, zeros);
+        return seizure(
+                zeros, zeros, zeros, () -> 0.5, redAllianceSupplier, zeros, blueAllianceSupplier, zeros);
     }
 
     public Command purpleScrollIn() {
@@ -227,7 +228,6 @@ public class Bling extends SubsystemBase {
                 this);
     }
 
-
     public Command scrollIn(
             DoubleSupplier redSupplier,
             DoubleSupplier greenSupplier,
@@ -282,7 +282,6 @@ public class Bling extends SubsystemBase {
                 },
                 this);
     }
-    
 
     private double totalBrightness(int[] color) {
         return color[0] + color[1] + color[2] + color[3];
