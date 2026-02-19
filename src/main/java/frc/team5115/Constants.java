@@ -64,7 +64,7 @@ public final class Constants {
     public static final double LOOP_PERIOD_SECS = 0.02;
 
     // TODO determine digestion speeds
-    public static final double INTAKE_SPEED = 0.5;
+    public static final double INTAKE_SPEED = 0.85;
     public static final double INTAKE_VOMIT_SPEED = -1.0;
 
     public static final double AGITATOR_FAST_SPEED = 0.4;
@@ -73,7 +73,7 @@ public final class Constants {
     public static final double AGITATOR_ALT_SPEED = 0.25;
     public static final double AGITATOR_ALT_PAUSE = 0.1;
 
-    public static final double AGITATOR_SLOW_SPEED = 0.1;
+    public static final double AGITATOR_SLOW_SPEED = 0.15;
     public static final double AGITATOR_VOMIT_SPEED = -0.5;
 
     public static final double INDEX_SPEED = 0.4;
