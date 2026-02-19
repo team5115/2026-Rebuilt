@@ -156,7 +156,12 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      * @return a Wait command
      */
     public Command waitForBlindSetpoint() {
-        return Commands.waitUntil(() -> pid.atSetpoint() && speedOverride != null && usePIDF);
+        return Commands.waitUntil(this::atBlindSetpoint);
+    }
+
+    @AutoLogOutput
+    public boolean atBlindSetpoint() {
+        return pid.atSetpoint() && speedOverride != null && usePIDF;
     }
 
     /**

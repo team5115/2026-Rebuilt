@@ -178,7 +178,7 @@ public class RobotContainer {
         final String targetKey = "HitTarget?";
         SmartDashboard.putNumber(speedKey, 0);
         SmartDashboard.putBoolean(targetKey, false);
-        blindSpeedSupplier = () -> SmartDashboard.getNumber(speedKey, 0);
+        blindSpeedSupplier = () -> SmartDashboard.getNumber(speedKey, 1000);
         hitTargetSupplier = () -> SmartDashboard.getBoolean(targetKey, false);
         hitTargetConsumer = (v) -> SmartDashboard.putBoolean(targetKey, v);
 
