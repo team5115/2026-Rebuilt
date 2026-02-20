@@ -113,7 +113,7 @@ public class Bindings {
                 .and(() -> drivetrain.movingWithinTolerance(0.2, 0.5));
     }
 
-    public void configureButtonBindings(DoubleSupplier shooterSpeed) {
+    public void configureButtonBindings(DoubleSupplier shooterSpeed, DoubleSupplier linearPosition) {
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drivetrain,
@@ -171,6 +171,8 @@ public class Bindings {
                 .whileTrue(
                         DriveCommands.smartShoot(
                                 drivetrain, agitator, indexer, shooter, Shooter.Requester.SafeShoot));
+
+        driveJoy.x().whileTrue(shooter.setLinearPosition(linearPosition));
     }
 
     public void configureBlingBindings(Bling bling, RobotFaults faults) {

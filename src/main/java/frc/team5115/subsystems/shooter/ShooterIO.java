@@ -24,6 +24,8 @@ public interface ShooterIO {
         InterfaceReplayCheck.warnOnNotReplay();
     }
 
+    public default void setLinearPosition(double position) {}
+
     public default ArrayList<SparkMax> getSparks() {
         InterfaceReplayCheck.warnOnNotReplay();
         return new ArrayList<>();

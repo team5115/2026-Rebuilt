@@ -241,4 +241,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public double getRotationRPM() {
         return inputs.velocityRPM;
     }
+
+    public Command setLinearPosition(DoubleSupplier position) {
+        return Commands.run(() -> io.setLinearPosition(position.getAsDouble()));
+    }
 }

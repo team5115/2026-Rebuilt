@@ -59,7 +59,7 @@ public final class Constants {
     public static final byte LEFT_SENSOR_ID = 0;
     public static final byte RIGHT_SENSOR_ID = 1;
 
-    public static final byte LED_STRIP_PWM_ID = 0;
+    public static final byte LED_STRIP_PWM_ID = 9;
 
     public static final double LOOP_PERIOD_SECS = 0.02;
 

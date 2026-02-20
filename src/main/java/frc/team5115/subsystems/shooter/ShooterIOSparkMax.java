@@ -7,11 +7,13 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.PWM;
 import frc.team5115.Constants;
 import java.util.ArrayList;
 
 public class ShooterIOSparkMax implements ShooterIO {
-
+    private final PWM linearActuator1;
+    private final PWM linearActuator2;
     private final SparkMax motor;
     private final RelativeEncoder encoder;
 
@@ -28,6 +30,9 @@ public class ShooterIOSparkMax implements ShooterIO {
                 .smartCurrentLimit(40);
 
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        linearActuator1 = new PWM(0);
+        linearActuator2 = new PWM(1);
     }
 
     @Override
@@ -41,6 +46,12 @@ public class ShooterIOSparkMax implements ShooterIO {
     @Override
     public void setVoltage(double volts) {
         motor.setVoltage(volts);
+    }
+
+    @Override
+    public void setLinearPosition(double position) {
+        linearActuator1.setPosition(position);
+        linearActuator2.setPosition(position);
     }
 
     @Override
