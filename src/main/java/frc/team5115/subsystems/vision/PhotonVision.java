@@ -22,8 +22,8 @@ public class PhotonVision extends SubsystemBase {
     private final PhotonVisionIO io;
 
     public enum Camera {
-        LEFT_CAM_POINTS_RIGHT("Black", VisionConstants.LEFT_CAM_TO_ROBOT),
-        RIGHT_CAM_POINTS_LEFT("Red", VisionConstants.RIGHT_CAM_TO_ROBOT);
+        LEFT_CAM_POINTS_RIGHT("Black", VisionConstants.LEFT_CAM_TO_ROBOT);
+        // RIGHT_CAM_POINTS_LEFT("Red", VisionConstants.RIGHT_CAM_TO_ROBOT);
 
         public final PhotonCameraSim cameraSim;
         public final PhotonCamera camera;
