@@ -72,7 +72,12 @@ public class Bling extends SubsystemBase {
     }
 
     public Command purpleFlashing() {
-        return seizure(333, 0.35f, 0, 0.75f, 0, 0.35f, 0, 0.75f, 0);
+        return seizure(() -> 0.35f, zeros, () -> 0.75f, zeros, () -> 0.35f, zeros, () -> 0.75f, zeros);
+    }
+
+    public Command allianceWhiteFlashing() {
+        return seizure(
+                zeros, zeros, zeros, () -> 0.5, redAllianceSupplier, zeros, blueAllianceSupplier, zeros);
     }
 
     public Command purpleScrollIn() {
@@ -80,7 +85,7 @@ public class Bling extends SubsystemBase {
     }
 
     public Command faultFlash() {
-        return seizure(333, 0.1, 0, 0, 0, 0.1, 0.05, 0, 0);
+        return seizure(() -> 0.1, zeros, zeros, zeros, () -> 0.1, () -> 0.05, zeros, zeros);
     }
 
     /**
@@ -167,15 +172,14 @@ public class Bling extends SubsystemBase {
     }
 
     public Command seizure(
-            double period,
-            double red,
-            double green,
-            double blue,
-            double white,
-            double red2,
-            double green2,
-            double blue2,
-            double white2) {
+            DoubleSupplier redSupplier,
+            DoubleSupplier greenSupplier,
+            DoubleSupplier blueSupplier,
+            DoubleSupplier whiteSupplier,
+            DoubleSupplier red2Supplier,
+            DoubleSupplier green2Supplier,
+            DoubleSupplier blue2Supplier,
+            DoubleSupplier white2Supplier) {
         final double adjPeriod = (period / 20 / 4);
         return Commands.startRun(
                 () -> {
@@ -186,6 +190,14 @@ public class Bling extends SubsystemBase {
                 },
                 () -> {
                     // Repeating
+                    final double red = redSupplier.getAsDouble();
+                    final double green = greenSupplier.getAsDouble();
+                    final double blue = blueSupplier.getAsDouble();
+                    final double white = whiteSupplier.getAsDouble();
+                    final double red2 = red2Supplier.getAsDouble();
+                    final double green2 = green2Supplier.getAsDouble();
+                    final double blue2 = blue2Supplier.getAsDouble();
+                    final double white2 = white2Supplier.getAsDouble();
                     timer++;
                     if (timer >= adjPeriod) {
                         timer = 0;

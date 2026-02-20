@@ -27,6 +27,9 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public static final double FLYWHEEL_MOI = 0.000856915; // kg*m^2
     public static final double FLYWHEEL_RADIUS = Units.inchesToMeters(4.75 / 2);
 
+    public static final double ACTUATOR_MIN_POS = 0.0;
+    public static final double ACTUATOR_MAX_POS = 0.5;
+
     private static final double ffConversion = Math.PI / 30;
 
     @AutoLogOutput private boolean usePIDF = true;
@@ -79,7 +82,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
                                 null,
                                 (state) -> {
                                     Logger.recordOutput("Shooter/SysIdState", state.toString());
-                                    Logger.recordOutput("Shooter/PositionRadians", inputs.position * 2 * Math.PI);
+                                    Logger.recordOutput(
+                                            "Shooter/PositionRadians", inputs.positionRotations * 2 * Math.PI);
                                     Logger.recordOutput(
                                             "Shooter/VelocityRadPerSec",
                                             Units.rotationsPerMinuteToRadiansPerSecond(inputs.velocityRPM));
@@ -156,7 +160,12 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      * @return a Wait command
      */
     public Command waitForBlindSetpoint() {
-        return Commands.waitUntil(() -> pid.atSetpoint() && speedOverride != null && usePIDF);
+        return Commands.waitUntil(this::atBlindSetpoint);
+    }
+
+    @AutoLogOutput
+    public boolean atBlindSetpoint() {
+        return pid.atSetpoint() && speedOverride != null && usePIDF;
     }
 
     /**
@@ -235,5 +244,15 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
     public double getRotationRPM() {
         return inputs.velocityRPM;
+    }
+
+    /**
+     * Move the actuators to adjust the hood angle.
+     *
+     * @return Instant Command that doesn't require the shooter subsystem.
+     * @param position the position between 0 and 0.5
+     */
+    public Command moveActuators(DoubleSupplier position) {
+        return Commands.runOnce(() -> io.moveActuators(position.getAsDouble()));
     }
 }

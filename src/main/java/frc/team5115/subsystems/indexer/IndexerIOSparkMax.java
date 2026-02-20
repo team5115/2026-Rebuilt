@@ -16,6 +16,7 @@ public class IndexerIOSparkMax implements IndexerIO {
     private final RelativeEncoder encoder;
     private final DigitalInput leftSensor;
     private final DigitalInput rightSensor;
+    private final double gearing = 1f / 4f;
 
     public IndexerIOSparkMax() {
         motor = new SparkMax(Constants.INDEXER_MOTOR_ID, MotorType.kBrushless);
@@ -30,7 +31,7 @@ public class IndexerIOSparkMax implements IndexerIO {
 
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
-        inputs.velocityRPM = encoder.getVelocity();
+        inputs.velocityRPM = encoder.getVelocity() * gearing;
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
         inputs.leftSensor = !leftSensor.get();

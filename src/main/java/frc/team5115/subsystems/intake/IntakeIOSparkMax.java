@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class IntakeIOSparkMax implements IntakeIO {
     private final SparkMax motor;
     private final RelativeEncoder encoder;
+    private final double gearing = 1f / 5f;
 
     public IntakeIOSparkMax() {
         motor = new SparkMax(Constants.INTAKE_MOTOR_ID, MotorType.kBrushless);
@@ -25,7 +26,7 @@ public class IntakeIOSparkMax implements IntakeIO {
 
     @Override
     public void updateInputs(IntakeIOInputs inputs) {
-        inputs.velocityRPM = encoder.getVelocity();
+        inputs.velocityRPM = encoder.getVelocity() * gearing;
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
     }

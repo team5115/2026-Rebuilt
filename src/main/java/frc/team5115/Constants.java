@@ -46,7 +46,7 @@ public final class Constants {
     }
 
     public static final boolean SINGLE_MODE = true;
-    public static final boolean DISABLE_AUTOMATION = false;
+    public static final boolean DISABLE_AUTOMATION = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
     public static final byte INTAKE_MOTOR_ID = 11;
@@ -57,26 +57,27 @@ public final class Constants {
     public static final byte LEFT_SENSOR_ID = 0;
     public static final byte RIGHT_SENSOR_ID = 1;
 
-    public static final byte LED_STRIP_PWM_ID = 0;
+    public static final byte LED_STRIP_PWM_ID = 9;
+    public static final byte HOOD_ACTUATOR_1_PWM_ID = 0;
+    public static final byte HOOD_ACTUATOR_2_PWM_ID = 1;
 
     public static final double LOOP_PERIOD_SECS = 0.02;
 
-    // TODO determine digestion speeds
-    public static final double INTAKE_SPEED = 0.5;
+    public static final double INTAKE_SPEED = 1.0;
     public static final double INTAKE_VOMIT_SPEED = -1.0;
 
-    public static final double AGITATOR_FAST_SPEED = 0.4;
-    public static final double AGITATOR_MAIN_PAUSE = 0.3;
-
-    public static final double AGITATOR_ALT_SPEED = 0.25;
-    public static final double AGITATOR_ALT_PAUSE = 0.1;
-
-    public static final double AGITATOR_SLOW_SPEED = 0.1;
-    public static final double AGITATOR_VOMIT_SPEED = -0.5;
-
-    public static final double INDEX_SPEED = 0.4;
+    public static final double INDEX_SPEED = INTAKE_SPEED * 0.418;
     public static final double INDEX_REJECT_SPEED = -0.25;
     public static final double INDEX_VOMIT_SPEED = -0.25;
+
+    public static final double AGITATOR_FAST_SPEED = INDEX_SPEED * 0.7;
+    public static final double AGITATOR_MAIN_PAUSE = 0.3;
+
+    public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED;
+    public static final double AGITATOR_ALT_PAUSE = 0.1;
+
+    public static final double AGITATOR_SLOW_SPEED = 0.25;
+    public static final double AGITATOR_VOMIT_SPEED = -0.5;
 
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;
@@ -136,10 +137,10 @@ public final class Constants {
                     new Translation2d(TRACK_WIDTH_X / -2.0, TRACK_WIDTH_Y / -2.0)
                 };
 
-        public static final Rotation2d FRONT_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(90);
-        public static final Rotation2d FRONT_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(180);
-        public static final Rotation2d BACK_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(0);
-        public static final Rotation2d BACK_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(270);
+        public static final Rotation2d FRONT_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(270);
+        public static final Rotation2d FRONT_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(0);
+        public static final Rotation2d BACK_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(180);
+        public static final Rotation2d BACK_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(90);
 
         // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear
         // 15 teeth on the bevel pinion, 13 teeth on the driving motor
