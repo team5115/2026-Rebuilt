@@ -60,10 +60,10 @@ public final class Constants {
     public static final byte RIGHT_SENSOR_ID = 1;
 
     public static final byte LED_STRIP_PWM_ID = 9;
+    public static final byte HOOD_ACTUATOR_1_PWM_ID = 0;
+    public static final byte HOOD_ACTUATOR_2_PWM_ID = 1;
 
     public static final double LOOP_PERIOD_SECS = 0.02;
-
-    // TODO determine digestion speeds
 
     public static final double INTAKE_SPEED = 1.0;
     public static final double INTAKE_VOMIT_SPEED = -1.0;

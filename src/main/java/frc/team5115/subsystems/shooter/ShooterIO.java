@@ -11,7 +11,9 @@ public interface ShooterIO {
         public double velocityRPM = 0.0;
         public double appliedVolts = 0.0;
         public double currentAmps = 0.0;
-        public double position = 0.0;
+        public double positionRotations = 0.0;
+        public double actuator1Pos = 0.0;
+        public double actuator2Pos = 0.0;
     }
 
     /** Updates the set of loggable inputs. */
@@ -24,7 +26,8 @@ public interface ShooterIO {
         InterfaceReplayCheck.warnOnNotReplay();
     }
 
-    public default void setLinearPosition(double position) {}
+    /** Move both linear actuators to adjust the hood angle. */
+    public default void moveActuators(double position) {}
 
     public default ArrayList<SparkMax> getSparks() {
         InterfaceReplayCheck.warnOnNotReplay();

@@ -172,7 +172,7 @@ public class Bindings {
                         DriveCommands.smartShoot(
                                 drivetrain, agitator, indexer, shooter, Shooter.Requester.SafeShoot));
 
-        driveJoy.x().whileTrue(shooter.setLinearPosition(linearPosition));
+        driveJoy.x().whileTrue(shooter.moveActuators(linearPosition));
     }
 
     public void configureBlingBindings(Bling bling, RobotFaults faults) {
