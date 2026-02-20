@@ -24,7 +24,10 @@ public class AutoCommands {
                         Commands.print("Shooting!"),
                         agitator.fast(),
                         shooter.requestSpinUp(Shooter.Requester.AutonomouseShoot),
-                        shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()))
+                        shooter
+                                .waitForSetpoint()
+                                .raceWith(indexer.reject())
+                                .andThen(indexer.index().until(indexer.deBounceIsSensing().negate())))
                 .withTimeout(timeout);
     }
 

@@ -1,9 +1,11 @@
 package frc.team5115.subsystems.indexer;
 
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team5115.Constants;
 import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
@@ -58,6 +60,10 @@ public class Indexer extends SubsystemBase implements MotorContainer {
     @Override
     public ArrayList<SparkMax> getSparks() {
         return io.getSparks();
+    }
+
+    public Trigger deBounceIsSensing() {
+        return new Trigger(this::isSensing).debounce(1.5, Debouncer.DebounceType.kFalling);
     }
 
     @AutoLogOutput
