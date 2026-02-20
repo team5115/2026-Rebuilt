@@ -82,7 +82,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
                                 null,
                                 (state) -> {
                                     Logger.recordOutput("Shooter/SysIdState", state.toString());
-                                    Logger.recordOutput("Shooter/PositionRadians", inputs.positionRotations * 2 * Math.PI);
+                                    Logger.recordOutput(
+                                            "Shooter/PositionRadians", inputs.positionRotations * 2 * Math.PI);
                                     Logger.recordOutput(
                                             "Shooter/VelocityRadPerSec",
                                             Units.rotationsPerMinuteToRadiansPerSecond(inputs.velocityRPM));
@@ -245,10 +246,12 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         return inputs.velocityRPM;
     }
 
-    /** Move the actuators to adjust the hood angle. 
+    /**
+     * Move the actuators to adjust the hood angle.
+     *
      * @return Instant Command that doesn't require the shooter subsystem.
      * @param position the position between 0 and 0.5
-     * */
+     */
     public Command moveActuators(DoubleSupplier position) {
         return Commands.runOnce(() -> io.moveActuators(position.getAsDouble()));
     }
