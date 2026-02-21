@@ -113,6 +113,10 @@ public class Bindings {
                 .and(() -> drivetrain.movingWithinTolerance(0.2, 0.5));
     }
 
+    private Trigger slowEnoughToSpin() {
+        return new Trigger(() -> drivetrain.movingWithinTolerance(0.4, 1)).debounce(0.5);
+    }
+
     public void configureButtonBindings(DoubleSupplier shooterSpeed, DoubleSupplier linearPosition) {
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
@@ -148,6 +152,7 @@ public class Bindings {
         drivetrain
                 .inAllianceZone()
                 .and(automationEnabled())
+                .and(slowEnoughToSpin())
                 .whileTrue(shooter.requestSpinUp(Shooter.Requester.InAllianceZone));
 
         // While autoHubLock is enabled, or holding a, lock on
@@ -162,7 +167,10 @@ public class Bindings {
                                 () -> -driveJoy.getLeftX()));
 
         // If driver wants to lock onto hub, also spin up shooter
-        driveJoy.a().whileTrue(shooter.requestSpinUp(Shooter.Requester.ManualSpinUp));
+        driveJoy
+                .a()
+                .and(slowEnoughToSpin())
+                .whileTrue(shooter.requestSpinUp(Shooter.Requester.ManualSpinUp));
 
         safeToShoot()
                 .onTrue(rumble(Constants.RUMBLE_STRENGTH))
@@ -172,7 +180,7 @@ public class Bindings {
                         DriveCommands.smartShoot(
                                 drivetrain, agitator, indexer, shooter, Shooter.Requester.SafeShoot));
 
-        driveJoy.x().whileTrue(shooter.moveActuators(linearPosition));
+        // driveJoy.x().whileTrue(shooter.moveActuators(linearPosition));
     }
 
     public void configureBlingBindings(Bling bling, RobotFaults faults) {
