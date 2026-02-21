@@ -70,7 +70,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
                 break;
         }
 
-        pid.setTolerance(40);
+        pid.setTolerance(32);
 
         SmartDashboard.putData("Shooter/PIDController", pid);
 
