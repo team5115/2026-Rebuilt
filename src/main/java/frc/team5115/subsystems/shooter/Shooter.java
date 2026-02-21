@@ -204,9 +204,9 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      */
     private static double calculateSpeed(double distance) {
         // TODO determine function for required shooter speed
-        final double a = 0d; // squared term
-        final double b = 400d; // linear term
-        final double c = 2000d; // y intercept
+        final double a = 373d; // squared term
+        final double b = -975d; // linear term
+        final double c = 2905d; // y intercept
         return distance * distance * a + distance * b + c;
     }
 
