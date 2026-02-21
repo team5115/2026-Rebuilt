@@ -206,7 +206,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         // TODO determine function for required shooter speed
         final double a = 373d; // squared term
         final double b = -975d; // linear term
-        final double c = 2905d; // y intercept
+        final double c = 3250d; // y intercept
         return distance * distance * a + distance * b + c;
     }
 
