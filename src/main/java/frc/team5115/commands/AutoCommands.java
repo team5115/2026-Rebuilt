@@ -17,9 +17,13 @@ public class AutoCommands {
                 Commands.print("Intaking!"), intake.intake(), agitator.slow(), indexer.reject());
     }
 
-    // TODO make auto shoot end once sensor stops detecting balls coming thru
     public static Command shoot(
-            double timeout, Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
+            double timeout,
+            Drivetrain drivetrain,
+            Agitator agitator,
+            Indexer indexer,
+            Shooter shooter,
+            boolean shootForever) {
         return Commands.parallel(
                         Commands.print("Shooting!"),
                         agitator.fast(),
@@ -27,7 +31,10 @@ public class AutoCommands {
                         shooter
                                 .waitForSetpoint()
                                 .raceWith(indexer.reject())
-                                .andThen(indexer.index().until(indexer.deBounceIsSensing().negate())))
+                                .andThen(
+                                        indexer
+                                                .index()
+                                                .until(indexer.deBounceIsSensing().negate().and(() -> !shootForever))))
                 .withTimeout(timeout);
     }
 

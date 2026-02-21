@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.575,
-        "y": 4.0
+        "x": 3.4,
+        "y": 5.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.575,
-        "y": 5.458097495869238
+        "x": 1.5952755674256711,
+        "y": 4.878980904877725
       },
       "isLocked": true,
       "linkedName": "centerStart"
@@ -20,7 +20,7 @@
         "y": 5.984818702287698
       },
       "prevControl": {
-        "x": 1.4372519084027362,
+        "x": 2.5271485901189616,
         "y": 5.984818702287698
       },
       "nextControl": null,
@@ -28,7 +28,12 @@
       "linkedName": "depotIntake"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.55,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
@@ -62,7 +67,7 @@
   "folder": "Depot Auto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -45.0
   },
   "useDefaultConstraints": true
 }
