@@ -57,8 +57,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
             case REAL:
             case REPLAY:
                 feedforward =
-                        new SimpleMotorFeedforward(0.21098, 0.020198 * ffConversion, 0.0046002 * ffConversion);
-                pid = new PIDController(4.1686E-05, 0, 0);
+                        new SimpleMotorFeedforward(0.10105, 0.020048 * ffConversion, 0.0047036 * ffConversion);
+                pid = new PIDController(1E-03, 0, 0);
                 break;
             case SIM:
                 feedforward = new SimpleMotorFeedforward(0, 2.10E-3, 0.03);
@@ -70,7 +70,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
                 break;
         }
 
-        pid.setTolerance(20);
+        pid.setTolerance(40);
 
         SmartDashboard.putData("Shooter/PIDController", pid);
 
@@ -205,8 +205,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     private static double calculateSpeed(double distance) {
         // TODO determine function for required shooter speed
         final double a = 0d; // squared term
-        final double b = 360d; // linear term
-        final double c = 1741d; // y intercept
+        final double b = 400d; // linear term
+        final double c = 2000d; // y intercept
         return distance * distance * a + distance * b + c;
     }
 
