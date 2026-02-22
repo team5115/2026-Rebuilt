@@ -103,7 +103,7 @@ public final class Constants {
             return ROBOT_CONFIG;
         }
 
-        public static final double MAX_LINEAR_SPEED = 2.5; // meters per second
+        public static final double MAX_LINEAR_SPEED = 5.0; // meters per second
 
         // 29" wide, 25.75" front to back
         // ! Reminder that X is front-back, Y is left-right
