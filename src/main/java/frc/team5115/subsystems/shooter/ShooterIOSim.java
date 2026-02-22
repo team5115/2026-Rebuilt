@@ -9,6 +9,7 @@ import frc.team5115.Constants;
 public class ShooterIOSim implements ShooterIO {
     private final FlywheelSim sim;
     private double appliedVolts;
+    private double actuatorPosition;
 
     public ShooterIOSim() {
         sim =
@@ -24,7 +25,14 @@ public class ShooterIOSim implements ShooterIO {
         inputs.velocityRPM = sim.getAngularVelocityRPM();
         inputs.appliedVolts = appliedVolts;
         inputs.currentAmps = Math.abs(sim.getCurrentDrawAmps());
-        inputs.position = 0;
+        inputs.positionRotations = 0;
+        inputs.actuator1Pos = actuatorPosition;
+        inputs.actuator2Pos = actuatorPosition;
+    }
+
+    @Override
+    public void moveActuators(double position) {
+        actuatorPosition = position;
     }
 
     @Override

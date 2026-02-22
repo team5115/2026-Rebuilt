@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class AgitatorIOSparkMax implements AgitatorIO {
     private final SparkMax motor;
     private final RelativeEncoder encoder;
+    private final double gearing = 1f / 4f;
 
     public AgitatorIOSparkMax() {
         motor = new SparkMax(Constants.AGITATOR_MOTOR_ID, MotorType.kBrushless);
@@ -27,7 +28,7 @@ public class AgitatorIOSparkMax implements AgitatorIO {
 
     @Override
     public void updateInputs(AgitatorIOInputs inputs) {
-        inputs.velocityRPM = encoder.getVelocity();
+        inputs.velocityRPM = encoder.getVelocity() * gearing;
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
     }

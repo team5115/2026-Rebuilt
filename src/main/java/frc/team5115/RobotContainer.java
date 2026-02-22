@@ -176,11 +176,15 @@ public class RobotContainer {
 
         final String speedKey = "ShooterSpeedInput";
         final String targetKey = "HitTarget?";
-        SmartDashboard.putNumber(speedKey, 0);
+        final String linearKey = "Actuator Pos";
+        final double defaultSpeed = 2500;
+        SmartDashboard.putNumber(speedKey, defaultSpeed);
         SmartDashboard.putBoolean(targetKey, false);
-        blindSpeedSupplier = () -> SmartDashboard.getNumber(speedKey, 0);
+        SmartDashboard.putNumber(linearKey, 0.5);
+        blindSpeedSupplier = () -> SmartDashboard.getNumber(speedKey, defaultSpeed);
         hitTargetSupplier = () -> SmartDashboard.getBoolean(targetKey, false);
         hitTargetConsumer = (v) -> SmartDashboard.putBoolean(targetKey, v);
+        final DoubleSupplier linearActuatorSupplier = () -> SmartDashboard.getNumber(linearKey, 0.5);
 
         // Initialize bindings and robot faults
         bindings = new Bindings(drivetrain, intake, agitator, indexer, shooter);
@@ -188,7 +192,7 @@ public class RobotContainer {
                 new RobotFaults(
                         drivetrain, vision, bindings::joysticksConnected, intake, agitator, indexer, shooter);
 
-        bindings.configureButtonBindings(blindSpeedSupplier);
+        bindings.configureButtonBindings(blindSpeedSupplier, linearActuatorSupplier);
         bindings.configureBlingBindings(bling, faults);
     }
 
@@ -196,9 +200,9 @@ public class RobotContainer {
     private void registerCommands() {
         NamedCommands.registerCommand("Intake", AutoCommands.intake(intake, agitator, indexer));
         NamedCommands.registerCommand(
-                "Shoot", AutoCommands.shoot(3, drivetrain, agitator, indexer, shooter));
+                "Shoot", AutoCommands.shoot(3, drivetrain, agitator, indexer, shooter, false));
         NamedCommands.registerCommand(
-                "Shoot Forever", AutoCommands.shoot(20, drivetrain, agitator, indexer, shooter));
+                "Shoot Forever", AutoCommands.shoot(20, drivetrain, agitator, indexer, shooter, true));
         NamedCommands.registerCommand("Spin Up", AutoCommands.spinUp(agitator, indexer, shooter));
         System.out.println("Registered Commands");
     }

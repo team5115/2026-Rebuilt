@@ -10,12 +10,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Ellipse2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
@@ -47,7 +45,7 @@ public final class Constants {
         REPLAY
     }
 
-    public static final boolean SINGLE_MODE = true;
+    public static final boolean SINGLE_MODE = false;
     public static final boolean DISABLE_AUTOMATION = false;
     public static final double RUMBLE_STRENGTH = 0.5;
 
@@ -59,26 +57,27 @@ public final class Constants {
     public static final byte LEFT_SENSOR_ID = 0;
     public static final byte RIGHT_SENSOR_ID = 1;
 
-    public static final byte LED_STRIP_PWM_ID = 0;
+    public static final byte LED_STRIP_PWM_ID = 9;
+    public static final byte HOOD_ACTUATOR_1_PWM_ID = 0;
+    public static final byte HOOD_ACTUATOR_2_PWM_ID = 1;
 
     public static final double LOOP_PERIOD_SECS = 0.02;
 
-    // TODO determine digestion speeds
-    public static final double INTAKE_SPEED = 0.5;
+    public static final double INTAKE_SPEED = 0.85;
     public static final double INTAKE_VOMIT_SPEED = -1.0;
 
-    public static final double AGITATOR_FAST_SPEED = 0.4;
-    public static final double AGITATOR_MAIN_PAUSE = 0.3;
-
-    public static final double AGITATOR_ALT_SPEED = 0.25;
-    public static final double AGITATOR_ALT_PAUSE = 0.1;
-
-    public static final double AGITATOR_SLOW_SPEED = 0.1;
-    public static final double AGITATOR_VOMIT_SPEED = -0.5;
-
-    public static final double INDEX_SPEED = 0.4;
+    public static final double INDEX_SPEED = INTAKE_SPEED * 0.418;
     public static final double INDEX_REJECT_SPEED = -0.25;
     public static final double INDEX_VOMIT_SPEED = -0.25;
+
+    public static final double AGITATOR_FAST_SPEED = INDEX_SPEED * 0.7;
+    public static final double AGITATOR_MAIN_PAUSE = 0.4;
+
+    public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED - 0.1;
+    public static final double AGITATOR_ALT_PAUSE = 0.1;
+
+    public static final double AGITATOR_SLOW_SPEED = 0.25;
+    public static final double AGITATOR_VOMIT_SPEED = -0.5;
 
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;
@@ -104,7 +103,7 @@ public final class Constants {
             return ROBOT_CONFIG;
         }
 
-        public static final double MAX_LINEAR_SPEED = 5; // meters per second
+        public static final double MAX_LINEAR_SPEED = 2.5; // meters per second
 
         // 29" wide, 25.75" front to back
         // ! Reminder that X is front-back, Y is left-right
@@ -138,10 +137,10 @@ public final class Constants {
                     new Translation2d(TRACK_WIDTH_X / -2.0, TRACK_WIDTH_Y / -2.0)
                 };
 
-        public static final Rotation2d FRONT_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(90);
-        public static final Rotation2d FRONT_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(180);
-        public static final Rotation2d BACK_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(0);
-        public static final Rotation2d BACK_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(270);
+        public static final Rotation2d FRONT_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(270);
+        public static final Rotation2d FRONT_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(0);
+        public static final Rotation2d BACK_LEFT_ANGULAR_OFFSET = Rotation2d.fromDegrees(180);
+        public static final Rotation2d BACK_RIGHT_ANGULAR_OFFSET = Rotation2d.fromDegrees(90);
 
         // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear
         // 15 teeth on the bevel pinion, 13 teeth on the driving motor
@@ -159,19 +158,19 @@ public final class Constants {
         public static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);
         public static final Translation2d RED_HUB = new Translation2d(11.92, 4.03);
 
-        private static final Distance SUBZONE_X_SEMI_AXIS = Meters.of(3.0);
-        private static final Distance SUBZONE_Y_SEMI_AXIS = Meters.of(3.0);
+        // private static final Distance SUBZONE_X_SEMI_AXIS = Meters.of(3.0);
+        // private static final Distance SUBZONE_Y_SEMI_AXIS = Meters.of(3.0);
         private static final Distance FIELD_WIDTH = Meters.of(8.09625);
-        private static final Transform2d SUBZONE_CENTER_OFFSET =
-                new Transform2d(0, 0, Rotation2d.kZero);
+        // private static final Transform2d SUBZONE_CENTER_OFFSET =
+        //         new Transform2d(0, 0, Rotation2d.kZero);
         private static final Distance ALLIANCE_ZONE_OFFSET = Meters.of(1.0);
 
-        public static final Ellipse2d BLUE_SUB_ZONE =
-                new Ellipse2d(
-                        new Pose2d(AutoConstants.BLUE_HUB, Rotation2d.k180deg)
-                                .transformBy(SUBZONE_CENTER_OFFSET),
-                        SUBZONE_X_SEMI_AXIS,
-                        SUBZONE_Y_SEMI_AXIS);
+        // public static final Ellipse2d BLUE_SUB_ZONE =
+        //         new Ellipse2d(
+        //                 new Pose2d(AutoConstants.BLUE_HUB, Rotation2d.k180deg)
+        //                         .transformBy(SUBZONE_CENTER_OFFSET),
+        //                 SUBZONE_X_SEMI_AXIS,
+        //                 SUBZONE_Y_SEMI_AXIS);
 
         public static final Rectangle2d BLUE_ALLIANCE_ZONE =
                 new Rectangle2d(
@@ -179,11 +178,22 @@ public final class Constants {
                         new Translation2d(
                                 AutoConstants.BLUE_HUB.getMeasureX().minus(ALLIANCE_ZONE_OFFSET), FIELD_WIDTH));
 
-        public static final Ellipse2d RED_SUB_ZONE =
-                new Ellipse2d(
-                        new Pose2d(AutoConstants.RED_HUB, Rotation2d.kZero).transformBy(SUBZONE_CENTER_OFFSET),
-                        SUBZONE_X_SEMI_AXIS,
-                        SUBZONE_Y_SEMI_AXIS);
+        public static final Rectangle2d BLUE_SUB_ZONE =
+                new Rectangle2d(
+                        BLUE_ALLIANCE_ZONE
+                                .getCenter()
+                                .rotateAround(
+                                        BLUE_ALLIANCE_ZONE.getCenter().getTranslation(),
+                                        new Rotation2d(Degrees.of(45))),
+                        BLUE_HUB.getMeasureX().minus(BLUE_ALLIANCE_ZONE.getCenter().getMeasureX()),
+                        BLUE_HUB.getMeasureX().minus(BLUE_ALLIANCE_ZONE.getCenter().getMeasureX()));
+
+        // public static final Ellipse2d RED_SUB_ZONE =
+        //         new Ellipse2d(
+        //                 new Pose2d(AutoConstants.RED_HUB,
+        // Rotation2d.kZero).transformBy(SUBZONE_CENTER_OFFSET),
+        //                 SUBZONE_X_SEMI_AXIS,
+        //                 SUBZONE_Y_SEMI_AXIS);
 
         public static final Rectangle2d RED_ALLIANCE_ZONE =
                 new Rectangle2d(
@@ -192,6 +202,15 @@ public final class Constants {
                                 Meters.of(0.0)),
                         new Translation2d(
                                 AutoConstants.RED_HUB.getMeasureX().plus(ALLIANCE_ZONE_OFFSET), FIELD_WIDTH));
+
+        public static final Rectangle2d RED_SUB_ZONE =
+                new Rectangle2d(
+                        RED_ALLIANCE_ZONE
+                                .getCenter()
+                                .rotateAround(
+                                        RED_ALLIANCE_ZONE.getCenter().getTranslation(), new Rotation2d(Degrees.of(45))),
+                        BLUE_HUB.getMeasureX().minus(BLUE_ALLIANCE_ZONE.getCenter().getMeasureX()),
+                        BLUE_HUB.getMeasureX().minus(BLUE_ALLIANCE_ZONE.getCenter().getMeasureX()));
 
         /**
          * Get the distance from the robot to our alliance hub
