@@ -5,13 +5,32 @@
     "data": {
       "commands": [
         {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Intake Setup Bottom"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-OutpostAutoShoot-0"
+                  "pathName": "B-GoBackHome-2"
                 }
               },
               {
@@ -61,7 +80,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-OutpostShoot-2"
+                  "pathName": "OutpostShootAlt"
                 }
               }
             ]

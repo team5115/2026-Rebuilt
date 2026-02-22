@@ -5,13 +5,32 @@
     "data": {
       "commands": [
         {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "B-StartDual-0"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-OutpostAutoShoot-0"
+                  "pathName": "B-OutpostShoot-2"
                 }
               },
               {
@@ -36,7 +55,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-OutpostIntake-1"
+                  "pathName": "B-IntakeDepot-2"
                 }
               },
               {
@@ -61,7 +80,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-OutpostShoot-2"
+                  "pathName": "B-DepotShoot-1"
                 }
               }
             ]
