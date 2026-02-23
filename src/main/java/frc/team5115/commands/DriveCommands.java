@@ -14,6 +14,7 @@ import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
+import frc.team5115.subsystems.shooter.SpeedRequest;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -37,6 +38,7 @@ public class DriveCommands {
      * @param agitator
      * @param indexer
      * @param shooter
+     * @param request the source of the request for shooting
      * @return a Command that runs forever.
      */
     public static Command smartShoot(
@@ -44,10 +46,10 @@ public class DriveCommands {
             Agitator agitator,
             Indexer indexer,
             Shooter shooter,
-            Shooter.Requester requester) {
+            SpeedRequest request) {
         return Commands.parallel(
                 agitator.fast(),
-                shooter.requestSpinUp(requester),
+                shooter.requestSpinUp(request),
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
