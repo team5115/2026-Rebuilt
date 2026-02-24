@@ -11,13 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-OutpostAutoShoot-0"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Spin Up"
+                  "pathName": "NewPath"
                 }
               }
             ]
@@ -36,13 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-OutpostIntake-1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
+                  "pathName": "NewPath_copy1"
                 }
               }
             ]
@@ -53,15 +41,9 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Spin Up"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
-                  "pathName": "B-OutpostShoot-2"
+                  "pathName": "NewPath_copy1_copy1"
                 }
               }
             ]
@@ -78,5 +60,5 @@
   },
   "resetOdom": true,
   "folder": null,
-  "choreoAuto": false
+  "choreoAuto": true
 }

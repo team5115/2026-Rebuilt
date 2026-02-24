@@ -46,10 +46,10 @@ public class RobotFaults {
 
     @Override
     public String toString() {
-        return "SparkFaults:[ "
-                + formatSparkFaults(getSparkFaults())
-                + "] ; "
-                + getSubsystemFaults().toString();
+        return (formatSparkFaults(getSparkFaults()) == ""
+                        ? ""
+                        : ("SparkFaults:[ " + formatSparkFaults(getSparkFaults()) + " ] ; "))
+                + (getSubsystemFaults().isEmpty() ? "" : getSubsystemFaults().toString());
     }
 
     public boolean hasFaults() {

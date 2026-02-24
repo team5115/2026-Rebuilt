@@ -200,9 +200,9 @@ public class RobotContainer {
     private void registerCommands() {
         NamedCommands.registerCommand("Intake", AutoCommands.intake(intake, agitator, indexer));
         NamedCommands.registerCommand(
-                "Shoot", AutoCommands.shoot(3, drivetrain, agitator, indexer, shooter));
+                "Shoot", AutoCommands.shoot(3, drivetrain, agitator, indexer, shooter, false));
         NamedCommands.registerCommand(
-                "Shoot Forever", AutoCommands.shoot(20, drivetrain, agitator, indexer, shooter));
+                "Shoot Forever", AutoCommands.shoot(20, drivetrain, agitator, indexer, shooter, true));
         NamedCommands.registerCommand("Spin Up", AutoCommands.spinUp(agitator, indexer, shooter));
         System.out.println("Registered Commands");
     }

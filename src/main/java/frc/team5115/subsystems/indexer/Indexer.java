@@ -63,7 +63,7 @@ public class Indexer extends SubsystemBase implements MotorContainer {
     }
 
     public Trigger deBounceIsSensing() {
-        return new Trigger(this::isSensing).debounce(1.5, Debouncer.DebounceType.kFalling);
+        return new Trigger(this::isSensing).debounce(2.0, Debouncer.DebounceType.kFalling);
     }
 
     @AutoLogOutput

@@ -328,6 +328,27 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
 
+    public double getRadialVelocity() {
+        final Translation2d centerOfOrbit = AutoConstants.getHubPosition();
+        final ChassisSpeeds chassisSpeeds = getChassisSpeeds();
+        final Translation2d linearVelocity =
+                new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+        final Pose2d pose = getPose();
+        // Delta is the vector from the robot to the hub
+        final Translation2d delta = centerOfOrbit.minus(pose.getTranslation());
+        final Rotation2d baseHeading = delta.getAngle();
+        final Rotation2d inverseHeading = baseHeading.unaryMinus();
+
+        // Steps to find signed tangential linear velocity (where linear velocity is v)
+        // 1a. Project v into the direction of delta to get v_r (radial velocity)
+        // 1b. Rotate v_t by the inverse of the angle of delta so its pointed in the X axis
+        // 1c. Note the negative sign b/c dr/dt > 0 means moving away from hub
+        final Translation2d radialVelocity =
+                delta.times(linearVelocity.dot(delta) / delta.getSquaredNorm());
+        final double radialVelocityScalar = -radialVelocity.rotateBy(inverseHeading).getX();
+        return radialVelocityScalar;
+    }
+
     public void runVelocity(ChassisSpeeds speeds) {
         runVelocity(speeds, false);
     }
@@ -362,9 +383,9 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
      *
      * @param vx x linear velocity
      * @param vy y linear velocity
-     * @param centerOfOrbit the point to maintain a heading lock on
      */
-    public void runOrbit(double vx, double vy, Translation2d centerOfOrbit) {
+    public void orbitHub(double vx, double vy) {
+        final Translation2d centerOfOrbit = AutoConstants.getHubPosition();
         // We rotate driver input since normal drive is based on getGyroRotation()
         final Rotation2d inputOffset = getRotation().minus(getGyroRotation());
         final Translation2d linearVelocity = new Translation2d(vx, vy).rotateBy(inputOffset);

@@ -8,13 +8,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
+import frc.team5115.subsystems.shooter.SpeedRequest;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -25,7 +25,7 @@ public class DriveCommands {
     private static final double LINEAR_K = 1.0;
 
     // TODO maybe modify slow mode speed?
-    private static final double SLOW_MODE_MULTIPLIER = 0.15;
+    private static final double SLOW_MODE_MULTIPLIER = 0.35;
 
     private DriveCommands() {}
 
@@ -38,6 +38,7 @@ public class DriveCommands {
      * @param agitator
      * @param indexer
      * @param shooter
+     * @param request the source of the request for shooting
      * @return a Command that runs forever.
      */
     public static Command smartShoot(
@@ -45,10 +46,10 @@ public class DriveCommands {
             Agitator agitator,
             Indexer indexer,
             Shooter shooter,
-            Shooter.Requester requester) {
+            SpeedRequest request) {
         return Commands.parallel(
                 agitator.fast(),
-                shooter.requestSpinUp(requester),
+                shooter.requestSpinUp(request),
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
@@ -99,7 +100,7 @@ public class DriveCommands {
                     final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
 
                     // Get the angle to point towards the orbit point
-                    drivetrain.runOrbit(vx, vy, AutoConstants.getHubPosition());
+                    drivetrain.orbitHub(vx, vy);
                 },
                 drivetrain);
     }

@@ -45,8 +45,8 @@ public final class Constants {
         REPLAY
     }
 
-    public static final boolean SINGLE_MODE = true;
-    public static final boolean DISABLE_AUTOMATION = true;
+    public static final boolean SINGLE_MODE = false;
+    public static final boolean DISABLE_AUTOMATION = false;
     public static final double RUMBLE_STRENGTH = 0.5;
 
     public static final byte INTAKE_MOTOR_ID = 11;
@@ -63,7 +63,7 @@ public final class Constants {
 
     public static final double LOOP_PERIOD_SECS = 0.02;
 
-    public static final double INTAKE_SPEED = 1.0;
+    public static final double INTAKE_SPEED = 0.85;
     public static final double INTAKE_VOMIT_SPEED = -1.0;
 
     public static final double INDEX_SPEED = INTAKE_SPEED * 0.418;
@@ -71,9 +71,9 @@ public final class Constants {
     public static final double INDEX_VOMIT_SPEED = -0.25;
 
     public static final double AGITATOR_FAST_SPEED = INDEX_SPEED * 0.7;
-    public static final double AGITATOR_MAIN_PAUSE = 0.3;
+    public static final double AGITATOR_MAIN_PAUSE = 0.4;
 
-    public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED;
+    public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED - 0.1;
     public static final double AGITATOR_ALT_PAUSE = 0.1;
 
     public static final double AGITATOR_SLOW_SPEED = 0.25;
@@ -103,7 +103,7 @@ public final class Constants {
             return ROBOT_CONFIG;
         }
 
-        public static final double MAX_LINEAR_SPEED = 5; // meters per second
+        public static final double MAX_LINEAR_SPEED = 5.0; // meters per second
 
         // 29" wide, 25.75" front to back
         // ! Reminder that X is front-back, Y is left-right

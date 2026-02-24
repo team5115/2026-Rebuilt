@@ -7,6 +7,7 @@ import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
+import frc.team5115.subsystems.shooter.SpeedRequest;
 
 public class AutoCommands {
     private AutoCommands() {}
@@ -17,17 +18,24 @@ public class AutoCommands {
                 Commands.print("Intaking!"), intake.intake(), agitator.slow(), indexer.reject());
     }
 
-    // TODO make auto shoot end once sensor stops detecting balls coming thru
     public static Command shoot(
-            double timeout, Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
+            double timeout,
+            Drivetrain drivetrain,
+            Agitator agitator,
+            Indexer indexer,
+            Shooter shooter,
+            boolean shootForever) {
         return Commands.parallel(
                         Commands.print("Shooting!"),
                         agitator.fast(),
-                        shooter.requestSpinUp(Shooter.Requester.AutonomouseShoot),
+                        shooter.requestSpinUp(SpeedRequest.AutonomouseShoot),
                         shooter
                                 .waitForSetpoint()
                                 .raceWith(indexer.reject())
-                                .andThen(indexer.index().until(indexer.deBounceIsSensing().negate())))
+                                .andThen(
+                                        indexer
+                                                .index()
+                                                .until(indexer.deBounceIsSensing().negate().and(() -> !shootForever))))
                 .withTimeout(timeout);
     }
 
@@ -35,7 +43,7 @@ public class AutoCommands {
     public static Command spinUp(Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
                 Commands.print("Spinning Up!"),
-                shooter.requestSpinUp(Shooter.Requester.AutonomouseSpinUp),
+                shooter.requestSpinUp(SpeedRequest.AutonomouseSpinUp),
                 indexer.reject(),
                 agitator.slow());
     }
