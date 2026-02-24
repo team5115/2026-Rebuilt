@@ -1,7 +1,6 @@
 package frc.team5115.subsystems.climber;
 
 import com.revrobotics.spark.SparkMax;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -14,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
 import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
-
 import org.littletonrobotics.junction.Logger;
 
 public class Climber extends SubsystemBase implements MotorContainer {
@@ -79,8 +77,7 @@ public class Climber extends SubsystemBase implements MotorContainer {
         double volts = feedforward.calculate(speed);
         volts = MathUtil.clamp(volts, -12, +12);
 
-        if(volts < 0.1)
-            volts = 0;
+        if (volts < 0.1) volts = 0;
         io.setVoltage(volts);
     }
 
@@ -102,8 +99,7 @@ public class Climber extends SubsystemBase implements MotorContainer {
                 sysIdDynamic(SysIdRoutine.Direction.kForward),
                 Commands.waitSeconds(pauseBetweenRoutines),
                 sysIdDynamic(SysIdRoutine.Direction.kReverse),
-                Commands.waitSeconds(pauseBetweenRoutines)
-            );
+                Commands.waitSeconds(pauseBetweenRoutines));
     }
 
     public Command deployClimb() {
