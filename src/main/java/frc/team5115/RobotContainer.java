@@ -251,6 +251,14 @@ public class RobotContainer {
         drivetrain.setTeleopCurrentLimit();
     }
 
+    public void disabledInit() {
+        vision.framerateLimiter();
+    }
+
+    public void enabledInit() {
+        vision.framerateDeLimiter();
+    }
+
     public void autoInit() {
         drivetrain.setAutoCurrentLimit();
         // TODO offset the gyro to compensate for auto starting pose
