@@ -125,6 +125,7 @@ public class Robot extends LoggedRobot {
             CommandScheduler.getInstance().schedule(autonomousCommand);
         }
         robotContainer.autoInit();
+        robotContainer.enabledInit();
     }
 
     /** This function is called once when teleop is enabled. */
@@ -138,6 +139,7 @@ public class Robot extends LoggedRobot {
             autonomousCommand.cancel();
         }
         robotContainer.teleopInit();
+        robotContainer.enabledInit();
     }
 
     /** This function is called once when test mode is enabled. */
@@ -145,11 +147,17 @@ public class Robot extends LoggedRobot {
     public void testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
+        robotContainer.enabledInit();
     }
 
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
         robotContainer.simPeriodic();
+    }
+
+    @Override
+    public void disabledInit() {
+        robotContainer.disabledInit();
     }
 }

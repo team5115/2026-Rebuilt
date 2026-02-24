@@ -183,4 +183,14 @@ public class PhotonVision extends SubsystemBase {
         }
         return false;
     }
+
+    public void framerateLimiter() {
+        Camera.LEFT_CAM_POINTS_RIGHT.camera.setFPSLimit(3);
+        Camera.RIGHT_CAM_POINTS_LEFT.camera.setFPSLimit(3);
+    }
+
+    public void framerateDeLimiter() {
+        Camera.LEFT_CAM_POINTS_RIGHT.camera.setFPSLimit(-1);
+        Camera.RIGHT_CAM_POINTS_LEFT.camera.setFPSLimit(-1);
+    }
 }
