@@ -25,7 +25,7 @@ public class DriveCommands {
     private static final double LINEAR_K = 1.0;
 
     // TODO maybe modify slow mode speed?
-    private static final double SLOW_MODE_MULTIPLIER = 0.15;
+    private static final double SLOW_MODE_MULTIPLIER = 0.10;
 
     private DriveCommands() {}
 
