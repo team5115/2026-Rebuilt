@@ -45,8 +45,8 @@ public final class Constants {
         REPLAY
     }
 
-    public static final boolean SINGLE_MODE = false;
-    public static final boolean DISABLE_AUTOMATION = false;
+    public static final boolean SINGLE_MODE = true;
+    public static final boolean DISABLE_AUTOMATION = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
     public static final byte INTAKE_MOTOR_ID = 11;
@@ -107,8 +107,8 @@ public final class Constants {
 
         // 29" wide, 25.75" front to back
         // ! Reminder that X is front-back, Y is left-right
-        private static final Distance FRAME_WIDTH_X = Inches.of(25.75);
-        private static final Distance FRAME_WIDTH_Y = Inches.of(29);
+        private static final Distance FRAME_WIDTH_X = Inches.of(27);
+        private static final Distance FRAME_WIDTH_Y = Inches.of(27);
         private static final Distance BUMPER_DEPTH = Inches.of(2.75);
         private static final Distance MODULE_INSET = Inches.of(1.75);
 

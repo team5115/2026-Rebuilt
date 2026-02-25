@@ -4,7 +4,6 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.Timer;
 import frc.team5115.subsystems.drive.Drivetrain;
-import frc.team5115.subsystems.vision.PhotonVision;
 import frc.team5115.util.MotorContainer;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ import org.littletonrobotics.junction.Logger;
 public class RobotFaults {
     // private static final String NO_FAULTS = "No Faults";
     public final Drivetrain drivetrain;
-    public final PhotonVision vision;
+    // public final PhotonVision vision;
     public final MotorContainer[] motorContainers;
     public final BooleanSupplier joysticksConnected;
 
@@ -25,11 +24,11 @@ public class RobotFaults {
 
     public RobotFaults(
             Drivetrain drivetrain,
-            PhotonVision vision,
+            // PhotonVision vision,
             BooleanSupplier joysticksConnected,
             MotorContainer... motorContainers) {
         this.drivetrain = drivetrain;
-        this.vision = vision;
+        // this.vision = vision;
         this.joysticksConnected = joysticksConnected;
         this.motorContainers = motorContainers;
         this.faultUpdateTimer.start();
@@ -58,9 +57,9 @@ public class RobotFaults {
 
     public ArrayList<String> getSubsystemFaults() {
         ArrayList<String> faultArray = new ArrayList<>();
-        if (vision == null || vision.areAnyCamerasDisconnected()) {
-            faultArray.add("CameraDisconnected");
-        }
+        // if (vision == null || vision.areAnyCamerasDisconnected()) {
+        //     faultArray.add("CameraDisconnected");
+        // }
         if (drivetrain == null || !drivetrain.isGyroConnected()) {
             faultArray.add("GyroDisconnected");
         }

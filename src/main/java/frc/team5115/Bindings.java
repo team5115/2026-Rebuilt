@@ -1,41 +1,32 @@
 package frc.team5115;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team5115.commands.DriveCommands;
-import frc.team5115.subsystems.agitator.Agitator;
-import frc.team5115.subsystems.bling.Bling;
 import frc.team5115.subsystems.drive.Drivetrain;
-import frc.team5115.subsystems.indexer.Indexer;
-import frc.team5115.subsystems.intake.Intake;
-import frc.team5115.subsystems.shooter.Shooter;
-import frc.team5115.subsystems.shooter.SpeedRequest;
-import java.util.function.DoubleSupplier;
 
 public class Bindings {
     private final CommandXboxController driveJoy;
     private final CommandXboxController manipJoy;
 
     private final Drivetrain drivetrain;
-    private final Intake intake;
-    private final Agitator agitator;
-    private final Indexer indexer;
-    private final Shooter shooter;
+    // private final Intake intake;
+    // private final Agitator agitator;
+    // private final Indexer indexer;
+    // private final Shooter shooter;
 
     private boolean robotRelative = false;
     private boolean slowMode = false;
 
-    public Bindings(
-            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
+    public Bindings(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
-        this.intake = intake;
-        this.agitator = agitator;
-        this.indexer = indexer;
-        this.shooter = shooter;
+        // this.intake = intake;
+        // this.agitator = agitator;
+        // this.indexer = indexer;
+        // this.shooter = shooter;
 
         // If in single mode, both Controller objects reference the controller on port 0
         driveJoy = new CommandXboxController(0);
@@ -71,24 +62,24 @@ public class Bindings {
                 .negate();
     }
 
-    /**
-     * AutoHubLock is enabled if all of the following conditions are met:
-     *
-     * <ol>
-     *   <li>the robot is inside the sub-zone
-     *   <li>automation is enabled (see: {@link #automationEnabled()})
-     *   <li>neither driver presses the left trigger
-     * </ol>
-     *
-     * @return a Trigger that indicates if automatic hub lock is enabled
-     */
-    private Trigger autoHubLockEnabled() {
-        return drivetrain
-                .inSubZone()
-                .and(automationEnabled())
-                .and(manipJoy.leftTrigger().negate())
-                .and(driveJoy.leftTrigger().negate());
-    }
+    // /**
+    //  * AutoHubLock is enabled if all of the following conditions are met:
+    //  *
+    //  * <ol>
+    //  *   <li>the robot is inside the sub-zone
+    //  *   <li>automation is enabled (see: {@link #automationEnabled()})
+    //  *   <li>neither driver presses the left trigger
+    //  * </ol>
+    //  *
+    //  * @return a Trigger that indicates if automatic hub lock is enabled
+    //  */
+    // private Trigger autoHubLockEnabled() {
+    //     return drivetrain
+    //             .inSubZone()
+    //             .and(automationEnabled())
+    //             .and(manipJoy.leftTrigger().negate())
+    //             .and(driveJoy.leftTrigger().negate());
+    // }
 
     /**
      * Determines if it safe to shoot. Checks that the following conditions are true:
@@ -124,7 +115,7 @@ public class Bindings {
     //     return new Trigger(() -> drivetrain.movingWithinTolerance(1.0, 2.0)).debounce(0.2);
     // }
 
-    public void configureButtonBindings(DoubleSupplier shooterSpeed, DoubleSupplier linearPosition) {
+    public void configureButtonBindings() {
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drivetrain,
@@ -139,72 +130,72 @@ public class Bindings {
         driveJoy.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
         driveJoy.start().onTrue(offsetGyro());
 
-        manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
+        // manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
 
-        intake.setDefaultCommand(intake.intake());
-        agitator.setDefaultCommand(agitator.slow());
-        indexer.setDefaultCommand(indexer.reject());
+        // intake.setDefaultCommand(intake.intake());
+        // agitator.setDefaultCommand(agitator.slow());
+        // indexer.setDefaultCommand(indexer.reject());
 
         // Right trigger smart shoots
-        manipJoy
-                .rightTrigger()
-                .whileTrue(
-                        DriveCommands.smartShoot(
-                                drivetrain, agitator, indexer, shooter, SpeedRequest.ManualShoot));
+        // manipJoy
+        //         .rightTrigger()
+        //         .whileTrue(
+        //                 DriveCommands.smartShoot(
+        //                         drivetrain, agitator, indexer, shooter, SpeedRequest.ManualShoot));
 
-        // B shoots blind
-        manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter, shooterSpeed));
+        // // B shoots blind
+        // manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter, shooterSpeed));
 
         // While in alliance zone request to spin up shooter
-        drivetrain
-                .inAllianceZone()
-                .and(automationEnabled())
-                // .and(slowEnoughToSpinUp())
-                .whileTrue(shooter.requestSpinUp(SpeedRequest.InAllianceZone));
+        // drivetrain
+        //         .inAllianceZone()
+        // .and(automationEnabled())
+        // .and(slowEnoughToSpinUp())
+        // .whileTrue(shooter.requestSpinUp(SpeedRequest.InAllianceZone));
 
         // While autoHubLock is enabled, or holding a, lock on
-        autoHubLockEnabled()
-                .or(driveJoy.a())
-                .whileTrue(
-                        DriveCommands.lockedOnHub(
-                                shooter,
-                                drivetrain,
-                                () -> slowMode,
-                                () -> -driveJoy.getLeftY(),
-                                () -> -driveJoy.getLeftX()));
+        // autoHubLockEnabled()
+        //         .or(driveJoy.a())
+        //         .whileTrue(
+        //                 DriveCommands.lockedOnHub(
+        //                         shooter,
+        //                         drivetrain,
+        //                         () -> slowMode,
+        //                         () -> -driveJoy.getLeftY(),
+        //                         () -> -driveJoy.getLeftX()));
 
         // If driver is locking onto hub spin up shooter
-        driveJoy
-                .a()
-                // .and(slowEnoughToSpinUp())
-                .whileTrue(shooter.requestSpinUp(SpeedRequest.ManualSpinUp));
+        // driveJoy
+        //         .a()
+        //         // .and(slowEnoughToSpinUp())
+        //         .whileTrue(shooter.requestSpinUp(SpeedRequest.ManualSpinUp));
 
         // Rumble whenever safe to shoot
         // If automation enabled, then shoot automatically
-        safeToShoot()
-                .onTrue(rumble(Constants.RUMBLE_STRENGTH))
-                .onFalse(rumble(0))
-                .and(automationEnabled())
-                .whileTrue(
-                        DriveCommands.smartShoot(
-                                drivetrain, agitator, indexer, shooter, SpeedRequest.SafeShoot));
+        // safeToShoot()
+        //         .onTrue(rumble(Constants.RUMBLE_STRENGTH))
+        //         .onFalse(rumble(0))
+        //         .and(automationEnabled())
+        //         .whileTrue(
+        //                 DriveCommands.smartShoot(
+        //                         drivetrain, agitator, indexer, shooter, SpeedRequest.SafeShoot));
 
         // driveJoy.x().whileTrue(shooter.moveActuators(linearPosition));
     }
 
-    public void configureBlingBindings(Bling bling, RobotFaults faults) {
-        bling.setDefaultCommand(bling.allianceKITT());
-        drivetrain.inAllianceZone().whileTrue(bling.allianceScrollIn());
-        drivetrain
-                .inAllianceZone()
-                .negate()
-                .and(Constants::isHubActive)
-                .whileTrue(bling.allianceWhiteFlashing());
-        drivetrain.inSubZone().whileTrue(bling.purpleScrollIn());
-        safeToShoot().whileTrue(bling.purpleFlashing());
-        new Trigger(indexer::isIndexing).whileTrue(bling.whiteScrollIn());
-        new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
-    }
+    // public void configureBlingBindings(Bling bling, RobotFaults faults) {
+    //     bling.setDefaultCommand(bling.allianceKITT());
+    //     drivetrain.inAllianceZone().whileTrue(bling.allianceScrollIn());
+    //     drivetrain
+    //             .inAllianceZone()
+    //             .negate()
+    //             .and(Constants::isHubActive)
+    //             .whileTrue(bling.allianceWhiteFlashing());
+    //     drivetrain.inSubZone().whileTrue(bling.purpleScrollIn());
+    //     safeToShoot().whileTrue(bling.purpleFlashing());
+    //     // new Trigger(indexer::isIndexing).whileTrue(bling.whiteScrollIn());
+    //     new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
+    // }
 
     private Command setRobotRelative(boolean state) {
         return Commands.runOnce(() -> robotRelative = state);
@@ -222,13 +213,13 @@ public class Bindings {
         return slowMode;
     }
 
-    private Command rumble(double value) {
-        return Commands.runOnce(
-                () -> {
-                    driveJoy.setRumble(GenericHID.RumbleType.kBothRumble, value);
-                    if (manipJoy != null) {
-                        manipJoy.setRumble(GenericHID.RumbleType.kBothRumble, value);
-                    }
-                });
-    }
+    // private Command rumble(double value) {
+    //     return Commands.runOnce(
+    //             () -> {
+    //                 driveJoy.setRumble(GenericHID.RumbleType.kBothRumble, value);
+    //                 if (manipJoy != null) {
+    //                     manipJoy.setRumble(GenericHID.RumbleType.kBothRumble, value);
+    //                 }
+    //             });
+    // }
 }
