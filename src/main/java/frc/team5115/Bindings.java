@@ -125,13 +125,22 @@ public class Bindings {
     // }
 
     public void configureButtonBindings(DoubleSupplier shooterSpeed, DoubleSupplier linearPosition) {
+        // drivetrain.setDefaultCommand(
+        //         DriveCommands.joystickDrive(
+        //                 drivetrain,
+        //                 () -> robotRelative,
+        //                 () -> slowMode,
+        //                 () -> -driveJoy.getLeftY(),
+        //                 () -> -driveJoy.getLeftX(),
+        //                 () -> -driveJoy.getRightX()));
+
         drivetrain.setDefaultCommand(
-                DriveCommands.joystickDrive(
+                DriveCommands.fieldRelativeHeadingDrive(
                         drivetrain,
-                        () -> robotRelative,
                         () -> slowMode,
                         () -> -driveJoy.getLeftY(),
                         () -> -driveJoy.getLeftX(),
+                        () -> -driveJoy.getRightY(),
                         () -> -driveJoy.getRightX()));
 
         driveJoy.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));

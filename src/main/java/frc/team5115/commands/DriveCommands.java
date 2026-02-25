@@ -105,6 +105,49 @@ public class DriveCommands {
                 drivetrain);
     }
 
+    public static Command fieldRelativeHeadingDrive(
+            Drivetrain drivetrain,
+            BooleanSupplier slowMode,
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier,
+            DoubleSupplier xAngleSupplier,
+            DoubleSupplier yAngleSupplier) {
+        return Commands.run(
+                () -> {
+                    double linearMagnitude =
+                            MathUtil.applyDeadband(
+                                    Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
+                    Rotation2d linearDirection;
+                    if (xSupplier.getAsDouble() == 0 && ySupplier.getAsDouble() == 0) {
+                        linearDirection = new Rotation2d();
+                    } else {
+                        linearDirection = new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+                    }
+                    final double angleX = MathUtil.applyDeadband(xAngleSupplier.getAsDouble(), DEADBAND);
+                    final double angleY = MathUtil.applyDeadband(yAngleSupplier.getAsDouble(), DEADBAND);
+                    final Rotation2d heading =
+                            angleX == 0 && angleY == 0
+                                    ? drivetrain.getGyroRotation()
+                                    : new Rotation2d(angleX, angleY);
+
+                    // Square values
+                    linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
+
+                    // Calcaulate new linear velocity
+                    Translation2d linearVelocity =
+                            new Pose2d(new Translation2d(), linearDirection)
+                                    .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+                                    .getTranslation();
+
+                    // Convert to ChassisSpeeds & send command
+                    final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
+                    final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+                    final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+                    drivetrain.driveFieldRelativeHeading(vx, vy, heading);
+                },
+                drivetrain);
+    }
+
     /**
      * Field or robot relative drive command using two joysticks (controlling linear and angular
      * velocities).
