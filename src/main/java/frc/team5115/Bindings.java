@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team5115.commands.DriveCommands;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.bling.Bling;
+import frc.team5115.subsystems.climber.Climber;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
@@ -25,14 +26,16 @@ public class Bindings {
     private final Agitator agitator;
     private final Indexer indexer;
     private final Shooter shooter;
+    private final Climber climber;
 
     public Bindings(
-            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
+            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter, Climber climber) {
         this.drivetrain = drivetrain;
         this.intake = intake;
         this.agitator = agitator;
         this.indexer = indexer;
         this.shooter = shooter;
+        this.climber = climber;
 
         // If in single mode, both Controller objects reference the controller on port 0
         driveJoy = new CommandXboxController(0);
@@ -163,6 +166,9 @@ public class Bindings {
 
         // B shoots blind
         manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter, shooterSpeed));
+
+        manipJoy.y().onTrue(climber.climb());
+        manipJoy.a().onTrue(climber.deployClimb());
 
         // While in alliance zone request to spin up shooter
         drivetrain

@@ -18,6 +18,10 @@ import frc.team5115.subsystems.bling.Bling;
 import frc.team5115.subsystems.bling.BlingIO;
 import frc.team5115.subsystems.bling.BlingIOReal;
 import frc.team5115.subsystems.bling.BlingIOSim;
+import frc.team5115.subsystems.climber.Climber;
+import frc.team5115.subsystems.climber.ClimberIO;
+import frc.team5115.subsystems.climber.ClimberIOSim;
+import frc.team5115.subsystems.climber.ClimberIOSparkMax;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.drive.GyroIO;
 import frc.team5115.subsystems.drive.GyroIONavx;
@@ -62,6 +66,7 @@ public class RobotContainer {
     private final Shooter shooter;
     private final Indexer indexer;
     private final Agitator agitator;
+    private final Climber climber;
     private final RobotFaults faults;
 
     // Controllers
@@ -94,6 +99,7 @@ public class RobotContainer {
                 shooter = new Shooter(new ShooterIOSparkMax(), drivetrain::getDistanceToHub);
                 indexer = new Indexer(new IndexerIOSparkMax());
                 agitator = new Agitator(new AgitatorIOSparkMax());
+                climber = new Climber(new ClimberIOSparkMax());
                 break;
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
@@ -115,6 +121,7 @@ public class RobotContainer {
                 shooter = new Shooter(new ShooterIOSim(), drivetrain::getDistanceToHub);
                 indexer = new Indexer(new IndexerIOSim());
                 agitator = new Agitator(new AgitatorIOSim());
+                climber = new Climber(new ClimberIOSim());
 
                 MapleSim.initializeTriggers(indexer, shooter);
                 break;
@@ -136,6 +143,7 @@ public class RobotContainer {
                 shooter = new Shooter(new ShooterIO() {}, drivetrain::getDistanceToHub);
                 indexer = new Indexer(new IndexerIO() {});
                 agitator = new Agitator(new AgitatorIOSparkMax());
+                climber = new Climber(new ClimberIO() {});
                 break;
         }
 
@@ -174,6 +182,8 @@ public class RobotContainer {
 
         autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
 
+        autoChooser.addOption("Climber All SysIds", climber.allSysIds());
+
         final String speedKey = "ShooterSpeedInput";
         final String targetKey = "HitTarget?";
         final String linearKey = "Actuator Pos";
@@ -187,10 +197,10 @@ public class RobotContainer {
         final DoubleSupplier linearActuatorSupplier = () -> SmartDashboard.getNumber(linearKey, 0.5);
 
         // Initialize bindings and robot faults
-        bindings = new Bindings(drivetrain, intake, agitator, indexer, shooter);
+        bindings = new Bindings(drivetrain, intake, agitator, indexer, shooter, climber);
         faults =
                 new RobotFaults(
-                        drivetrain, vision, bindings::joysticksConnected, intake, agitator, indexer, shooter);
+                        drivetrain, vision, bindings::joysticksConnected, intake, agitator, indexer, shooter, climber);
 
         bindings.configureButtonBindings(blindSpeedSupplier, linearActuatorSupplier);
         bindings.configureBlingBindings(bling, faults);
