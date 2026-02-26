@@ -13,6 +13,7 @@ public class Bindings {
     private final CommandXboxController manipJoy;
 
     private final Drivetrain drivetrain;
+
     // private final Intake intake;
     // private final Agitator agitator;
     // private final Indexer indexer;
