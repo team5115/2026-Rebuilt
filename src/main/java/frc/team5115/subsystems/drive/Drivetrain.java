@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -60,6 +61,9 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
     private final double angular_kd = 0.0 * SwerveConstants.MAX_ANGULAR_SPEED;
 
     private final double linearPidTolerence = 0.04;
+
+    private final SlewRateLimiter slewLimiter =
+            new SlewRateLimiter(SwerveConstants.MAX_LINEAR_ACCEL, Double.NEGATIVE_INFINITY, 0.0);
 
     private final ProfiledPIDController angularPID =
             new ProfiledPIDController(
@@ -120,7 +124,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                 this::getPose,
                 this::setPose,
                 () -> getChassisSpeeds(),
-                (var speeds, var feedforwards) -> runVelocity(speeds),
+                (var speeds, var feedforwards) -> runVelocity(speeds, false, false),
                 new PPHolonomicDriveController(
                         new PIDConstants(linear_kp, linear_ki, linear_kd),
                         new PIDConstants(angular_kp, angular_ki, angular_kd)),
@@ -349,19 +353,28 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         return radialVelocityScalar;
     }
 
-    public void runVelocity(ChassisSpeeds speeds) {
-        runVelocity(speeds, false);
-    }
-
     /**
      * Runs the drive at the desired velocity.
      *
      * @param speeds Speeds in meters/sec
+     * @param orbitting is this an orbit velocity?
+     * @param slew should we limit the acceleration?
      */
-    public void runVelocity(ChassisSpeeds speeds, boolean orbitting) {
+    public void runVelocity(ChassisSpeeds speeds, boolean orbitting, boolean slew) {
         this.orbitting = orbitting;
+
+        double slewedLinearVelocity =
+                slewLimiter.calculate(
+                        Math.sqrt(
+                                Math.pow(speeds.vxMetersPerSecond, 2) + Math.pow(speeds.vyMetersPerSecond, 2)));
+        double angle = Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
+        double slewedX = slewedLinearVelocity * Math.cos(angle);
+        double slewedY = slewedLinearVelocity * Math.sin(angle);
+        ChassisSpeeds slewedChassisSpeeds =
+                new ChassisSpeeds(slewedX, slewedY, speeds.omegaRadiansPerSecond);
+
         // Calculate module setpoints
-        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(slewedChassisSpeeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, SwerveConstants.MAX_LINEAR_SPEED);
 
@@ -375,12 +388,15 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         // Log setpoint states
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
         Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedSetpointStates);
-        Logger.recordOutput("ChassisSpeedsDiscrete", speeds);
+        Logger.recordOutput("Speeds", speeds);
+        Logger.recordOutput("SpeedsSlewed", slewedChassisSpeeds);
+        Logger.recordOutput("SpeedsDiscrete", discreteSpeeds);
     }
 
     public void driveFieldRelativeHeading(double vx, double vy, Rotation2d heading) {
         final double omega = angularPID.calculate(getGyroRotation().getRadians(), heading.getRadians());
-        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, getGyroRotation()), false);
+        runVelocity(
+                ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, getGyroRotation()), false, true);
         Logger.recordOutput("Drivetrain/OmegaField", omega);
         Logger.recordOutput("Drivetrain/GoalHeading", heading);
         Logger.recordOutput("Drivetrain/HeadingError", angularPID.getPositionError());
@@ -431,6 +447,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         runVelocity(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                         linearVelocity.getX(), linearVelocity.getY(), totalOmega, getRotation()),
+                true,
                 true);
 
         Logger.recordOutput("Orbit/OrbitOmega", RadiansPerSecond.of(orbitOmega));
@@ -448,7 +465,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
 
     /** Stops the drive. */
     public void stop() {
-        runVelocity(new ChassisSpeeds());
+        runVelocity(new ChassisSpeeds(), false, false);
     }
 
     /**

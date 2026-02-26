@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-IntakeDepot-0"
+                  "pathName": "neutral_top"
                 }
               },
               {
@@ -34,15 +34,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Spin Up"
+                  "pathName": "top_neutral"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "B-DepotShoot-1"
+                  "name": "Spin Up"
                 }
               }
             ]
@@ -59,5 +59,5 @@
   },
   "resetOdom": true,
   "folder": null,
-  "choreoAuto": false
+  "choreoAuto": true
 }

@@ -124,6 +124,19 @@ public class Bindings {
                         () -> -driveJoy.getRightY(),
                         () -> -driveJoy.getRightX()));
 
+        // Hold Y to enable intake mode
+        manipJoy
+                .y()
+                // .toggleOnTrue(intake.intake())
+                .toggleOnTrue(
+                        DriveCommands.fieldRelativeHeadingDrive(
+                                drivetrain,
+                                slowMode,
+                                () -> -driveJoy.getLeftY(),
+                                () -> -driveJoy.getLeftX(),
+                                () -> -driveJoy.getLeftY(),
+                                () -> -driveJoy.getLeftX()));
+
         // Hold left bumper to drive robot relative
         driveJoy
                 .leftBumper()
@@ -140,10 +153,6 @@ public class Bindings {
         driveJoy.start().onTrue(offsetGyro());
 
         // manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
-
-        // intake.setDefaultCommand(intake.intake());
-        // agitator.setDefaultCommand(agitator.slow());
-        // indexer.setDefaultCommand(indexer.reject());
 
         // Right trigger smart shoots
         // manipJoy
