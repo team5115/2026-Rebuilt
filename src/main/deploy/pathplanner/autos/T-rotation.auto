@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Shoot Forever"
+            "pathName": "rotation"
           }
         }
       ]
     }
   },
-  "resetOdom": false,
-  "folder": "pathplanner",
-  "choreoAuto": false
+  "resetOdom": true,
+  "folder": "testing choreo",
+  "choreoAuto": true
 }

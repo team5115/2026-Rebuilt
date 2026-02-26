@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-StartDual-0"
+                  "pathName": "bottom_no_rot"
                 }
               },
               {
@@ -30,7 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B-OutpostShoot-2"
+                  "pathName": "neutral_downshot"
                 }
               },
               {
@@ -49,22 +49,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "B-IntakeDepot-2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              }
-            ]
+            "pathName": "downshot_outpost"
           }
         },
         {
@@ -72,15 +59,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Spin Up"
+                  "pathName": "outpost_downshot"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "B-DepotShoot-1"
+                  "name": "Spin Up"
                 }
               }
             ]
@@ -97,5 +84,5 @@
   },
   "resetOdom": true,
   "folder": null,
-  "choreoAuto": false
+  "choreoAuto": true
 }

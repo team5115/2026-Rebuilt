@@ -5,16 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "NewPath"
-                }
-              }
-            ]
+            "name": "Shoot"
           }
         },
         {
@@ -24,7 +17,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "NewPath_copy1"
+                  "pathName": "down_outpost"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
                 }
               }
             ]
@@ -37,7 +36,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "NewPath_copy1_copy1"
+                  "pathName": "outpost_downshot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Spin Up"
                 }
               }
             ]
