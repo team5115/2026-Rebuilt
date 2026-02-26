@@ -112,7 +112,8 @@ public class DriveCommands {
             DoubleSupplier ySupplier,
             DoubleSupplier xAngleSupplier,
             DoubleSupplier yAngleSupplier) {
-        return Commands.run(
+        return Commands.startRun(
+                drivetrain::resetAngularPID,
                 () -> {
                     double linearMagnitude =
                             MathUtil.applyDeadband(
