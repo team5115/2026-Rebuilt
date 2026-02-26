@@ -14,6 +14,7 @@ import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
+import frc.team5115.subsystems.shooter.SpeedRequest;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -24,7 +25,7 @@ public class DriveCommands {
     private static final double LINEAR_K = 1.0;
 
     // TODO maybe modify slow mode speed?
-    private static final double SLOW_MODE_MULTIPLIER = 0.35;
+    private static final double SLOW_MODE_MULTIPLIER = 0.10;
 
     private DriveCommands() {}
 
@@ -37,6 +38,7 @@ public class DriveCommands {
      * @param agitator
      * @param indexer
      * @param shooter
+     * @param request the source of the request for shooting
      * @return a Command that runs forever.
      */
     public static Command smartShoot(
@@ -44,10 +46,10 @@ public class DriveCommands {
             Agitator agitator,
             Indexer indexer,
             Shooter shooter,
-            Shooter.Requester requester) {
+            SpeedRequest request) {
         return Commands.parallel(
                 agitator.fast(),
-                shooter.requestSpinUp(requester),
+                shooter.requestSpinUp(request),
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
@@ -99,6 +101,50 @@ public class DriveCommands {
 
                     // Get the angle to point towards the orbit point
                     drivetrain.orbitHub(vx, vy);
+                },
+                drivetrain);
+    }
+
+    public static Command fieldRelativeHeadingDrive(
+            Drivetrain drivetrain,
+            BooleanSupplier slowMode,
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier,
+            DoubleSupplier xAngleSupplier,
+            DoubleSupplier yAngleSupplier) {
+        return Commands.startRun(
+                drivetrain::resetAngularPID,
+                () -> {
+                    double linearMagnitude =
+                            MathUtil.applyDeadband(
+                                    Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
+                    Rotation2d linearDirection;
+                    if (xSupplier.getAsDouble() == 0 && ySupplier.getAsDouble() == 0) {
+                        linearDirection = new Rotation2d();
+                    } else {
+                        linearDirection = new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+                    }
+                    final double angleX = MathUtil.applyDeadband(xAngleSupplier.getAsDouble(), DEADBAND);
+                    final double angleY = MathUtil.applyDeadband(yAngleSupplier.getAsDouble(), DEADBAND);
+                    final Rotation2d heading =
+                            angleX == 0 && angleY == 0
+                                    ? drivetrain.getGyroRotation()
+                                    : new Rotation2d(angleX, angleY);
+
+                    // Square values
+                    linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
+
+                    // Calcaulate new linear velocity
+                    Translation2d linearVelocity =
+                            new Pose2d(new Translation2d(), linearDirection)
+                                    .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+                                    .getTranslation();
+
+                    // Convert to ChassisSpeeds & send command
+                    final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
+                    final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+                    final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+                    drivetrain.driveFieldRelativeHeading(vx, vy, heading);
                 },
                 drivetrain);
     }

@@ -7,6 +7,7 @@ import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
+import frc.team5115.subsystems.shooter.SpeedRequest;
 
 public class AutoCommands {
     private AutoCommands() {}
@@ -27,7 +28,7 @@ public class AutoCommands {
         return Commands.parallel(
                         Commands.print("Shooting!"),
                         agitator.fast(),
-                        shooter.requestSpinUp(Shooter.Requester.AutonomouseShoot),
+                        shooter.requestSpinUp(SpeedRequest.AutonomouseShoot),
                         shooter
                                 .waitForSetpoint()
                                 .raceWith(indexer.reject())
@@ -42,7 +43,7 @@ public class AutoCommands {
     public static Command spinUp(Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
                 Commands.print("Spinning Up!"),
-                shooter.requestSpinUp(Shooter.Requester.AutonomouseSpinUp),
+                shooter.requestSpinUp(SpeedRequest.AutonomouseSpinUp),
                 indexer.reject(),
                 agitator.slow());
     }

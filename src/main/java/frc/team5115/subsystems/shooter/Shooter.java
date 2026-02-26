@@ -34,20 +34,14 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
     @AutoLogOutput private boolean usePIDF = true;
 
-    public enum Requester {
-        AutonomouseSpinUp,
-        AutonomouseShoot,
-        InAllianceZone,
-        SafeShoot,
-        ManualSpinUp,
-        ManualShoot
-    };
-
-    private final HashSet<Requester> requests = new HashSet<>(Requester.values().length);
+    private final HashSet<SpeedRequest> requests = new HashSet<>(SpeedRequest.values().length);
     private final StringBuilder reqestsStringBuilder = new StringBuilder();
 
     private final DoubleSupplier distanceToHub;
     @AutoLogOutput private DoubleSupplier speedOverride = null;
+
+    /** Prevents the PID from saying its at setpoint when a new setpoint has just been requested */
+    @AutoLogOutput private boolean newSetpoint = false;
 
     public Shooter(ShooterIO io, DoubleSupplier distanceToHub) {
         this.io = io;
@@ -113,10 +107,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
         if (usePIDF) {
             if (currentlyRequested() || speedOverride != null) {
-                pid.setSetpoint(
-                        speedOverride == null
-                                ? calculateSpeed(distanceToHub.getAsDouble())
-                                : speedOverride.getAsDouble());
+                pid.setSetpoint(determineSetpoint());
+                newSetpoint = false; // Any new setpoint has been fully loaded into the PID
                 io.setVoltage(feedforward.calculate(pid.getSetpoint()) + pid.calculate(inputs.velocityRPM));
                 Logger.recordOutput("Shooter/Setpoint RPM", pid.getSetpoint());
                 Logger.recordOutput("Shooter/Error RPM", pid.getError());
@@ -128,6 +120,38 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         }
     }
 
+    private double determineSetpoint() {
+        if (speedOverride != null) {
+            return speedOverride.getAsDouble();
+        }
+        boolean calculateSpeed = false;
+        for (final SpeedRequest speedRequest : requests) {
+            if (speedRequest.type == SpeedRequest.Type.Calculated) {
+                calculateSpeed = true;
+            }
+        }
+        if (calculateSpeed) {
+            return calculateSpeed(distanceToHub.getAsDouble());
+        }
+
+        return 1000; // TODO determine default slow speed
+    }
+
+    /**
+     * Uses an empirically determined best fit function to find the shooter speed based on the
+     * distance to the hub.
+     *
+     * @param distance the distance to the hub along the ground in meters
+     * @return the ideal speed in RPM of the shooter
+     */
+    private static double calculateSpeed(double distance) {
+        // TODO determine function for required shooter speed
+        final double a = 373d; // squared term
+        final double b = -975d; // linear term
+        final double c = 3250d; // y intercept
+        return distance * distance * a + distance * b + c;
+    }
+
     @AutoLogOutput
     public boolean currentlyRequested() {
         return requests.size() > 0;
@@ -136,11 +160,19 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     /**
      * Add a request to hold the shooter at speed.
      *
-     * @param requester where the request is coming from
+     * @param request where the request is coming from
      * @return a StartEnd command that adds the request at start and removes the request at end.
      */
-    public Command requestSpinUp(Requester requester) {
-        return Commands.startEnd(() -> requests.add(requester), () -> requests.remove(requester));
+    public Command requestSpinUp(SpeedRequest request) {
+        return Commands.startEnd(
+                () -> {
+                    newSetpoint = true;
+                    requests.add(request);
+                },
+                () -> {
+                    newSetpoint = true;
+                    requests.remove(request);
+                });
     }
 
     /**
@@ -165,7 +197,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
     @AutoLogOutput
     public boolean atBlindSetpoint() {
-        return pid.atSetpoint() && speedOverride != null && usePIDF;
+        return pid.atSetpoint() && speedOverride != null && usePIDF && !newSetpoint;
     }
 
     /**
@@ -188,26 +220,12 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      *       <li>the PID is at its setpoint
      *       <li>the shooter is currently under request to be spun up to speed
      *       <li>the PIDF is enabled (disabled during sysid)
+     *       <li>there is not a new setpoint
      *     </ol>
      */
     @AutoLogOutput
     public boolean atSetpoint() {
-        return pid.atSetpoint() && currentlyRequested() && usePIDF;
-    }
-
-    /**
-     * Uses an empirically determined best fit function to find the shooter speed based on the
-     * distance to the hub.
-     *
-     * @param distance the distance to the hub along the ground in meters
-     * @return the ideal speed in RPM of the shooter
-     */
-    private static double calculateSpeed(double distance) {
-        // TODO determine function for required shooter speed
-        final double a = 373d; // squared term
-        final double b = -975d; // linear term
-        final double c = 3250d; // y intercept
-        return distance * distance * a + distance * b + c;
+        return pid.atSetpoint() && currentlyRequested() && usePIDF && !newSetpoint;
     }
 
     private Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

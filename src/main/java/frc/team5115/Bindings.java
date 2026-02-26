@@ -13,6 +13,7 @@ import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
+import frc.team5115.subsystems.shooter.SpeedRequest;
 import java.util.function.DoubleSupplier;
 
 public class Bindings {
@@ -24,9 +25,6 @@ public class Bindings {
     private final Agitator agitator;
     private final Indexer indexer;
     private final Shooter shooter;
-
-    private boolean robotRelative = false;
-    private boolean slowMode = false;
 
     public Bindings(
             Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter) {
@@ -95,7 +93,7 @@ public class Bindings {
      * <ol>
      *   <li>is the robot in the sub-zone?
      *   <li>is the hub active?
-     *   <li>is the shooter spun up to speed?
+     *   <li>~~is the shooter spun up to speed?~~
      *   <li>is the drivetrain heading locked onto the hub?
      *   <li>are the drivetrain linear and rotational speeds close enough to zero?
      * </ol>
@@ -108,28 +106,46 @@ public class Bindings {
         return drivetrain
                 .inSubZone()
                 .and(Constants::isHubActive)
-                .and(shooter::atSetpoint)
+                // .and(shooter::atSetpoint)
                 .and(drivetrain::lockedOnHub)
                 .and(() -> drivetrain.movingWithinTolerance(0.2, 0.5));
     }
 
-    private Trigger slowEnoughToSpin() {
-        return new Trigger(() -> drivetrain.movingWithinTolerance(0.4, 1)).debounce(0.5);
-    }
+    // /**
+    //  * Is the drivetrain moving slow enough to consider spinning up the shooter? This trigger is
+    //  * primarily used in instances of checking whether the shooter should spin to a LOW speed.
+    //  *
+    //  * @return a debounced Trigger
+    //  */
+    // private Trigger slowEnoughToSpinUp() {
+    //     return new Trigger(() -> drivetrain.movingWithinTolerance(1.0, 2.0)).debounce(0.2);
+    // }
 
     public void configureButtonBindings(DoubleSupplier shooterSpeed, DoubleSupplier linearPosition) {
+        final Trigger slowMode = driveJoy.rightBumper();
+
         drivetrain.setDefaultCommand(
-                DriveCommands.joystickDrive(
+                DriveCommands.fieldRelativeHeadingDrive(
                         drivetrain,
-                        () -> robotRelative,
-                        () -> slowMode,
+                        slowMode,
                         () -> -driveJoy.getLeftY(),
                         () -> -driveJoy.getLeftX(),
+                        () -> -driveJoy.getRightY(),
                         () -> -driveJoy.getRightX()));
 
+        // Hold left bumper to drive robot relative
+        driveJoy
+                .leftBumper()
+                .whileTrue(
+                        DriveCommands.joystickDrive(
+                                drivetrain,
+                                () -> true,
+                                slowMode,
+                                () -> -driveJoy.getLeftY(),
+                                () -> -driveJoy.getLeftX(),
+                                () -> -driveJoy.getRightX()));
+
         driveJoy.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
-        driveJoy.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
-        driveJoy.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
         driveJoy.start().onTrue(offsetGyro());
 
         manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
@@ -143,7 +159,7 @@ public class Bindings {
                 .rightTrigger()
                 .whileTrue(
                         DriveCommands.smartShoot(
-                                drivetrain, agitator, indexer, shooter, Shooter.Requester.ManualShoot));
+                                drivetrain, agitator, indexer, shooter, SpeedRequest.ManualShoot));
 
         // B shoots blind
         manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter, shooterSpeed));
@@ -152,8 +168,8 @@ public class Bindings {
         drivetrain
                 .inAllianceZone()
                 .and(automationEnabled())
-                .and(slowEnoughToSpin())
-                .whileTrue(shooter.requestSpinUp(Shooter.Requester.InAllianceZone));
+                // .and(slowEnoughToSpinUp())
+                .whileTrue(shooter.requestSpinUp(SpeedRequest.InAllianceZone));
 
         // While autoHubLock is enabled, or holding a, lock on
         autoHubLockEnabled()
@@ -162,23 +178,25 @@ public class Bindings {
                         DriveCommands.lockedOnHub(
                                 shooter,
                                 drivetrain,
-                                () -> slowMode,
+                                slowMode,
                                 () -> -driveJoy.getLeftY(),
                                 () -> -driveJoy.getLeftX()));
 
-        // If driver wants to lock onto hub, also spin up shooter
+        // If driver is locking onto hub spin up shooter
         driveJoy
                 .a()
-                .and(slowEnoughToSpin())
-                .whileTrue(shooter.requestSpinUp(Shooter.Requester.ManualSpinUp));
+                // .and(slowEnoughToSpinUp())
+                .whileTrue(shooter.requestSpinUp(SpeedRequest.ManualSpinUp));
 
+        // Rumble whenever safe to shoot
+        // If automation enabled, then shoot automatically
         safeToShoot()
                 .onTrue(rumble(Constants.RUMBLE_STRENGTH))
                 .onFalse(rumble(0))
                 .and(automationEnabled())
                 .whileTrue(
                         DriveCommands.smartShoot(
-                                drivetrain, agitator, indexer, shooter, Shooter.Requester.SafeShoot));
+                                drivetrain, agitator, indexer, shooter, SpeedRequest.SafeShoot));
 
         // driveJoy.x().whileTrue(shooter.moveActuators(linearPosition));
     }
@@ -195,22 +213,6 @@ public class Bindings {
         safeToShoot().whileTrue(bling.purpleFlashing());
         new Trigger(indexer::isIndexing).whileTrue(bling.whiteScrollIn());
         new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
-    }
-
-    private Command setRobotRelative(boolean state) {
-        return Commands.runOnce(() -> robotRelative = state);
-    }
-
-    private Command setSlowMode(boolean state) {
-        return Commands.runOnce(() -> slowMode = state);
-    }
-
-    public boolean getRobotRelative() {
-        return robotRelative;
-    }
-
-    public boolean getSlowMode() {
-        return slowMode;
     }
 
     private Command rumble(double value) {

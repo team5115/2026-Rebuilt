@@ -378,6 +378,14 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         Logger.recordOutput("ChassisSpeedsDiscrete", speeds);
     }
 
+    public void driveFieldRelativeHeading(double vx, double vy, Rotation2d heading) {
+        final double omega = angularPID.calculate(getGyroRotation().getRadians(), heading.getRadians());
+        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, getGyroRotation()), false);
+        Logger.recordOutput("Drivetrain/OmegaField", omega);
+        Logger.recordOutput("Drivetrain/GoalHeading", heading);
+        Logger.recordOutput("Drivetrain/HeadingError", angularPID.getPositionError());
+    }
+
     /**
      * Drive based on field-relative linear velocities with the heading locked toward a position.
      *
