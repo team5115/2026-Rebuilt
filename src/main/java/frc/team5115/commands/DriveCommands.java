@@ -193,7 +193,9 @@ public class DriveCommands {
                             robotRelative.getAsBoolean()
                                     ? new ChassisSpeeds(vx, vy, omega)
                                     : ChassisSpeeds.fromFieldRelativeSpeeds(
-                                            vx, vy, omega, drivetrain.getGyroRotation()));
+                                            vx, vy, omega, drivetrain.getGyroRotation()),
+                            false,
+                            true);
                 },
                 drivetrain);
     }

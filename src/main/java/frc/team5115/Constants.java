@@ -104,6 +104,7 @@ public final class Constants {
         }
 
         public static final double MAX_LINEAR_SPEED = 5.0; // meters per second
+        public static final double MAX_LINEAR_ACCEL = 9.81; // m/s^2, used for driver velocity slewing
 
         // 29" wide, 25.75" front to back
         // ! Reminder that X is front-back, Y is left-right
