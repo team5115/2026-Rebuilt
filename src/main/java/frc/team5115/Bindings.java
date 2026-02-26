@@ -116,18 +116,29 @@ public class Bindings {
     // }
 
     public void configureButtonBindings() {
+        final Trigger slowMode = driveJoy.rightBumper();
         drivetrain.setDefaultCommand(
-                DriveCommands.joystickDrive(
+                DriveCommands.fieldRelativeHeadingDrive(
                         drivetrain,
-                        () -> robotRelative,
-                        () -> slowMode,
+                        slowMode,
                         () -> -driveJoy.getLeftY(),
                         () -> -driveJoy.getLeftX(),
+                        () -> -driveJoy.getRightY(),
                         () -> -driveJoy.getRightX()));
 
+        // Hold left bumper to drive robot relative
+        driveJoy
+                .leftBumper()
+                .whileTrue(
+                        DriveCommands.joystickDrive(
+                                drivetrain,
+                                () -> true,
+                                slowMode,
+                                () -> -driveJoy.getLeftY(),
+                                () -> -driveJoy.getLeftX(),
+                                () -> -driveJoy.getRightX()));
+
         driveJoy.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
-        driveJoy.leftBumper().onTrue(setRobotRelative(true)).onFalse(setRobotRelative(false));
-        driveJoy.rightBumper().onTrue(setSlowMode(true)).onFalse(setSlowMode(false));
         driveJoy.start().onTrue(offsetGyro());
 
         // manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
@@ -196,22 +207,6 @@ public class Bindings {
     //     // new Trigger(indexer::isIndexing).whileTrue(bling.whiteScrollIn());
     //     new Trigger(faults::hasFaults).whileTrue(bling.faultFlash().ignoringDisable(true));
     // }
-
-    private Command setRobotRelative(boolean state) {
-        return Commands.runOnce(() -> robotRelative = state);
-    }
-
-    private Command setSlowMode(boolean state) {
-        return Commands.runOnce(() -> slowMode = state);
-    }
-
-    public boolean getRobotRelative() {
-        return robotRelative;
-    }
-
-    public boolean getSlowMode() {
-        return slowMode;
-    }
 
     // private Command rumble(double value) {
     //     return Commands.runOnce(
