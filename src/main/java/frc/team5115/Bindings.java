@@ -18,9 +18,6 @@ public class Bindings {
     // private final Indexer indexer;
     // private final Shooter shooter;
 
-    private boolean robotRelative = false;
-    private boolean slowMode = false;
-
     public Bindings(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
         // this.intake = intake;
