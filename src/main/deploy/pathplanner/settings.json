@@ -1,12 +1,12 @@
 {
-  "robotWidth": 0.8763,
+  "robotWidth": 0.876,
   "robotLength": 0.794,
   "holonomicMode": true,
-  "pathFolders": [
-    "Depot Auto",
-    "Outpost Auto"
+  "pathFolders": [],
+  "autoFolders": [
+    "testing choreo",
+    "pathplanner"
   ],
-  "autoFolders": [],
   "defaultMaxVel": 5.0,
   "defaultMaxAccel": 14.0,
   "defaultMaxAngVel": 540.0,

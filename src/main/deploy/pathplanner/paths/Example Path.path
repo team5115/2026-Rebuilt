@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.931842576028622,
-        "y": 3.0371377459749542
+        "x": 2.0,
+        "y": 7.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9059064885496184,
-        "y": 4.470152671755725
-      },
-      "isLocked": false,
-      "linkedName": "ShootFromDistanceDown"
-    },
-    {
-      "anchor": {
-        "x": 2.295019083969466,
-        "y": 5.792347328244275
-      },
-      "prevControl": {
-        "x": 2.964484732824429,
-        "y": 5.608244274811539
-      },
-      "nextControl": {
-        "x": 1.8510161884907506,
-        "y": 5.914448124499343
+        "x": 3.0,
+        "y": 7.0
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.4372519084027364,
-        "y": 5.984818702287698
+        "x": 4.0,
+        "y": 6.0
       },
       "prevControl": {
-        "x": 1.709236641221374,
-        "y": 5.968082061068702
+        "x": 3.0,
+        "y": 6.0
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "depotIntake"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -58,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Outpost Auto",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 29.999999999999996
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
