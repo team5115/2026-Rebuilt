@@ -5,19 +5,13 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "down_neutral"
+                  "pathName": "top_no_rot"
                 }
               },
               {
@@ -36,38 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "neutral_downshot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Spin Up"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "downshot_outpost"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "outpost_downshot"
+                  "pathName": "neutral_top"
                 }
               },
               {
