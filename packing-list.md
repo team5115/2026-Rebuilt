@@ -1,12 +1,12 @@
 ## General
 
-Power strip
-Orange ethernet roll
-Orange ethernet cable
-White ethernet cable
-3x Orange USB-C (for sparks)
-Access Point
-AP heatsink
+-;Power strip
+- Orange ethernet roll
+- Orange ethernet cable
+- White ethernet cable
+- 3x Orange USB-C (for sparks)
+- Access Point
+- AP heatsink
 
 ## Driver station
 
