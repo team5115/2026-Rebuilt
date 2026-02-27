@@ -1,6 +1,6 @@
 ## General
 
--;Power strip
+- Power strip
 - Orange ethernet roll
 - Orange ethernet cable
 - White ethernet cable
