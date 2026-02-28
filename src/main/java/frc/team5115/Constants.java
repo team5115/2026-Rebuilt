@@ -166,8 +166,8 @@ public final class Constants {
         public static final PIDConstants LINEAR_PID_CONSTANTS =
                 new PIDConstants(
                         1.9 * SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED,
-                        0.125 * SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED,
-                        0.5 * SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED,
+                        0.0 * SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED,
+                        0.0 * SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED,
                         SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED * 0.5);
     }
 
