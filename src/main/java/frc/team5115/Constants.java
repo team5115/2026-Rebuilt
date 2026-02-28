@@ -110,18 +110,16 @@ public final class Constants {
 
         // 29" wide, 25.75" front to back
         // ! Reminder that X is front-back, Y is left-right
-        private static final Distance FRAME_WIDTH_X = Inches.of(25.75);
+        private static final Distance FRAME_WIDTH_X = Inches.of(25.625);
         private static final Distance FRAME_WIDTH_Y = Inches.of(29);
-        private static final Distance BUMPER_DEPTH = Inches.of(2.75);
-        private static final Distance MODULE_INSET = Inches.of(1.75);
+        private static final Distance BUMPER_DEPTH = Inches.of(3);
 
         public static final Distance BUMPER_WIDTH_X = FRAME_WIDTH_X.plus(BUMPER_DEPTH.times(2));
         public static final Distance BUMPER_WIDTH_Y = FRAME_WIDTH_Y.plus(BUMPER_DEPTH.times(2));
 
-        public static final double TRACK_WIDTH_X =
-                FRAME_WIDTH_X.minus(MODULE_INSET.times(2)).in(Meters);
-        public static final double TRACK_WIDTH_Y =
-                FRAME_WIDTH_Y.minus(MODULE_INSET.times(2)).in(Meters);
+        // Dimensions from CAD
+        public static final double TRACK_WIDTH_X = Units.inchesToMeters(22.125);
+        public static final double TRACK_WIDTH_Y = Units.inchesToMeters(25.5);
 
         public static final double DRIVE_BASE_RADIUS =
                 Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0);
