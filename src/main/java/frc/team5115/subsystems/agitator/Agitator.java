@@ -29,7 +29,7 @@ public class Agitator extends SubsystemBase implements MotorContainer {
      * @return a Run Command
      */
     public Command slow() {
-        return run(Constants.AGITATOR_SLOW_SPEED);
+        return run(Constants.AGITATOR_INTAKE_SPEED);
     }
 
     /**
