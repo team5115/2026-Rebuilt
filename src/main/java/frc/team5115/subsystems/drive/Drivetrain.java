@@ -154,20 +154,15 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> {
                                     Logger.recordOutput("Drivetrain/SysIdVoltage", voltage);
-                                    final double linearVel =
-                                            Math.hypot(
-                                                    getChassisSpeeds().vxMetersPerSecond,
-                                                    getChassisSpeeds().vxMetersPerSecond);
                                     double distance = 0;
                                     for (var position : getModulePositions()) {
                                         distance += position.distanceMeters;
                                     }
                                     distance /= 4.0;
-                                    Logger.recordOutput("Drivetrain/LinearVelocityMetersPerSecond", linearVel);
+                                    Logger.recordOutput(
+                                            "Drivetrain/LinearVelocityMetersPerSecond", getFFCharacterizationVelocity());
                                     Logger.recordOutput("Drivetrain/LinearDistanceMeters", distance);
-                                    for (int i = 0; i < 4; i++) {
-                                        modules[i].runCharacterization(voltage.baseUnitMagnitude());
-                                    }
+                                    runCharacterization(voltage.baseUnitMagnitude());
                                 },
                                 null,
                                 this));
@@ -191,9 +186,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                                 (voltage) -> {
                                     updateAngularLogging();
                                     Logger.recordOutput("Drivetrain/SysIdVoltage", voltage);
-                                    for (int i = 0; i < 4; i++) {
-                                        modules[i].runCharacterization(voltage.baseUnitMagnitude(), moduleRotations[i]);
-                                    }
+                                    runCharacterization(voltage.baseUnitMagnitude(), moduleRotations);
                                 },
                                 null,
                                 this));
@@ -235,6 +228,35 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         SmartDashboard.putData("Drivetrain/LinearPIDController", translationPid);
     }
 
+    public void runCharacterization(double voltage) {
+        runCharacterization(
+                voltage,
+                new Rotation2d[] {Rotation2d.kZero, Rotation2d.kZero, Rotation2d.kZero, Rotation2d.kZero});
+    }
+
+    public void runCharacterization(double voltage, final Rotation2d[] moduleRotations) {
+        for (int i = 0; i < 4; i++) {
+            modules[i].runCharacterization(voltage, moduleRotations[i]);
+        }
+    }
+
+    public double getFFCharacterizationVelocity() {
+        double output = 0.0;
+        for (int i = 0; i < 4; i++) {
+            output += modules[i].getCharacterizationVelocity() / 4.0;
+        }
+        return output;
+    }
+
+    /** Returns the position of each module in radians. */
+    public double[] getWheelRadiusCharacterizationPositions() {
+        double[] values = new double[4];
+        for (int i = 0; i < 4; i++) {
+            values[i] = modules[i].getWheelRadiusCharacterizationPosition();
+        }
+        return values;
+    }
+
     Rotation2d previousRotation = null;
     Double previousFPGATime = null;
 
@@ -271,7 +293,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
     }
 
     public Command translateAllSysIds() {
-      return Commands.sequence(
+        return Commands.sequence(
                 sysIdQuasistatic(SysIdRoutine.Direction.kForward),
                 resetBetweenSysIdRoutines(),
                 sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
@@ -397,9 +419,9 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         // Log setpoint states
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
         Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedSetpointStates);
-        Logger.recordOutput("Speeds", speeds);
-        Logger.recordOutput("SpeedsSlewed", slewedChassisSpeeds);
-        Logger.recordOutput("SpeedsDiscrete", discreteSpeeds);
+        Logger.recordOutput("ChassisSpeeds/Input", speeds);
+        Logger.recordOutput("ChassisSpeeds/Slewed", slewedChassisSpeeds);
+        Logger.recordOutput("ChassisSpeeds/Discrete", discreteSpeeds);
     }
 
     public void driveFieldRelativeHeading(double vx, double vy, Rotation2d heading) {

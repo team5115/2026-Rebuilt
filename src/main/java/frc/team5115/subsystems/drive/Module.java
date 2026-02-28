@@ -152,6 +152,11 @@ public class Module {
         return inputs.driveVelocityRadPerSec;
     }
 
+    /** Returns the module position in radians. */
+    public double getWheelRadiusCharacterizationPosition() {
+        return inputs.drivePositionRad;
+    }
+
     public void setDriveCurrentLimit(int amps) {
         io.setDriveCurrentLimit(amps);
     }

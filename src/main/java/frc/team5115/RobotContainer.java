@@ -170,6 +170,9 @@ public class RobotContainer {
                 "Drive Spin SysId (Dynamic Reverse)",
                 drivetrain.sysIdSpinDynamic(SysIdRoutine.Direction.kReverse));
 
+        autoChooser.addOption(
+                "Wheel Radius Characterization", AutoCommands.wheelRadiusCharacterization(drivetrain));
+        autoChooser.addOption("In-Code Drive FF", AutoCommands.feedforwardCharacterization(drivetrain));
         autoChooser.addOption("Translate All SysIds", drivetrain.translateAllSysIds());
         autoChooser.addOption("Spin All SysIds", drivetrain.spinAllSysIds());
         autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
