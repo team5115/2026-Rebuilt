@@ -8,6 +8,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.commands.AutoCommands;
@@ -202,12 +203,24 @@ public class RobotContainer {
     /** Register commands for pathplanner to use in autos. */
     private void registerCommands() {
         NamedCommands.registerCommand("Intake", AutoCommands.intake(intake, agitator, indexer));
+
+        // NamedCommands.registerCommand(
+        //         "Shoot", AutoCommands.shoot(3, drivetrain, agitator, indexer, shooter, false));
+        // NamedCommands.registerCommand(
+        //         "Shoot Forever", AutoCommands.shoot(20, drivetrain, agitator, indexer, shooter,
+        // true));
+        // NamedCommands.registerCommand("Spin Up", AutoCommands.spinUp(agitator, indexer, shooter));
+        // System.out.println("Registered Commands");
+
+        // NamedCommands.registerCommand("Intake", Commands.idle());
         NamedCommands.registerCommand(
-                "Shoot", AutoCommands.shoot(3, drivetrain, agitator, indexer, shooter, false));
+                "Shoot",
+                Commands.waitSeconds(3).beforeStarting(Commands.print("Shooting for 3 seconds...")));
         NamedCommands.registerCommand(
-                "Shoot Forever", AutoCommands.shoot(20, drivetrain, agitator, indexer, shooter, true));
-        NamedCommands.registerCommand("Spin Up", AutoCommands.spinUp(agitator, indexer, shooter));
-        System.out.println("Registered Commands");
+                "Shoot Forever", Commands.idle().beforeStarting(Commands.print("Shooting Forever...")));
+        NamedCommands.registerCommand(
+                "Spin Up", Commands.idle().beforeStarting(Commands.print("Spinning Up...")));
+        System.out.println("Registered Empty Auto Commands");
     }
 
     /**
