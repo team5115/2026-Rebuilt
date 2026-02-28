@@ -243,19 +243,35 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         previousFPGATime = null;
     }
 
+    double cumulativeRotationRadians = 0;
+
     private void updateAngularLogging() {
         if (previousFPGATime != null && previousRotation != null) {
             final double rotationDelta = getGyroRotation().minus(previousRotation).getRadians();
             final double timeDelta = Timer.getFPGATimestamp() - previousFPGATime;
+            cumulativeRotationRadians += rotationDelta;
             Logger.recordOutput("Drivetrain/AngularVelocityRadPerSec", rotationDelta / timeDelta);
             Logger.recordOutput("Drivetrain/RotationRadians", getGyroRotation().getRadians());
+            Logger.recordOutput("Drivetrain/CumulativeRotationRadians", cumulativeRotationRadians);
         }
         previousFPGATime = Timer.getFPGATimestamp();
         previousRotation = getGyroRotation();
     }
 
-    public Command driveAllSysIds() {
+    public Command spinAllSysIds() {
         return Commands.sequence(
+                sysIdSpinQuasistatic(SysIdRoutine.Direction.kForward),
+                resetBetweenSysIdRoutines(),
+                sysIdSpinQuasistatic(SysIdRoutine.Direction.kReverse),
+                resetBetweenSysIdRoutines(),
+                sysIdSpinDynamic(SysIdRoutine.Direction.kForward),
+                resetBetweenSysIdRoutines(),
+                sysIdSpinDynamic(SysIdRoutine.Direction.kReverse),
+                resetBetweenSysIdRoutines());
+    }
+
+    public Command translateAllSysIds() {
+      return Commands.sequence(
                 sysIdQuasistatic(SysIdRoutine.Direction.kForward),
                 resetBetweenSysIdRoutines(),
                 sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
@@ -263,14 +279,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                 sysIdDynamic(SysIdRoutine.Direction.kForward),
                 resetBetweenSysIdRoutines(),
                 sysIdDynamic(SysIdRoutine.Direction.kReverse),
-                resetBetweenSysIdRoutines(),
-                sysIdSpinQuasistatic(SysIdRoutine.Direction.kForward),
-                resetBetweenSysIdRoutines(),
-                sysIdSpinQuasistatic(SysIdRoutine.Direction.kReverse),
-                resetBetweenSysIdRoutines(),
-                sysIdSpinDynamic(SysIdRoutine.Direction.kForward),
-                resetBetweenSysIdRoutines(),
-                sysIdSpinDynamic(SysIdRoutine.Direction.kReverse));
+                resetBetweenSysIdRoutines());
     }
 
     private Command resetBetweenSysIdRoutines() {

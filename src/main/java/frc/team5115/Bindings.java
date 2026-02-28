@@ -163,8 +163,10 @@ public class Bindings {
 
         manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
 
-        agitator.setDefaultCommand(agitator.slow());
-        indexer.setDefaultCommand(indexer.reject());
+        if (Constants.ENABLE_DEFAULT_AGITATION) {
+            agitator.setDefaultCommand(agitator.slow());
+            indexer.setDefaultCommand(indexer.reject());
+        }
 
         // Right trigger smart shoots
         manipJoy

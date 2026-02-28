@@ -170,8 +170,8 @@ public class RobotContainer {
                 "Drive Spin SysId (Dynamic Reverse)",
                 drivetrain.sysIdSpinDynamic(SysIdRoutine.Direction.kReverse));
 
-        autoChooser.addOption("Drive All SysIds", drivetrain.driveAllSysIds());
-
+        autoChooser.addOption("Translate All SysIds", drivetrain.translateAllSysIds());
+        autoChooser.addOption("Spin All SysIds", drivetrain.spinAllSysIds());
         autoChooser.addOption("Shooter All SysIds", shooter.allSysIds());
 
         final String speedKey = "ShooterSpeedInput";

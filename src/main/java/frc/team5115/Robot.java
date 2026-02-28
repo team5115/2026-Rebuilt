@@ -100,7 +100,9 @@ public class Robot extends LoggedRobot {
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
 
-        CameraServer.startAutomaticCapture();
+        if (Constants.ENABLE_DRIVER_CAMERA) {
+            CameraServer.startAutomaticCapture();
+        }
     }
 
     /** This function is called periodically during all modes. */
