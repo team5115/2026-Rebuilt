@@ -48,8 +48,8 @@ public final class Constants {
 
     public static final boolean SINGLE_MODE = false;
     public static final boolean DISABLE_AUTOMATION = true;
-    public static final boolean ENABLE_DRIVER_CAMERA = false;
-    public static final boolean ENABLE_DEFAULT_AGITATION = false;
+    public static final boolean ENABLE_DRIVER_CAMERA = true;
+    public static final boolean ENABLE_DEFAULT_AGITATION = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
     public static final byte INTAKE_MOTOR_ID = 11;
@@ -79,7 +79,8 @@ public final class Constants {
     public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED - 0.1;
     public static final double AGITATOR_ALT_PAUSE = 0.1;
 
-    public static final double AGITATOR_SLOW_SPEED = 0.25;
+    // TODO adjust agitator slow speed
+    public static final double AGITATOR_SLOW_SPEED = 0.15;
     public static final double AGITATOR_VOMIT_SPEED = -0.5;
 
     public static class SwerveConstants {

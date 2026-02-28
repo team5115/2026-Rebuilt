@@ -13,7 +13,7 @@ import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
 import frc.team5115.subsystems.shooter.Shooter;
-import frc.team5115.subsystems.shooter.SpeedRequest;
+// import frc.team5115.subsystems.shooter.SpeedRequest;
 import java.util.function.DoubleSupplier;
 
 public class Bindings {
@@ -133,7 +133,7 @@ public class Bindings {
                         () -> -driveJoy.getRightY(),
                         () -> -driveJoy.getRightX()));
 
-        // Hold Y to enable intake mode
+        // Press Y to enable intake mode
         manipJoy
                 .y()
                 .toggleOnTrue(intake.intake())
@@ -168,22 +168,22 @@ public class Bindings {
             indexer.setDefaultCommand(indexer.reject());
         }
 
-        // Right trigger smart shoots
-        manipJoy
-                .rightTrigger()
-                .whileTrue(
-                        DriveCommands.smartShoot(
-                                drivetrain, agitator, indexer, shooter, SpeedRequest.ManualShoot));
+        // // Right trigger smart shoots
+        // manipJoy
+        //         .rightTrigger()
+        //         .whileTrue(
+        //                 DriveCommands.smartShoot(
+        //                         drivetrain, agitator, indexer, shooter, SpeedRequest.ManualShoot));
 
-        // B shoots blind
-        manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter, shooterSpeed));
+        // // B shoots blind
+        // manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter, shooterSpeed));
 
-        // While in alliance zone request to spin up shooter
-        drivetrain
-                .inAllianceZone()
-                .and(automationEnabled())
-                // .and(slowEnoughToSpinUp())
-                .whileTrue(shooter.requestSpinUp(SpeedRequest.InAllianceZone));
+        // // While in alliance zone request to spin up shooter
+        // drivetrain
+        //         .inAllianceZone()
+        //         .and(automationEnabled())
+        //         // .and(slowEnoughToSpinUp())
+        //         .whileTrue(shooter.requestSpinUp(SpeedRequest.InAllianceZone));
 
         // While autoHubLock is enabled, or holding a, lock on
         autoHubLockEnabled()
@@ -196,21 +196,19 @@ public class Bindings {
                                 () -> -driveJoy.getLeftY(),
                                 () -> -driveJoy.getLeftX()));
 
-        // If driver is locking onto hub spin up shooter
-        driveJoy
-                .a()
-                // .and(slowEnoughToSpinUp())
-                .whileTrue(shooter.requestSpinUp(SpeedRequest.ManualSpinUp));
+        // // If driver is locking onto hub spin up shooter
+        // driveJoy
+        //         .a()
+        //         // .and(slowEnoughToSpinUp())
+        //         .whileTrue(shooter.requestSpinUp(SpeedRequest.ManualSpinUp));
 
         // Rumble whenever safe to shoot
-        // If automation enabled, then shoot automatically
-        safeToShoot()
-                .onTrue(rumble(Constants.RUMBLE_STRENGTH))
-                .onFalse(rumble(0))
-                .and(automationEnabled())
-                .whileTrue(
-                        DriveCommands.smartShoot(
-                                drivetrain, agitator, indexer, shooter, SpeedRequest.SafeShoot));
+        // // If automation enabled, then shoot automatically
+        safeToShoot().onTrue(rumble(Constants.RUMBLE_STRENGTH)).onFalse(rumble(0));
+        // .and(automationEnabled())
+        // .whileTrue(
+        //         DriveCommands.smartShoot(
+        //                 drivetrain, agitator, indexer, shooter, SpeedRequest.SafeShoot));
 
         // driveJoy.x().whileTrue(shooter.moveActuators(linearPosition));
     }
