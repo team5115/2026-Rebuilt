@@ -372,19 +372,24 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
      */
     public void runVelocity(ChassisSpeeds speeds, boolean orbitting, boolean slew) {
         this.orbitting = orbitting;
+        Logger.recordOutput("ChassisSpeeds/Input", speeds);
 
-        double slewedLinearVelocity =
-                slewLimiter.calculate(
-                        Math.sqrt(
-                                Math.pow(speeds.vxMetersPerSecond, 2) + Math.pow(speeds.vyMetersPerSecond, 2)));
-        double angle = Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
-        double slewedX = slewedLinearVelocity * Math.cos(angle);
-        double slewedY = slewedLinearVelocity * Math.sin(angle);
-        ChassisSpeeds slewedChassisSpeeds =
-                new ChassisSpeeds(slewedX, slewedY, speeds.omegaRadiansPerSecond);
+        if (slew) {
+            double slewedLinearVelocity =
+                    slewLimiter.calculate(
+                            Math.sqrt(
+                                    Math.pow(speeds.vxMetersPerSecond, 2) + Math.pow(speeds.vyMetersPerSecond, 2)));
+            double angle = Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
+            double slewedX = slewedLinearVelocity * Math.cos(angle);
+            double slewedY = slewedLinearVelocity * Math.sin(angle);
+            ChassisSpeeds slewedChassisSpeeds =
+                    new ChassisSpeeds(slewedX, slewedY, speeds.omegaRadiansPerSecond);
+            Logger.recordOutput("ChassisSpeeds/Slewed", slewedChassisSpeeds);
+            speeds = slewedChassisSpeeds;
+        }
 
         // Calculate module setpoints
-        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(slewedChassisSpeeds, 0.02);
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, SwerveConstants.MAX_LINEAR_SPEED);
 
@@ -398,8 +403,6 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         // Log setpoint states
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
         Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedSetpointStates);
-        Logger.recordOutput("ChassisSpeeds/Input", speeds);
-        Logger.recordOutput("ChassisSpeeds/Slewed", slewedChassisSpeeds);
         Logger.recordOutput("ChassisSpeeds/Discrete", discreteSpeeds);
     }
 
