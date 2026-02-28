@@ -125,26 +125,24 @@ public class Bindings {
         final Trigger slowMode = driveJoy.rightBumper();
 
         drivetrain.setDefaultCommand(
-                DriveCommands.fieldRelativeHeadingDrive(
+                DriveCommands.joystickDrive(
                         drivetrain,
+                        () -> false,
                         slowMode,
                         () -> -driveJoy.getLeftY(),
                         () -> -driveJoy.getLeftX(),
-                        () -> -driveJoy.getRightY(),
                         () -> -driveJoy.getRightX()));
 
         // Press Y to enable intake mode
-        manipJoy
-                .y()
-                .toggleOnTrue(intake.intake())
-                .toggleOnTrue(
-                        DriveCommands.fieldRelativeHeadingDrive(
-                                drivetrain,
-                                slowMode,
-                                () -> -driveJoy.getLeftY(),
-                                () -> -driveJoy.getLeftX(),
-                                () -> -driveJoy.getLeftY(),
-                                () -> -driveJoy.getLeftX()));
+        manipJoy.y().whileTrue(intake.intake());
+        // .toggleOnTrue(
+        //         DriveCommands.fieldRelativeHeadingDrive(
+        //                 drivetrain,
+        //                 slowMode,
+        //                 () -> -driveJoy.getLeftY(),
+        //                 () -> -driveJoy.getLeftX(),
+        //                 () -> -driveJoy.getLeftY(),
+        //                 () -> -driveJoy.getLeftX()));
 
         // Hold left bumper to drive robot relative
         driveJoy
