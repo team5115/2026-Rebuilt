@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
 
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -107,6 +108,7 @@ public final class Constants {
 
         public static final double MAX_LINEAR_SPEED = 5.0; // meters per second
         public static final double MAX_LINEAR_ACCEL = 9.81; // m/s^2, used for driver velocity slewing
+        public static final double MAX_AUTOALIGN_LINEAR_SPEED = 4.0; // m/s
 
         // 29" wide, 25.75" front to back
         // ! Reminder that X is front-back, Y is left-right
@@ -150,10 +152,26 @@ public final class Constants {
         public static final int DrivingMotorAutoCurrentLimit = 60; // amp
         public static final int DrivingMotorTeleopCurrentLimit = 50; // amps, lower than in auto
         public static final int TurningMotorCurrentLimit = 20; // amps
+
+        // TODO tune drive pids
+        // TODO determine angularPID tolerance
+        public static final double ANGULAR_PID_TOLERANCE = Math.toRadians(4);
+        public static final PIDConstants ANGULAR_PID_CONSTANTS =
+                new PIDConstants(
+                        0.5 * SwerveConstants.MAX_ANGULAR_SPEED,
+                        0.0 * SwerveConstants.MAX_ANGULAR_SPEED,
+                        0.0 * SwerveConstants.MAX_ANGULAR_SPEED);
+
+        public static final double LINEAR_PID_TOLERANCE = 0.04;
+        public static final PIDConstants LINEAR_PID_CONSTANTS =
+                new PIDConstants(
+                        1.9 * SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED,
+                        0.125 * SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED,
+                        0.5 * SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED,
+                        SwerveConstants.MAX_AUTOALIGN_LINEAR_SPEED * 0.5);
     }
 
     public static class AutoConstants {
-        public static final double MAX_AUTOALIGN_LINEAR_SPEED = 4.0; // m/s
         public static final Mass ROBOT_MASS = Pounds.of(83); // TODO update weight estimation
 
         public static final Translation2d BLUE_HUB = new Translation2d(4.63, 4.03);

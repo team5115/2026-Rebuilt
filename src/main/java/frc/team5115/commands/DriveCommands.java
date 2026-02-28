@@ -1,11 +1,13 @@
 package frc.team5115.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.team5115.Constants.SwerveConstants;
@@ -61,6 +63,10 @@ public class DriveCommands {
                 shooter.waitForBlindSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
+    public static Command vomit(Agitator agitator, Indexer indexer, Intake intake) {
+        return Commands.parallel(agitator.vomit(), indexer.vomit(), intake.vomit());
+    }
+
     /**
      * Drive field relative while:
      *
@@ -78,29 +84,8 @@ public class DriveCommands {
         return Commands.startRun(
                 drivetrain::resetAngularPID,
                 () -> {
-                    double linearMagnitude =
-                            MathUtil.applyDeadband(
-                                    Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
-                    Rotation2d linearDirection;
-                    if (xSupplier.getAsDouble() == 0 && ySupplier.getAsDouble() == 0) {
-                        linearDirection = new Rotation2d();
-                    } else {
-                        linearDirection = new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
-                    }
-
-                    linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
-                    final Translation2d linearVelocity =
-                            new Pose2d(new Translation2d(), linearDirection)
-                                    .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
-                                    .getTranslation();
-
-                    // Convert to ChassisSpeeds & send command
-                    final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
-                    final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
-                    final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
-
-                    // Get the angle to point towards the orbit point
-                    drivetrain.orbitHub(vx, vy);
+                    final LinearVelocity v = calculateLinearVelocity(slowMode, xSupplier, ySupplier);
+                    drivetrain.orbitHub(v.x, v.y);
                 },
                 drivetrain);
     }
@@ -112,17 +97,35 @@ public class DriveCommands {
             DoubleSupplier ySupplier,
             DoubleSupplier xAngleSupplier,
             DoubleSupplier yAngleSupplier) {
+        final var defaultConstraints =
+                new TrapezoidProfile.Constraints(
+                        SwerveConstants.MAX_ANGULAR_SPEED, SwerveConstants.MAX_ANGULAR_SPEED * 2);
+        final var slowConstraints =
+                new TrapezoidProfile.Constraints(
+                        SwerveConstants.MAX_ANGULAR_SPEED * SLOW_MODE_MULTIPLIER,
+                        SwerveConstants.MAX_ANGULAR_SPEED * 2 * SLOW_MODE_MULTIPLIER);
+        final var anglePid =
+                new ProfiledPIDController(
+                        SwerveConstants.ANGULAR_PID_CONSTANTS.kP,
+                        SwerveConstants.ANGULAR_PID_CONSTANTS.kI,
+                        SwerveConstants.ANGULAR_PID_CONSTANTS.kD,
+                        defaultConstraints);
+        anglePid.setTolerance(SwerveConstants.ANGULAR_PID_TOLERANCE);
+        anglePid.enableContinuousInput(-Math.PI, Math.PI);
+
+        // prevents changing constraints constantly
+        final BooleanClass previousSlowMode = new BooleanClass(false);
+
         return Commands.startRun(
-                drivetrain::resetAngularPID,
                 () -> {
-                    double linearMagnitude =
-                            MathUtil.applyDeadband(
-                                    Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
-                    Rotation2d linearDirection;
-                    if (xSupplier.getAsDouble() == 0 && ySupplier.getAsDouble() == 0) {
-                        linearDirection = new Rotation2d();
-                    } else {
-                        linearDirection = new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+                    final double rotation = drivetrain.getGyroRotation().getRadians();
+                    anglePid.reset(rotation);
+                    anglePid.setGoal(rotation);
+                },
+                () -> {
+                    if (slowMode.getAsBoolean() != previousSlowMode.b) {
+                        previousSlowMode.b = slowMode.getAsBoolean();
+                        anglePid.setConstraints(previousSlowMode.b ? slowConstraints : defaultConstraints);
                     }
                     final double angleX = MathUtil.applyDeadband(xAngleSupplier.getAsDouble(), DEADBAND);
                     final double angleY = MathUtil.applyDeadband(yAngleSupplier.getAsDouble(), DEADBAND);
@@ -130,21 +133,15 @@ public class DriveCommands {
                             angleX == 0 && angleY == 0
                                     ? drivetrain.getGyroRotation()
                                     : new Rotation2d(angleX, angleY);
+                    final double omega =
+                            anglePid.calculate(drivetrain.getGyroRotation().getRadians(), heading.getRadians());
 
-                    // Square values
-                    linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
+                    final LinearVelocity v = calculateLinearVelocity(slowMode, xSupplier, ySupplier);
 
-                    // Calcaulate new linear velocity
-                    Translation2d linearVelocity =
-                            new Pose2d(new Translation2d(), linearDirection)
-                                    .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
-                                    .getTranslation();
-
-                    // Convert to ChassisSpeeds & send command
-                    final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
-                    final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
-                    final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
-                    drivetrain.driveFieldRelativeHeading(vx, vy, heading);
+                    drivetrain.runVelocity(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(v.x, v.y, omega, drivetrain.getGyroRotation()),
+                            false,
+                            true);
                 },
                 drivetrain);
     }
@@ -162,42 +159,49 @@ public class DriveCommands {
             DoubleSupplier omegaSupplier) {
         return Commands.run(
                 () -> {
-                    // Apply deadband
-                    double linearMagnitude =
-                            MathUtil.applyDeadband(
-                                    Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
-                    Rotation2d linearDirection;
-                    if (xSupplier.getAsDouble() == 0 && ySupplier.getAsDouble() == 0) {
-                        linearDirection = new Rotation2d();
-                    } else {
-                        linearDirection = new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
-                    }
                     double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
-                    // Square values
-                    linearMagnitude = responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
                     omega = Math.copySign(responseCurve(omega, 3.0, 0.32), omega);
+                    final LinearVelocity v = calculateLinearVelocity(slowMode, xSupplier, ySupplier);
 
-                    // Calcaulate new linear velocity
-                    Translation2d linearVelocity =
-                            new Pose2d(new Translation2d(), linearDirection)
-                                    .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
-                                    .getTranslation();
-
-                    // Convert to ChassisSpeeds & send command
-                    final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
-                    final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
-                    final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
-                    omega *= SwerveConstants.MAX_ANGULAR_SPEED * multiplier;
+                    omega *=
+                            SwerveConstants.MAX_ANGULAR_SPEED
+                                    * (slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0);
                     drivetrain.runVelocity(
                             robotRelative.getAsBoolean()
-                                    ? new ChassisSpeeds(vx, vy, omega)
+                                    ? new ChassisSpeeds(v.x, v.y, omega)
                                     : ChassisSpeeds.fromFieldRelativeSpeeds(
-                                            vx, vy, omega, drivetrain.getGyroRotation()),
+                                            v.x, v.y, omega, drivetrain.getGyroRotation()),
                             false,
                             true);
                 },
                 drivetrain);
+    }
+
+    private static Rotation2d calculateLinearDirection(double x, double y) {
+        if (x == 0 && y == 0) {
+            return new Rotation2d();
+        }
+        return new Rotation2d(x, y);
+    }
+
+    private static double calculateLinearMagnitude(double x, double y) {
+        final double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
+        return responseCurve(linearMagnitude, LINEAR_N, LINEAR_K);
+    }
+
+    private static LinearVelocity calculateLinearVelocity(
+            BooleanSupplier slowMode, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+        final double x = xSupplier.getAsDouble();
+        final double y = ySupplier.getAsDouble();
+        final Translation2d linearVelocity =
+                new Pose2d(new Translation2d(), calculateLinearDirection(x, y))
+                        .transformBy(new Transform2d(calculateLinearMagnitude(x, y), 0.0, new Rotation2d()))
+                        .getTranslation();
+        final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
+        final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+        final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
+        return new LinearVelocity(vx, vy);
     }
 
     /**
@@ -211,8 +215,22 @@ public class DriveCommands {
         return (Math.pow(x + k, n) + (x - 1) * Math.pow(k, n)) / Math.pow(1 + k, n);
     }
 
-    public static Command vomit(Agitator agitator, Indexer indexer, Intake intake) {
-        return Commands.parallel(agitator.vomit(), indexer.vomit(), intake.vomit());
+    private static class LinearVelocity {
+        public final double x;
+        public final double y;
+
+        LinearVelocity(double vx, double vy) {
+            x = vx;
+            y = vy;
+        }
+    }
+
+    private static class BooleanClass {
+        public boolean b;
+
+        BooleanClass(boolean b) {
+            this.b = b;
+        }
     }
 }
 

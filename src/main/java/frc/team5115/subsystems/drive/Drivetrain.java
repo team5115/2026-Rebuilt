@@ -4,12 +4,10 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -52,27 +50,16 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
     private final SysIdRoutine spinSysId;
     private final Field2d field = new Field2d();
 
-    // TODO tune drive pids
-    private final double linear_kp = 1.9 * AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED;
-    private final double linear_ki = 0.125 * AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED;
-    private final double linear_kd = 0.5 * AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED;
-    private final double angular_kp = 0.5 * SwerveConstants.MAX_ANGULAR_SPEED;
-    private final double angular_ki = 0.0 * SwerveConstants.MAX_ANGULAR_SPEED;
-    private final double angular_kd = 0.0 * SwerveConstants.MAX_ANGULAR_SPEED;
-
-    private final double linearPidTolerence = 0.04;
-
     private final SlewRateLimiter slewLimiter =
             new SlewRateLimiter(SwerveConstants.MAX_LINEAR_ACCEL, Double.NEGATIVE_INFINITY, 0.0);
 
     private final ProfiledPIDController angularPID =
             new ProfiledPIDController(
-                    angular_kp,
-                    angular_ki,
-                    angular_kd,
+                    SwerveConstants.ANGULAR_PID_CONSTANTS.kP,
+                    SwerveConstants.ANGULAR_PID_CONSTANTS.kI,
+                    SwerveConstants.ANGULAR_PID_CONSTANTS.kD,
                     new TrapezoidProfile.Constraints(
                             SwerveConstants.MAX_ANGULAR_SPEED, SwerveConstants.MAX_ANGULAR_SPEED * 2));
-    private final PIDController translationPid = new PIDController(linear_kp, linear_ki, linear_kd);
 
     @AutoLogOutput private boolean orbitting = true;
 
@@ -112,13 +99,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         modules[3] = new Module(brModuleIO, 3);
 
         angularPID.enableContinuousInput(-Math.PI, Math.PI);
-        translationPid.setTolerance(linearPidTolerence);
-        translationPid.setIntegratorRange(
-                -AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED * 0.5,
-                AutoConstants.MAX_AUTOALIGN_LINEAR_SPEED * 0.5);
-
-        // TODO determine angularPID tolerance
-        angularPID.setTolerance(Math.toRadians(4));
+        angularPID.setTolerance(SwerveConstants.ANGULAR_PID_TOLERANCE);
 
         AutoBuilder.configure(
                 this::getPose,
@@ -126,8 +107,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
                 () -> getChassisSpeeds(),
                 (var speeds, var feedforwards) -> runVelocity(speeds, false, false),
                 new PPHolonomicDriveController(
-                        new PIDConstants(linear_kp, linear_ki, linear_kd),
-                        new PIDConstants(angular_kp, angular_ki, angular_kd)),
+                        SwerveConstants.LINEAR_PID_CONSTANTS, SwerveConstants.ANGULAR_PID_CONSTANTS),
                 SwerveConstants.getRobotConfig(),
                 () -> Constants.isRedAlliance(),
                 this);
@@ -225,7 +205,6 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         SmartDashboard.putData(field);
 
         SmartDashboard.putData("Drivetrain/AnglePIDController", angularPID);
-        SmartDashboard.putData("Drivetrain/LinearPIDController", translationPid);
     }
 
     public void runCharacterization(double voltage) {
@@ -422,15 +401,6 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         Logger.recordOutput("ChassisSpeeds/Input", speeds);
         Logger.recordOutput("ChassisSpeeds/Slewed", slewedChassisSpeeds);
         Logger.recordOutput("ChassisSpeeds/Discrete", discreteSpeeds);
-    }
-
-    public void driveFieldRelativeHeading(double vx, double vy, Rotation2d heading) {
-        final double omega = angularPID.calculate(getGyroRotation().getRadians(), heading.getRadians());
-        runVelocity(
-                ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, getGyroRotation()), false, true);
-        Logger.recordOutput("Drivetrain/OmegaField", omega);
-        Logger.recordOutput("Drivetrain/GoalHeading", heading);
-        Logger.recordOutput("Drivetrain/HeadingError", angularPID.getPositionError());
     }
 
     /**
@@ -653,7 +623,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         }
     }
 
-    /** Set the module drive current limits to the auto current limit */
+    /** Set the module drive current limits to the teleop current limit */
     public void setTeleopCurrentLimit() {
         setDriveCurrentLimits(SwerveConstants.DrivingMotorTeleopCurrentLimit);
     }
