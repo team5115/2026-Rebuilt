@@ -29,7 +29,12 @@ public class Bindings {
     private final Climber climber;
 
     public Bindings(
-            Drivetrain drivetrain, Intake intake, Agitator agitator, Indexer indexer, Shooter shooter, Climber climber) {
+            Drivetrain drivetrain,
+            Intake intake,
+            Agitator agitator,
+            Indexer indexer,
+            Shooter shooter,
+            Climber climber) {
         this.drivetrain = drivetrain;
         this.intake = intake;
         this.agitator = agitator;

@@ -17,6 +17,7 @@ import frc.team5115.subsystems.shooter.Shooter;
 import frc.team5115.subsystems.shooter.SpeedRequest;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import frc.team5115.subsystems.climber.Climber;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
@@ -213,6 +214,14 @@ public class DriveCommands {
 
     public static Command vomit(Agitator agitator, Indexer indexer, Intake intake) {
         return Commands.parallel(agitator.vomit(), indexer.vomit(), intake.vomit());
+    }
+
+    public static Command deployClimb(Climber climber){
+        return climber.deployClimb();
+    }
+
+    public static Command climb(Climber climber){
+        return climber.climb(); 
     }
 }
 

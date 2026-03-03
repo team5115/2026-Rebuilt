@@ -3,6 +3,7 @@ package frc.team5115.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.team5115.subsystems.agitator.Agitator;
+import frc.team5115.subsystems.climber.Climber;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
@@ -46,5 +47,15 @@ public class AutoCommands {
                 shooter.requestSpinUp(SpeedRequest.AutonomouseSpinUp),
                 indexer.reject(),
                 agitator.slow());
+    }
+
+    public static Command deployClimb(Climber climber){
+        return Commands.parallel(
+                Commands.print("Deploying Climb!"), climber.deployClimb());
+    }
+
+    public static Command climb(Climber climber){
+        return Commands.parallel(
+                Commands.print("Climbing!"), climber.climb()); 
     }
 }

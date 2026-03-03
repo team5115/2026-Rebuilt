@@ -214,8 +214,10 @@ public class RobotContainer {
         NamedCommands.registerCommand(
                 "Shoot Forever", AutoCommands.shoot(20, drivetrain, agitator, indexer, shooter, true));
         NamedCommands.registerCommand("Spin Up", AutoCommands.spinUp(agitator, indexer, shooter));
+        NamedCommands.registerCommand("Deploy Climb", AutoCommands.deployClimb(climber));
+        NamedCommands.registerCommand("Climb", AutoCommands.climb(climber));
         System.out.println("Registered Commands");
-    }
+     }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
