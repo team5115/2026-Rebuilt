@@ -30,16 +30,16 @@ public class Climber extends SubsystemBase implements MotorContainer {
         switch (Constants.currentMode) {
             case REAL:
             case REPLAY:
-                feedforward = new SimpleMotorFeedforward(0.0, 1.0, 1.0);
-                pid = new PIDController(1, 0, 0);
+                feedforward = new SimpleMotorFeedforward(0.0, 1.0, 0.0);
+                pid = new PIDController(1.0, 0.0, 0.0);
                 break;
             case SIM:
-                feedforward = new SimpleMotorFeedforward(1, 1.0, 1.0);
+                feedforward = new SimpleMotorFeedforward(0.0, 1.0, 1.0);
                 pid = new PIDController(1.0, 0, 0);
                 break;
             default:
                 feedforward = new SimpleMotorFeedforward(0, 0, 0);
-                pid = new PIDController(0.1, 0, 0);
+                pid = new PIDController(0, 0, 0);
                 break;
         }
 
@@ -77,7 +77,7 @@ public class Climber extends SubsystemBase implements MotorContainer {
         double volts = feedforward.calculate(speed);
         volts = MathUtil.clamp(volts, -12, +12);
 
-        if (volts < 0.1) volts = 0;
+        if (Math.abs(volts) < 0.1) volts = 0;
         io.setVoltage(volts);
     }
 
