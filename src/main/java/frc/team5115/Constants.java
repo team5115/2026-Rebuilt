@@ -66,6 +66,8 @@ public final class Constants {
 
     public static final double LOOP_PERIOD_SECS = 0.02;
 
+    public static final double SETPOINT_DEBOUNCE = 2.0;
+
     public static final double INTAKE_SPEED = 0.85;
     public static final double INTAKE_VOMIT_SPEED = -1.0;
 

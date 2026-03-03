@@ -49,9 +49,7 @@ public class AutoCommands {
                                 .waitForSetpoint()
                                 .raceWith(indexer.reject())
                                 .andThen(
-                                        indexer
-                                                .index()
-                                                .until(indexer.deBounceIsSensing().negate().and(() -> !shootForever))))
+                                        indexer.index().until(shooter.debounceSetpoint().and(() -> !shootForever))))
                 .withTimeout(timeout);
     }
 

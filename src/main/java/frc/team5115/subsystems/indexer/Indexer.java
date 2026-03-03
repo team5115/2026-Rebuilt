@@ -62,7 +62,7 @@ public class Indexer extends SubsystemBase implements MotorContainer {
         return io.getSparks();
     }
 
-    public Trigger deBounceIsSensing() {
+    public Trigger debounceIsSensing() {
         return new Trigger(this::isSensing).debounce(2.0, Debouncer.DebounceType.kFalling);
     }
 

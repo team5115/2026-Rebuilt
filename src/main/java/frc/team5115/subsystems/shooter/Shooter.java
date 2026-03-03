@@ -3,11 +3,13 @@ package frc.team5115.subsystems.shooter;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
 import frc.team5115.util.MotorContainer;
@@ -258,6 +260,11 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     @Override
     public ArrayList<SparkMax> getSparks() {
         return io.getSparks();
+    }
+
+    public Trigger debounceSetpoint() {
+        return new Trigger(this::atSetpoint)
+                .debounce(Constants.SETPOINT_DEBOUNCE, Debouncer.DebounceType.kRising);
     }
 
     public double getRotationRPM() {
