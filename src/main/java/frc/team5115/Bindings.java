@@ -222,6 +222,8 @@ public class Bindings {
                                 drivetrain, agitator, indexer, shooter, SpeedRequest.SafeShoot));
 
         // driveJoy.x().whileTrue(shooter.moveActuators(linearPosition));
+        manipJoy.pov(270).onTrue(climber.climb());
+        manipJoy.pov(180).onTrue(climber.deployClimb());
     }
 
     public void configureBlingBindings(Bling bling, RobotFaults faults) {

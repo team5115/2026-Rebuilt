@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.agitator.Agitator;
+import frc.team5115.subsystems.climber.Climber;
 import frc.team5115.subsystems.drive.Drivetrain;
 import frc.team5115.subsystems.indexer.Indexer;
 import frc.team5115.subsystems.intake.Intake;
@@ -17,7 +18,6 @@ import frc.team5115.subsystems.shooter.Shooter;
 import frc.team5115.subsystems.shooter.SpeedRequest;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import frc.team5115.subsystems.climber.Climber;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
@@ -216,12 +216,12 @@ public class DriveCommands {
         return Commands.parallel(agitator.vomit(), indexer.vomit(), intake.vomit());
     }
 
-    public static Command deployClimb(Climber climber){
+    public static Command deployClimb(Climber climber) {
         return climber.deployClimb();
     }
 
-    public static Command climb(Climber climber){
-        return climber.climb(); 
+    public static Command climb(Climber climber) {
+        return climber.climb();
     }
 }
 

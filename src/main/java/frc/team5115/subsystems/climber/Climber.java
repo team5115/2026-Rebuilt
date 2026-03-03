@@ -30,16 +30,16 @@ public class Climber extends SubsystemBase implements MotorContainer {
         switch (Constants.currentMode) {
             case REAL:
             case REPLAY:
-                feedforward = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
-                pid = new PIDController(0.0, 0, 0);
+                feedforward = new SimpleMotorFeedforward(0.0, 1.0, 1.0);
+                pid = new PIDController(1, 0, 0);
                 break;
             case SIM:
-                feedforward = new SimpleMotorFeedforward(0, 0.0, 0.0);
-                pid = new PIDController(0.0, 0, 0);
+                feedforward = new SimpleMotorFeedforward(1, 1.0, 1.0);
+                pid = new PIDController(1.0, 0, 0);
                 break;
             default:
                 feedforward = new SimpleMotorFeedforward(0, 0, 0);
-                pid = new PIDController(0, 0, 0);
+                pid = new PIDController(0.1, 0, 0);
                 break;
         }
 
@@ -104,13 +104,13 @@ public class Climber extends SubsystemBase implements MotorContainer {
 
     public Command deployClimb() {
         return Commands.run(
-                () -> pid.setSetpoint(0), // TODO change deploy position
+                () -> pid.setSetpoint(2), // TODO change deploy position
                 this);
     }
 
     public Command climb() {
         return Commands.run(
-                () -> pid.setSetpoint(0), // TODO change climb position
+                () -> pid.setSetpoint(4), // TODO change climb position
                 this);
     }
 

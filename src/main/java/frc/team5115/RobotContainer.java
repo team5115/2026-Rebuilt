@@ -200,7 +200,14 @@ public class RobotContainer {
         bindings = new Bindings(drivetrain, intake, agitator, indexer, shooter, climber);
         faults =
                 new RobotFaults(
-                        drivetrain, vision, bindings::joysticksConnected, intake, agitator, indexer, shooter, climber);
+                        drivetrain,
+                        vision,
+                        bindings::joysticksConnected,
+                        intake,
+                        agitator,
+                        indexer,
+                        shooter,
+                        climber);
 
         bindings.configureButtonBindings(blindSpeedSupplier, linearActuatorSupplier);
         bindings.configureBlingBindings(bling, faults);
@@ -217,7 +224,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Deploy Climb", AutoCommands.deployClimb(climber));
         NamedCommands.registerCommand("Climb", AutoCommands.climb(climber));
         System.out.println("Registered Commands");
-     }
+    }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

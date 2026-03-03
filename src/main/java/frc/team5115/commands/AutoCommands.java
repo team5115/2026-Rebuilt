@@ -49,13 +49,11 @@ public class AutoCommands {
                 agitator.slow());
     }
 
-    public static Command deployClimb(Climber climber){
-        return Commands.parallel(
-                Commands.print("Deploying Climb!"), climber.deployClimb());
+    public static Command deployClimb(Climber climber) {
+        return Commands.parallel(Commands.print("Deploying Climb!"), climber.deployClimb());
     }
 
-    public static Command climb(Climber climber){
-        return Commands.parallel(
-                Commands.print("Climbing!"), climber.climb()); 
+    public static Command climb(Climber climber) {
+        return Commands.parallel(Commands.print("Climbing!"), climber.climb());
     }
 }
