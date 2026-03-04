@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "neutral_top"
+                  "pathName": "top_neutral"
                 }
               },
               {
@@ -36,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "top_neutral"
+                  "pathName": "neutral_top"
                 }
               },
               {
