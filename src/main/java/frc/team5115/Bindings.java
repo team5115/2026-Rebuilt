@@ -116,12 +116,12 @@ public class Bindings {
     public void configureButtonBindings() {
         final Trigger slowMode = driveJoy.rightBumper();
         drivetrain.setDefaultCommand(
-                DriveCommands.fieldRelativeHeadingDrive(
+                DriveCommands.joystickDrive(
                         drivetrain,
+                        () -> false,
                         slowMode,
                         () -> -driveJoy.getLeftY(),
                         () -> -driveJoy.getLeftX(),
-                        () -> -driveJoy.getRightY(),
                         () -> -driveJoy.getRightX()));
 
         // Hold Y to enable intake mode

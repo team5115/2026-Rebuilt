@@ -21,7 +21,7 @@ import java.util.function.DoubleSupplier;
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
 
-    private static final double LINEAR_N = 6.0;
+    private static final double LINEAR_N = 9.0;
     private static final double LINEAR_K = 1.0;
 
     // TODO maybe modify slow mode speed?
