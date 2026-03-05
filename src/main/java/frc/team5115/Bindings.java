@@ -171,10 +171,12 @@ public class Bindings {
                 .rightTrigger()
                 .whileTrue(
                         DriveCommands.smartShoot(
-                                drivetrain, agitator, indexer, shooter, SpeedRequest.ManualShoot));
+                                drivetrain, intake, agitator, indexer, shooter, SpeedRequest.ManualShoot));
 
         // B shoots blind
-        manipJoy.b().whileTrue(DriveCommands.blindShoot(agitator, indexer, shooter, shooterSpeed));
+        manipJoy
+                .b()
+                .whileTrue(DriveCommands.blindShoot(intake, agitator, indexer, shooter, shooterSpeed));
 
         // While in alliance zone request to spin up shooter
         drivetrain
@@ -208,7 +210,7 @@ public class Bindings {
                 .and(automationEnabled())
                 .whileTrue(
                         DriveCommands.smartShoot(
-                                drivetrain, agitator, indexer, shooter, SpeedRequest.SafeShoot));
+                                drivetrain, intake, agitator, indexer, shooter, SpeedRequest.SafeShoot));
 
         // driveJoy.x().whileTrue(shooter.moveActuators(linearPosition));
     }

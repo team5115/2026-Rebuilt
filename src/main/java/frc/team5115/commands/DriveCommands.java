@@ -45,20 +45,27 @@ public class DriveCommands {
      */
     public static Command smartShoot(
             Drivetrain drivetrain,
+            Intake intake,
             Agitator agitator,
             Indexer indexer,
             Shooter shooter,
             SpeedRequest request) {
         return Commands.parallel(
                 agitator.fast(),
+                intake.intake(),
                 shooter.requestSpinUp(request),
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
     public static Command blindShoot(
-            Agitator agitator, Indexer indexer, Shooter shooter, DoubleSupplier shooterSpeed) {
+            Intake intake,
+            Agitator agitator,
+            Indexer indexer,
+            Shooter shooter,
+            DoubleSupplier shooterSpeed) {
         return Commands.parallel(
                 agitator.fast(),
+                intake.intake(),
                 shooter.spinUpBlind(shooterSpeed),
                 shooter.waitForBlindSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }

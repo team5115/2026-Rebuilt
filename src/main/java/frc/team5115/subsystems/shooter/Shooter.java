@@ -33,14 +33,13 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public static final double ACTUATOR_MAX_POS = 0.5;
 
     private static final double ffConversion = Math.PI / 30;
-    private static final double kSff = 0.10105;
-    private static final double kVff = 0.020048 * ffConversion;
-    private static final double kAff = 0.0047036 * ffConversion;
+    private static final double kSff = 0.031641;
+    private static final double kVff = 0.020182 * ffConversion;
+    private static final double kAff = 0.0065475 * ffConversion;
 
-    // TODO determine function for required shooter speed
-    private static final double constantA = 373d; // squared term
-    private static final double constantB = -975d; // linear term
-    private static final double constantC = 3250d; // y intercept
+    private static final double constantA = 0d; // squared term
+    private static final double constantB = 290d; // linear term
+    private static final double constantC = 1786d; // y intercept
 
     @AutoLogOutput private boolean usePIDF = true;
 
@@ -61,7 +60,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
             case REAL:
             case REPLAY:
                 feedforward = new SimpleMotorFeedforward(kSff, kVff, kAff);
-                pid = new PIDController(1E-03, 0, 0);
+                pid = new PIDController(5E-03, 0, 0);
                 break;
             case SIM:
                 feedforward = new SimpleMotorFeedforward(0, 2.10E-3, 0.03);

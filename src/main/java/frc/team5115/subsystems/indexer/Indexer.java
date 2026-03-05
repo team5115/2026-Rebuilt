@@ -54,7 +54,21 @@ public class Indexer extends SubsystemBase implements MotorContainer {
      * @return a RunEnd Command
      */
     public Command vomit() {
-        return run(Constants.INDEX_VOMIT_SPEED);
+        return agitate(Constants.INDEX_VOMIT_SPEED, 0, 0.25, 0.75);
+    }
+
+    private Command agitate(double speed1, double speed2, double pause1, double pause2) {
+        return Commands.sequence(
+                        setSpeed(speed1),
+                        Commands.waitSeconds(pause1),
+                        setSpeed(speed2),
+                        Commands.waitSeconds(pause2))
+                .repeatedly()
+                .finallyDo(() -> io.setPercent(0));
+    }
+
+    private Command setSpeed(double speed) {
+        return Commands.runOnce(() -> io.setPercent(speed), this);
     }
 
     @Override
