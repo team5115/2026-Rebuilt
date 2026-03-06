@@ -36,6 +36,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     private static final double kSff = 0.031641;
     private static final double kVff = 0.020182 * ffConversion;
     private static final double kAff = 0.0065475 * ffConversion;
+    private static final double kP = 2E-3;
 
     private static final double constantA = 0d; // squared term
     private static final double constantB = 290d; // linear term
@@ -60,7 +61,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
             case REAL:
             case REPLAY:
                 feedforward = new SimpleMotorFeedforward(kSff, kVff, kAff);
-                pid = new PIDController(5E-03, 0, 0);
+                pid = new PIDController(kP, 0, 0);
                 break;
             case SIM:
                 feedforward = new SimpleMotorFeedforward(0, 2.10E-3, 0.03);
