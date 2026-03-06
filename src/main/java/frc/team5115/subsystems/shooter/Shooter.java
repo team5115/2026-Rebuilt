@@ -39,8 +39,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     private static final double kP = 2E-3;
 
     private static final double constantA = 0d; // squared term
-    private static final double constantB = 290d; // linear term
-    private static final double constantC = 1786d; // y intercept
+    private static final double constantB = 326d; // linear term
+    private static final double constantC = 1809d; // y intercept
 
     @AutoLogOutput private boolean usePIDF = true;
 
