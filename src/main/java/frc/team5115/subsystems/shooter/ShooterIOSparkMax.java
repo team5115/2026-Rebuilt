@@ -28,7 +28,7 @@ public class ShooterIOSparkMax implements ShooterIO {
                 .closedLoopRampRate(0.1)
                 .inverted(true)
                 .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(40);
+                .smartCurrentLimit(40, 55);
 
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

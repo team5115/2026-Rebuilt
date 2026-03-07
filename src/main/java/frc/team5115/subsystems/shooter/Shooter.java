@@ -33,10 +33,10 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public static final double ACTUATOR_MAX_POS = 0.5;
 
     private static final double ffConversion = Math.PI / 30;
-    private static final double kSff = 0.031641;
-    private static final double kVff = 0.020182 * ffConversion;
-    private static final double kAff = 0.0065475 * ffConversion;
-    private static final double kP = 2E-3;
+    private static final double kSff = 0.0093662;
+    private static final double kVff = 0.020494 * ffConversion;
+    private static final double kAff = 0.0098627 * ffConversion;
+    private static final double kP = 0.0035;
 
     private static final double constantA = 0d; // squared term
     private static final double constantB = 326d; // linear term
