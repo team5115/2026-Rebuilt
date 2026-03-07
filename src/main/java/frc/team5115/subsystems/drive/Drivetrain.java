@@ -629,13 +629,14 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
 
     /**
      * Limit the drive motor current, and then remove the limit when the command ends.
+     *
      * @param auto should we switch back into auto limit when we are done?
      * @return a StartEnd command
      */
     public Command limitCurrent(boolean auto) {
         return Commands.startEnd(
-            () -> setCurrentLimit(DriveMotorCurrentLimit.SpinUp),
-            () -> setCurrentLimit(auto ? DriveMotorCurrentLimit.Auto : DriveMotorCurrentLimit.Teleop));
+                () -> setCurrentLimit(DriveMotorCurrentLimit.SpinUp),
+                () -> setCurrentLimit(auto ? DriveMotorCurrentLimit.Auto : DriveMotorCurrentLimit.Teleop));
     }
 
     public boolean isGyroConnected() {
