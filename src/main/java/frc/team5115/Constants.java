@@ -53,6 +53,7 @@ public final class Constants {
     public static final byte AGITATOR_MOTOR_ID = 12;
     public static final byte INDEXER_MOTOR_ID = 13;
     public static final byte SHOOTER_MOTOR_ID = 14;
+    public static final byte CLIMBER_MOTOR_ID = 15;
 
     public static final byte LEFT_SENSOR_ID = 0;
     public static final byte RIGHT_SENSOR_ID = 1;

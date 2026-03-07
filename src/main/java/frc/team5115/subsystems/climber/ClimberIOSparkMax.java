@@ -7,6 +7,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import frc.team5115.Constants;
 import java.util.ArrayList;
 
 public class ClimberIOSparkMax implements ClimberIO {
@@ -14,7 +15,7 @@ public class ClimberIOSparkMax implements ClimberIO {
     private final RelativeEncoder encoder;
 
     public ClimberIOSparkMax() {
-        motor = new SparkMax(0, MotorType.kBrushless);
+        motor = new SparkMax(Constants.CLIMBER_MOTOR_ID, MotorType.kBrushless);
         encoder = motor.getEncoder();
 
         final SparkMaxConfig motorConfig = new SparkMaxConfig();
