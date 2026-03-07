@@ -151,8 +151,18 @@ public final class Constants {
         // 15 teeth on the bevel pinion, 13 teeth on the driving motor
         public static final double DrivingMotorReduction = (45.0 * 22.0) / (13.0 * 15.0);
 
-        public static final int DrivingMotorAutoCurrentLimit = 60; // amp
-        public static final int DrivingMotorTeleopCurrentLimit = 50; // amps, lower than in auto
+        public enum DriveMotorCurrentLimit {
+            Auto(60),
+            Teleop(50),
+            SpinUp(30);
+
+            public final int amps;
+
+            DriveMotorCurrentLimit(int amps) {
+                this.amps = amps;
+            }
+        }
+
         public static final int TurningMotorCurrentLimit = 20; // amps
 
         // TODO tune drive pids

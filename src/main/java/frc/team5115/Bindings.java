@@ -176,14 +176,14 @@ public class Bindings {
         // B shoots blind
         manipJoy
                 .b()
-                .whileTrue(DriveCommands.blindShoot(intake, agitator, indexer, shooter, shooterSpeed));
+                .whileTrue(DriveCommands.blindShoot(drivetrain, intake, agitator, indexer, shooter, shooterSpeed));
 
         // While in alliance zone request to spin up shooter
         drivetrain
                 .inAllianceZone()
                 .and(automationEnabled())
                 // .and(slowEnoughToSpinUp())
-                .whileTrue(shooter.requestSpinUp(SpeedRequest.InAllianceZone));
+                .whileTrue(DriveCommands.spinUp(SpeedRequest.InAllianceZone, drivetrain, shooter));
 
         // While autoHubLock is enabled, or holding a, lock on
         autoHubLockEnabled()
@@ -200,7 +200,7 @@ public class Bindings {
         driveJoy
                 .a()
                 // .and(slowEnoughToSpinUp())
-                .whileTrue(shooter.requestSpinUp(SpeedRequest.ManualSpinUp));
+                .whileTrue(DriveCommands.spinUp(SpeedRequest.ManualSpinUp, drivetrain, shooter));
 
         // Rumble whenever safe to shoot
         // If automation enabled, then shoot automatically

@@ -54,10 +54,12 @@ public class DriveCommands {
                 agitator.fast(),
                 intake.intake(),
                 shooter.requestSpinUp(request),
+                drivetrain.limitCurrent(false),
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
     public static Command blindShoot(
+            Drivetrain drivetrain,
             Intake intake,
             Agitator agitator,
             Indexer indexer,
@@ -67,7 +69,12 @@ public class DriveCommands {
                 agitator.fast(),
                 intake.intake(),
                 shooter.spinUpBlind(shooterSpeed),
+                drivetrain.limitCurrent(false),
                 shooter.waitForBlindSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
+    }
+
+    public static Command spinUp(SpeedRequest request, Drivetrain drivetrain, Shooter shooter) {
+        return shooter.requestSpinUp(request).alongWith(drivetrain.limitCurrent(false));
     }
 
     public static Command vomit(Agitator agitator, Indexer indexer, Intake intake) {

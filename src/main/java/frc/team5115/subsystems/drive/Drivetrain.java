@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants;
 import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
+import frc.team5115.Constants.SwerveConstants.DriveMotorCurrentLimit;
 import frc.team5115.Constants.VisionConstants;
 import frc.team5115.util.LocalADStarAK;
 import frc.team5115.util.MotorContainer;
@@ -620,20 +621,21 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         return sparks;
     }
 
-    private void setDriveCurrentLimits(int amps) {
+    public void setCurrentLimit(DriveMotorCurrentLimit limit) {
         for (var module : modules) {
-            module.setDriveCurrentLimit(amps);
+            module.setDriveCurrentLimit(limit.amps);
         }
     }
 
-    /** Set the module drive current limits to the teleop current limit */
-    public void setTeleopCurrentLimit() {
-        setDriveCurrentLimits(SwerveConstants.DrivingMotorTeleopCurrentLimit);
-    }
-
-    /** Set the module drive current limits to the auto current limit */
-    public void setAutoCurrentLimit() {
-        setDriveCurrentLimits(SwerveConstants.DrivingMotorAutoCurrentLimit);
+    /**
+     * Limit the drive motor current, and then remove the limit when the command ends.
+     * @param auto should we switch back into auto limit when we are done?
+     * @return a StartEnd command
+     */
+    public Command limitCurrent(boolean auto) {
+        return Commands.startEnd(
+            () -> setCurrentLimit(DriveMotorCurrentLimit.SpinUp),
+            () -> setCurrentLimit(auto ? DriveMotorCurrentLimit.Auto : DriveMotorCurrentLimit.Teleop));
     }
 
     public boolean isGyroConnected() {

@@ -45,6 +45,7 @@ public class AutoCommands {
                         Commands.print("Shooting!"),
                         agitator.fast(),
                         shooter.requestSpinUp(SpeedRequest.AutonomouseShoot),
+                        // drivetrain.limitCurrent(true),
                         shooter
                                 .waitForSetpoint()
                                 .raceWith(indexer.reject())
@@ -54,10 +55,11 @@ public class AutoCommands {
     }
 
     /** Spin up the shooter, reject with indexer, and agitate slowly. */
-    public static Command spinUp(Agitator agitator, Indexer indexer, Shooter shooter) {
+    public static Command spinUp(Drivetrain drivetrain, Agitator agitator, Indexer indexer, Shooter shooter) {
         return Commands.parallel(
                 Commands.print("Spinning Up!"),
                 shooter.requestSpinUp(SpeedRequest.AutonomouseSpinUp),
+                // drivetrain.limitCurrent(true),
                 indexer.reject(),
                 agitator.slow());
     }

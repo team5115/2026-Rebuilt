@@ -81,7 +81,7 @@ public class ModuleIOSparkMax implements ModuleIO {
         driveConfig
                 .inverted(false)
                 .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(SwerveConstants.DrivingMotorAutoCurrentLimit)
+                .smartCurrentLimit(SwerveConstants.DriveMotorCurrentLimit.Auto.amps)
                 .voltageCompensation(12.0);
 
         turnEncoderConfig.averageDepth(2).inverted(false);
