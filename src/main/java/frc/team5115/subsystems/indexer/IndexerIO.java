@@ -11,6 +11,7 @@ public interface IndexerIO {
         public double velocityRPM = 0.0;
         public double appliedVolts = 0.0;
         public double currentAmps = 0.0;
+        public double positionRad = 0.0;
         public boolean leftSensor = false;
         public boolean rightSensor = false;
     }
