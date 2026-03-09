@@ -46,9 +46,9 @@ public final class Constants {
         REPLAY
     }
 
-    public static final boolean SINGLE_MODE = true;
+    public static final boolean SINGLE_MODE = false;
     public static final boolean DISABLE_AUTOMATION = true;
-    public static final boolean ENABLE_DRIVER_CAMERA = false;
+    public static final boolean ENABLE_DRIVER_CAMERA = true;
     public static final boolean ENABLE_DEFAULT_AGITATION = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
@@ -72,7 +72,7 @@ public final class Constants {
     public static final double INTAKE_VOMIT_SPEED = -1.0;
 
     public static final double INDEX_SPEED = INTAKE_SPEED * 0.418;
-    public static final double INDEX_REJECT_SPEED = -0.25;
+    public static final double INDEX_REJECT_SPEED = -0.15;
     public static final double INDEX_VOMIT_SPEED = -0.25;
 
     public static final double AGITATOR_FAST_SPEED = INDEX_SPEED * 0.7;
@@ -81,7 +81,7 @@ public final class Constants {
     public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED - 0.1;
     public static final double AGITATOR_ALT_PAUSE = 0.1;
 
-    public static final double AGITATOR_INTAKE_SPEED = AGITATOR_FAST_SPEED;
+    public static final double AGITATOR_INTAKE_SPEED = 0; // AGITATOR_FAST_SPEED;
     public static final double AGITATOR_VOMIT_SPEED = -0.5;
 
     public static class SwerveConstants {
