@@ -7,8 +7,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.team5115.Constants;
 import java.util.ArrayList;
@@ -36,7 +34,6 @@ public class IndexerIOSparkMax implements IndexerIO {
         inputs.velocityRPM = encoder.getVelocity() * gearing;
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
-        inputs.positionRad = Units.rotationsToRadians(motor.getEncoder().getPosition());
         inputs.leftSensor = !leftSensor.get();
         inputs.rightSensor = !rightSensor.get();
     }

@@ -1,7 +1,6 @@
 package frc.team5115.subsystems.indexer;
 
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -17,22 +16,8 @@ public class Indexer extends SubsystemBase implements MotorContainer {
     private final IndexerIO io;
     private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
 
-    private final PIDController pid;
-
     public Indexer(IndexerIO io) {
         this.io = io;
-        switch (Constants.currentMode) {
-            case REAL:
-            case REPLAY:
-                pid = new PIDController(0.05, 0, 0);
-                break;
-            case SIM:
-                pid = new PIDController(1.0, 0, 0);
-                break;
-            default:
-                pid = new PIDController(0, 0, 0);
-                break;
-        }
     }
 
     @Override
@@ -60,14 +45,7 @@ public class Indexer extends SubsystemBase implements MotorContainer {
      * @return a RunEnd Command
      */
     public Command reject() {
-        return startRun(
-                () -> pid.setSetpoint(inputs.positionRad),
-                () -> {
-                    if (inputs.positionRad < pid.getSetpoint()) {
-                        pid.setSetpoint(inputs.positionRad);
-                    }
-                    io.setPercent(pid.calculate(inputs.positionRad));
-                });
+        return run(Constants.INDEX_REJECT_SPEED);
     }
 
     /**

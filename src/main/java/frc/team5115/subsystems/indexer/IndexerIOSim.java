@@ -21,7 +21,6 @@ public class IndexerIOSim implements IndexerIO {
         inputs.velocityRPM = sim.getAngularVelocityRPM();
         inputs.appliedVolts = appliedVolts;
         inputs.currentAmps = Math.abs(sim.getCurrentDrawAmps());
-        inputs.positionRad = sim.getAngularPositionRad();
     }
 
     @Override
