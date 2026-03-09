@@ -102,12 +102,6 @@ public class Climber extends SubsystemBase implements MotorContainer {
                 Commands.waitSeconds(pauseBetweenRoutines));
     }
 
-    public Command deployClimb() {
-        return Commands.run(
-                () -> pid.setSetpoint(2), // TODO change deploy position
-                this);
-    }
-
     public Command climb() {
         return Commands.run(
                 () -> pid.setSetpoint(4), // TODO change climb position
