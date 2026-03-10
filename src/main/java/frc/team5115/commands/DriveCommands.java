@@ -51,27 +51,19 @@ public class DriveCommands {
             Shooter shooter,
             SpeedRequest request) {
         return Commands.parallel(
+                agitator.fast(),
                 intake.intake(),
                 shooter.requestSpinUp(request),
                 drivetrain.limitCurrent(false),
-                preventJam(agitator, indexer, shooter)
-                        .andThen(Commands.parallel(indexer.index(), agitator.fast())));
+                shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
-    public static Command preventJam(Agitator agitator, Indexer indexer, Shooter shooter) {
-        return shooter
-                .waitForSetpoint()
-                .raceWith(
-                        Commands.parallel(indexer.reject(), agitator.fast())
-                                .until(shooter::isJammed)
-                                .andThen(
-                                        Commands.parallel(
-                                                        Commands.print("wtf"),
-                                                        indexer.index(),
-                                                        shooter.spinUpBlind(() -> -500),
-                                                        agitator.vomit())
-                                                .withTimeout(0.5))
-                                .repeatedly());
+    public static Command preventJam(Agitator agitator, Indexer indexer, Shooter shooter){
+        return shooter.waitForSetpoint()
+        .raceWith(
+            indexer.reject().until(shooter::isJammed)
+            .andThen(Commands.parallel(indexer.index(), shooter.spinUpBlind(() -> -500)))
+        );
     }
 
     public static Command blindShoot(
