@@ -188,7 +188,15 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      *     end.
      */
     public Command spinUpBlind(DoubleSupplier speedSupplier) {
-        return Commands.startEnd(() -> speedOverride = speedSupplier, () -> speedOverride = null);
+        return Commands.startEnd(
+                () -> {
+                    speedOverride = speedSupplier;
+                    newSetpoint = true;
+                },
+                () -> {
+                    speedOverride = null;
+                    newSetpoint = true;
+                });
     }
 
     /**
@@ -230,16 +238,18 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      */
     @AutoLogOutput
     public boolean atSetpoint() {
-        return pid.atSetpoint() && currentlyRequested() && usePIDF && !newSetpoint;
+        return pid.atSetpoint()
+                && currentlyRequested()
+                && usePIDF
+                && !newSetpoint
+                && speedOverride == null;
     }
 
     @AutoLogOutput
     public boolean isJammed() {
-        if (pid.getErrorDerivative() < 1 && !atSetpoint() && currentlyRequested()) { // TODO tune tolerance for jam
-            return true;
-        } else {
-            return false;
-        }
+        final double derivative = Math.abs(pid.getErrorDerivative());
+        final boolean isJamming = derivative < 100 && derivative > 10;
+        return isJamming && !atSetpoint() && currentlyRequested(); // TODO tune tolerance for jam
     }
 
     private Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
