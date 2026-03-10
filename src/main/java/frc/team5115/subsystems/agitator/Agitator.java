@@ -63,6 +63,15 @@ public class Agitator extends SubsystemBase implements MotorContainer {
         return run(Constants.AGITATOR_VOMIT_SPEED);
     }
 
+    /**
+     * Run the motor backward
+     *
+     * @return a Run Command
+     */
+    public Command reject() {
+        return run(Constants.AGITATOR_REJECT_SPEED);
+    }
+
     private Command run(double speed) {
         return Commands.runOnce(() -> io.setPercent(speed), this).andThen(Commands.idle(this));
     }
