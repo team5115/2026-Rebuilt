@@ -44,6 +44,8 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
     @AutoLogOutput private boolean usePIDF = true;
 
+    private boolean isJammed = false;
+
     private final HashSet<SpeedRequest> requests = new HashSet<>(SpeedRequest.values().length);
     private final StringBuilder reqestsStringBuilder = new StringBuilder();
 
@@ -117,6 +119,9 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         if (usePIDF) {
             if (currentlyRequested() || speedOverride != null) {
                 pid.setSetpoint(determineSetpoint());
+                if (pid.getErrorDerivative() < 1) { // TODO tune tolerance for jam
+                    isJammed = true;
+                }
                 newSetpoint = false; // Any new setpoint has been fully loaded into the PID
                 io.setVoltage(feedforward.calculate(pid.getSetpoint()) + pid.calculate(inputs.velocityRPM));
                 Logger.recordOutput("Shooter/Setpoint RPM", pid.getSetpoint());
@@ -272,6 +277,10 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
     public double getRotationRPM() {
         return inputs.velocityRPM;
+    }
+
+    public boolean isJammed() {
+        return isJammed;
     }
 
     /**
