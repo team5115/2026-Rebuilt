@@ -53,8 +53,6 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     /** Prevents the PID from saying its at setpoint when a new setpoint has just been requested */
     @AutoLogOutput private boolean newSetpoint = false;
 
-    @AutoLogOutput private double previousVelocity;
-
     public Shooter(ShooterIO io, DoubleSupplier distanceToHub) {
         this.io = io;
         this.distanceToHub = distanceToHub;
@@ -104,7 +102,6 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
     @Override
     public void periodic() {
-        previousVelocity = inputs.velocityRPM;
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
         Logger.recordOutput("Info/DistanceToHub", distanceToHub);
@@ -250,14 +247,9 @@ public class Shooter extends SubsystemBase implements MotorContainer {
 
     @AutoLogOutput
     public boolean isJammed() {
-        final double derivative =
-                Math.abs(inputs.velocityRPM - previousVelocity) / Constants.LOOP_PERIOD_SECS;
-        Logger.recordOutput("Shooter/AccelerationRPMPerSecond", derivative);
-        final boolean isJamming = derivative < 1000 && derivative > 10;
-        return false
-                && isJamming
-                && !atSetpoint()
-                && currentlyRequested(); // TODO tune tolerance for jam
+        final double derivative = Math.abs(pid.getErrorDerivative());
+        final boolean isJamming = derivative < 100 && derivative > 10;
+        return isJamming && !atSetpoint() && currentlyRequested(); // TODO tune tolerance for jam
     }
 
     private Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
