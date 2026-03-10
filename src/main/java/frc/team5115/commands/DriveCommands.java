@@ -56,7 +56,8 @@ public class DriveCommands {
                 drivetrain.limitCurrent(false),
                 shooter
                         .waitForSetpoint()
-                        .raceWith(agitator.reject(), indexer.reject())
+                        .alongWith(Commands.waitSeconds(1)) // ! TODO minimum spin up time 
+                        .raceWith(agitator.reject(), indexer.vomit())
                         .andThen(agitator.fast().alongWith(indexer.index())));
     }
 
