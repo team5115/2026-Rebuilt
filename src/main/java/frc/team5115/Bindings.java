@@ -134,7 +134,7 @@ public class Bindings {
                         () -> -driveJoy.getRightX()));
 
         // Hold Y to enable intake mode
-        manipJoy.y().whileTrue(intake.intake());
+        manipJoy.y().whileTrue(intake.intake().alongWith(agitator.intake()));
         // .toggleOnTrue(
         //         DriveCommands.fieldRelativeHeadingDrive(
         //                 drivetrain,

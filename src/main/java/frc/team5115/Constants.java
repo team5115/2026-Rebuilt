@@ -81,7 +81,8 @@ public final class Constants {
     public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED - 0.1;
     public static final double AGITATOR_ALT_PAUSE = 0.1;
 
-    public static final double AGITATOR_INTAKE_SPEED = 0; // AGITATOR_FAST_SPEED;
+    public static final double AGITATOR_INTAKE_SPEED = 0.1;
+    public static final double AGITATOR_SLOW_SPEED = -0.1;
     public static final double AGITATOR_VOMIT_SPEED = -0.5;
 
     public static class SwerveConstants {

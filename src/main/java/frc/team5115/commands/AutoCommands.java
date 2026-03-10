@@ -31,7 +31,7 @@ public class AutoCommands {
     /** Intake while agitating and rejecting with indexer */
     public static Command intake(Intake intake, Agitator agitator, Indexer indexer) {
         return Commands.parallel(
-                Commands.print("Intaking!"), intake.intake(), agitator.slow(), indexer.reject());
+                Commands.print("Intaking!"), intake.intake(), agitator.intake(), indexer.reject());
     }
 
     public static Command shoot(
