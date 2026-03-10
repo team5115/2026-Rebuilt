@@ -58,14 +58,6 @@ public class DriveCommands {
                 shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
     }
 
-    public static Command preventJam(Agitator agitator, Indexer indexer, Shooter shooter){
-        return shooter.waitForSetpoint()
-        .raceWith(
-            indexer.reject().until(shooter::isJammed)
-            .andThen(Commands.parallel(indexer.index(), shooter.spinUpBlind(() -> -500)))
-        );
-    }
-
     public static Command blindShoot(
             Drivetrain drivetrain,
             Intake intake,
