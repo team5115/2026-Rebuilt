@@ -51,11 +51,14 @@ public class DriveCommands {
             Shooter shooter,
             SpeedRequest request) {
         return Commands.parallel(
-                agitator.fast(),
                 intake.intake(),
                 shooter.requestSpinUp(request),
                 drivetrain.limitCurrent(false),
-                shooter.waitForSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
+                shooter
+                        .waitForSetpoint()
+                        .alongWith(Commands.waitSeconds(1)) // ! TODO minimum spin up time 
+                        .raceWith(agitator.reject(), indexer.vomit())
+                        .andThen(agitator.fast().alongWith(indexer.index())));
     }
 
     public static Command blindShoot(
