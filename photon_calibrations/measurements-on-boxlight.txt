@@ -17,3 +17,15 @@ average of 3.654 inches
 
 3.690 inches final guess
 75% is 2.7675
+
+FOR EXTRA CAMERA on March 11 (Yellow)
+
+40.1875 inches wide over 11 squares
+3.653 inches per square
+
+29.25 inches tall over 8 squares
+3.656 inches per square
+
+using 3.655 inches BIG
+73.333_% of 3.655 =
+2.680 inches SMALL
