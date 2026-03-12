@@ -52,6 +52,9 @@ public final class Constants {
     public static final boolean ENABLE_DEFAULT_AGITATION = true;
     public static final double RUMBLE_STRENGTH = 0.5;
 
+    public static final double TELEOP_BARF_BURP_TIME = 1.0;
+    public static final double AUTO_BARF_BURP_TIME = 0.5;
+
     public static final byte INTAKE_MOTOR_ID = 11;
     public static final byte AGITATOR_MOTOR_ID = 12;
     public static final byte INDEXER_MOTOR_ID = 13;

@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.team5115.Constants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
@@ -56,7 +57,7 @@ public class DriveCommands {
                 drivetrain.limitCurrent(false),
                 shooter
                         .waitForSetpoint()
-                        .alongWith(Commands.waitSeconds(1)) // ! TODO minimum spin up time
+                        .alongWith(Commands.waitSeconds(Constants.TELEOP_BARF_BURP_TIME))
                         .raceWith(agitator.reject(), indexer.vomit())
                         .andThen(agitator.fast().alongWith(indexer.index())));
     }

@@ -7,6 +7,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.team5115.Constants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.drive.Drivetrain;
@@ -36,6 +37,7 @@ public class AutoCommands {
 
     public static Command shoot(
             double timeout,
+            Intake intake,
             Drivetrain drivetrain,
             Agitator agitator,
             Indexer indexer,
@@ -43,14 +45,13 @@ public class AutoCommands {
             boolean shootForever) {
         return Commands.parallel(
                         Commands.print("Shooting!"),
-                        agitator.fast(),
+                        intake.intake(),
                         shooter.requestSpinUp(SpeedRequest.AutonomouseShoot),
-                        // drivetrain.limitCurrent(true),
                         shooter
                                 .waitForSetpoint()
-                                .raceWith(indexer.reject())
-                                .andThen(
-                                        indexer.index().until(shooter.debounceSetpoint().and(() -> !shootForever))))
+                                .alongWith(Commands.waitSeconds(Constants.AUTO_BARF_BURP_TIME))
+                                .raceWith(agitator.reject(), indexer.vomit())
+                                .andThen(Commands.parallel(agitator.fast(), indexer.index())))
                 .withTimeout(timeout);
     }
 
