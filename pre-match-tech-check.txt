@@ -1,0 +1,22 @@
+Plug in Driver Station
+* Power from wall
+* Ethernet to FMS
+
+Programs open (only these programs, all else closed!)
+* FRC Driver Station
+* Elastic
+* Firefox (10.51.15.44:5800 for photonvision UI)
+
+Check all Green lights on DS
+* Comms
+* Robot Code
+* Joysticks
+
+Make sure joysticks are correct IDs!
+Driver controller on Port 0
+Manip controller on Port 1
+
+Check for robot faults in DS console
+
+Check for photonvision all good in firefox
+
