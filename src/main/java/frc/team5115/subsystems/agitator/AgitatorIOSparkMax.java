@@ -35,12 +35,12 @@ public class AgitatorIOSparkMax implements AgitatorIO {
 
     @Override
     public void setVoltage(double volts) {
-        motor.setVoltage(volts);
+        // motor.setVoltage(volts);
     }
 
     @Override
     public void setPercent(double percent) {
-        motor.set(percent);
+        // motor.set(percent);
     }
 
     @Override
