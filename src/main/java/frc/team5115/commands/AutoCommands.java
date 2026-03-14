@@ -44,18 +44,17 @@ public class AutoCommands {
             Shooter shooter,
             boolean shootForever) {
 
-        return alignToHub(drivetrain)
-                .andThen(
-                        Commands.parallel(
-                                        Commands.print("Shooting!"),
-                                        intake.intake(),
-                                        shooter.requestSpinUp(SpeedRequest.AutonomouseShoot),
-                                        shooter
-                                                .waitForSetpoint()
-                                                .alongWith(Commands.waitSeconds(Constants.AUTO_BARF_BURP_TIME))
-                                                .raceWith(agitator.reject(), indexer.vomit())
-                                                .andThen(Commands.parallel(agitator.fast(), indexer.index())))
-                                .withTimeout(timeout));
+        return Commands.parallel(
+                        Commands.print("Shooting!"),
+                        alignToHub(drivetrain),
+                        intake.intake(),
+                        shooter.requestSpinUp(SpeedRequest.AutonomouseShoot),
+                        shooter
+                                .waitForSetpoint()
+                                .alongWith(Commands.waitSeconds(Constants.AUTO_BARF_BURP_TIME))
+                                .raceWith(agitator.reject(), indexer.vomit())
+                                .andThen(Commands.parallel(agitator.fast(), indexer.index())))
+                .withTimeout(timeout);
     }
 
     /** Spin up the shooter, reject with indexer, and agitate slowly. */
@@ -76,7 +75,7 @@ public class AutoCommands {
                             drivetrain.orbitHub(0, 0);
                         },
                         drivetrain)
-                .withTimeout(0.75);
+                .finallyDo(drivetrain::stop);
     }
 
     /**
