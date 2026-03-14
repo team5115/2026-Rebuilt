@@ -5,13 +5,19 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "bottom_no_rot"
+                  "pathName": "down_outpost"
                 }
               },
               {
@@ -24,13 +30,19 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "neutral_downshot"
+                  "pathName": "outpost_downshot"
                 }
               },
               {
@@ -45,7 +57,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "Shoot Forever"
           }
         }
       ]
