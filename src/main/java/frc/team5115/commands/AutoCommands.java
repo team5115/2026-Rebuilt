@@ -46,7 +46,7 @@ public class AutoCommands {
 
         return Commands.parallel(
                         Commands.print("Shooting!"),
-                        alignToHub(drivetrain),
+                        // alignToHub(drivetrain),
                         intake.intake(),
                         shooter.requestSpinUp(SpeedRequest.AutonomouseShoot),
                         shooter
