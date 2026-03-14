@@ -191,6 +191,10 @@ public class Shooter extends SubsystemBase implements MotorContainer {
         return Commands.startEnd(() -> speedOverride = speedSupplier, () -> speedOverride = null);
     }
 
+    public Command vomit() {
+        return spinUpBlind(() -> -100000);
+    }
+
     /**
      * Wait until the shooter is at it's overriden, blind speed setpoint
      *

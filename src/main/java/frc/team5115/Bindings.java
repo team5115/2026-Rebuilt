@@ -159,7 +159,8 @@ public class Bindings {
         driveJoy.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
         driveJoy.start().onTrue(offsetGyro());
 
-        manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake));
+        manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake, shooter));
+        manipJoy.b().whileTrue(DriveCommands.superVomit(agitator, indexer, intake, shooter));
 
         if (Constants.ENABLE_DEFAULT_AGITATION) {
             agitator.setDefaultCommand(agitator.slow());
@@ -173,11 +174,12 @@ public class Bindings {
                         DriveCommands.smartShoot(
                                 drivetrain, intake, agitator, indexer, shooter, SpeedRequest.ManualShoot));
 
-        // B shoots blind
-        manipJoy
-                .b()
-                .whileTrue(
-                        DriveCommands.blindShoot(drivetrain, intake, agitator, indexer, shooter, shooterSpeed));
+        // ! B shoots blind is DISABLED
+        // manipJoy
+        //         .b()
+        //         .whileTrue(
+        //                 DriveCommands.blindShoot(drivetrain, intake, agitator, indexer, shooter,
+        // shooterSpeed));
 
         // While in alliance zone request to spin up shooter
         drivetrain

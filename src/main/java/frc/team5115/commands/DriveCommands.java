@@ -81,8 +81,13 @@ public class DriveCommands {
         return shooter.requestSpinUp(request).alongWith(drivetrain.limitCurrent(false));
     }
 
-    public static Command vomit(Agitator agitator, Indexer indexer, Intake intake) {
+    public static Command vomit(Agitator agitator, Indexer indexer, Intake intake, Shooter shooter) {
         return Commands.parallel(agitator.vomit(), indexer.vomit(), intake.vomit());
+    }
+
+    public static Command superVomit(
+            Agitator agitator, Indexer indexer, Intake intake, Shooter shooter) {
+        return Commands.parallel(agitator.vomit(), indexer.vomit(), intake.vomit(), shooter.vomit());
     }
 
     /**
