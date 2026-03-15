@@ -111,6 +111,9 @@ public class ModuleIOSparkMax implements ModuleIO {
         inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnEncoder.getVelocity());
         inputs.turnAppliedVolts = turnSparkMax.getAppliedOutput() * turnSparkMax.getBusVoltage();
         inputs.turnCurrentAmps = turnSparkMax.getOutputCurrent();
+
+        inputs.driveMotorTemperature = driveSparkMax.getMotorTemperature();
+        inputs.turnMotorTemperature = turnSparkMax.getMotorTemperature();
     }
 
     @Override

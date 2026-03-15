@@ -104,6 +104,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
+        Logger.recordOutput("Shooter/SpeedRPM", inputs.velocityRPM);
         Logger.recordOutput("Info/DistanceToHub", distanceToHub);
 
         reqestsStringBuilder.delete(0, reqestsStringBuilder.length());

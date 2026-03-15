@@ -11,6 +11,7 @@ public interface ShooterIO {
         public double velocityRPM = 0.0;
         public double appliedVolts = 0.0;
         public double currentAmps = 0.0;
+        public double motorTemperature = 0.0;
         public double positionRotations = 0.0;
         public double actuator1Pos = 0.0;
         public double actuator2Pos = 0.0;

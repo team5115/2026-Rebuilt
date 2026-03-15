@@ -34,6 +34,7 @@ public class IndexerIOSparkMax implements IndexerIO {
         inputs.velocityRPM = encoder.getVelocity() * gearing;
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
+        inputs.motorTemperature = motor.getMotorTemperature();
         inputs.leftSensor = !leftSensor.get();
         inputs.rightSensor = !rightSensor.get();
     }

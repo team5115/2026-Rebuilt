@@ -11,6 +11,7 @@ public interface IntakeIO {
         public double velocityRPM = 0.0;
         public double appliedVolts = 0.0;
         public double currentAmps = 0.0;
+        public double motorTemperature = 0.0;
     }
 
     /** Updates the set of loggable inputs. */

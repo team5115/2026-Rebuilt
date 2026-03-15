@@ -13,11 +13,13 @@ public interface ModuleIO {
         public double driveVelocityRadPerSec = 0.0;
         public double driveAppliedVolts = 0.0;
         public double driveCurrentAmps = 0.0;
+        public double driveMotorTemperature = 0.0;
 
         public Rotation2d turnAbsolutePosition = new Rotation2d();
         public double turnVelocityRadPerSec = 0.0;
         public double turnAppliedVolts = 0.0;
         public double turnCurrentAmps = 0.0;
+        public double turnMotorTemperature = 0.0;
     }
 
     /** Updates the set of loggable inputs. */
