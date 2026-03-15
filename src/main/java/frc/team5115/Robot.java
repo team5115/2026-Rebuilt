@@ -3,6 +3,7 @@ package frc.team5115;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.team5115.util.PDH;
 import java.io.File;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -20,6 +21,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
+    private PDH pdh;
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -27,7 +29,8 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-        // Disables rev log because it logs into the rio
+        // Manually log PDH data
+        pdh = new PDH();
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -113,6 +116,7 @@ public class Robot extends LoggedRobot {
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
         robotContainer.robotPeriodic();
+        pdh.periodic();
     }
 
     /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
