@@ -74,9 +74,11 @@ public class RobotFaults {
     public ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> getSparkFaults() {
         ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> sparkFaults = new ArrayList<>();
         for (var spark : this.sparks) {
-            sparkFaults.add(
-                    new AbstractMap.SimpleEntry<Integer, SparkBase.Faults>(
-                            spark.getDeviceId(), spark.getFaults()));
+            if (spark.getFaults() != new SparkBase.Faults(0)) {
+                sparkFaults.add(
+                        new AbstractMap.SimpleEntry<Integer, SparkBase.Faults>(
+                                spark.getDeviceId(), spark.getFaults()));
+            }
         }
         return sparkFaults;
     }
