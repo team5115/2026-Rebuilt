@@ -33,6 +33,7 @@ public class BlingIOSim implements BlingIO {
     public void updateInputs(BlingIOInputs inputs) {
         inputs.ledStrip = leds; // set the references
         inputs.running = running;
+        Logger.recordOutput("Bling/LedStrip", inputs.ledStrip);
         Logger.recordOutput("Bling/Sim/RedPoints", generatePoints(0));
         Logger.recordOutput("Bling/Sim/GreenPoints", generatePoints(1));
         Logger.recordOutput("Bling/Sim/BluePoints", generatePoints(2));

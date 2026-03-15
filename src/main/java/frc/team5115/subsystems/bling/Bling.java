@@ -38,7 +38,6 @@ public class Bling extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.recordOutput("Bling/LedStrip", inputs.ledStrip);
         Logger.recordOutput("Bling/Timer", timer);
         Logger.recordOutput("Bling/Counter", counter);
         Logger.recordOutput("Bling/Direction", direction);
