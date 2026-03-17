@@ -55,6 +55,8 @@ public final class Constants {
     public static final double TELEOP_BARF_BURP_TIME = 1.0;
     public static final double AUTO_BARF_BURP_TIME = 0.5;
 
+    public static final double SHOOTER_UNCALCULATED_SPEED = 2000; // RPM
+
     public static final byte INTAKE_MOTOR_ID = 11;
     public static final byte AGITATOR_MOTOR_ID = 12;
     public static final byte INDEXER_MOTOR_ID = 13;

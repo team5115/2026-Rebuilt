@@ -144,7 +144,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
             return calculateSpeed(distanceToHub.getAsDouble());
         }
 
-        return 1000; // TODO determine default slow speed
+        return Constants.SHOOTER_UNCALCULATED_SPEED;
     }
 
     /**
