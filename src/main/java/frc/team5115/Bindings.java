@@ -1,5 +1,6 @@
 package frc.team5115;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -68,24 +69,24 @@ public class Bindings {
                 .negate();
     }
 
-    /**
-     * AutoHubLock is enabled if all of the following conditions are met:
-     *
-     * <ol>
-     *   <li>the robot is inside the sub-zone
-     *   <li>automation is enabled (see: {@link #automationEnabled()})
-     *   <li>neither driver presses the left trigger
-     * </ol>
-     *
-     * @return a Trigger that indicates if automatic hub lock is enabled
-     */
-    private Trigger autoHubLockEnabled() {
-        return drivetrain
-                .inSubZone()
-                .and(automationEnabled())
-                .and(manipJoy.leftTrigger().negate())
-                .and(driveJoy.leftTrigger().negate());
-    }
+    //     /**
+    //      * AutoHubLock is enabled if all of the following conditions are met:
+    //      *
+    //      * <ol>
+    //      *   <li>the robot is inside the sub-zone
+    //      *   <li>automation is enabled (see: {@link #automationEnabled()})
+    //      *   <li>neither driver presses the left trigger
+    //      * </ol>
+    //      *
+    //      * @return a Trigger that indicates if automatic hub lock is enabled
+    //      */
+    //     private Trigger autoHubLockEnabled() {
+    //         return drivetrain
+    //                 .inSubZone()
+    //                 .and(automationEnabled())
+    //                 .and(manipJoy.leftTrigger().negate())
+    //                 .and(driveJoy.leftTrigger().negate());
+    //     }
 
     /**
      * Determines if it safe to shoot. Checks that the following conditions are true:
@@ -184,20 +185,22 @@ public class Bindings {
         // While in alliance zone request to spin up shooter
         drivetrain
                 .inAllianceZone()
+                .and(Constants::isHubActive)
+                .debounce(Constants.AUTOMATED_SPINUP_DEBOUNCE_TIME, DebounceType.kFalling)
                 .and(automationEnabled())
                 // .and(slowEnoughToSpinUp())
                 .whileTrue(DriveCommands.spinUp(SpeedRequest.InAllianceZone, drivetrain, shooter));
 
-        // While autoHubLock is enabled, or holding a, lock on
-        autoHubLockEnabled()
-                .or(driveJoy.a())
-                .whileTrue(
-                        DriveCommands.lockedOnHub(
-                                shooter,
-                                drivetrain,
-                                slowMode,
-                                () -> -driveJoy.getLeftY(),
-                                () -> -driveJoy.getLeftX()));
+        // // While autoHubLock is enabled, or holding a, lock on
+        // autoHubLockEnabled()
+        //         .or(driveJoy.a())
+        //         .whileTrue(
+        //                 DriveCommands.lockedOnHub(
+        //                         shooter,
+        //                         drivetrain,
+        //                         slowMode,
+        //                         () -> -driveJoy.getLeftY(),
+        //                         () -> -driveJoy.getLeftX()));
 
         // If driver is locking onto hub spin up shooter
         driveJoy
@@ -207,13 +210,11 @@ public class Bindings {
 
         // Rumble whenever safe to shoot
         // If automation enabled, then shoot automatically
-        safeToShoot()
-                .onTrue(rumble(Constants.RUMBLE_STRENGTH))
-                .onFalse(rumble(0))
-                .and(automationEnabled())
-                .whileTrue(
-                        DriveCommands.smartShoot(
-                                drivetrain, intake, agitator, indexer, shooter, SpeedRequest.SafeShoot));
+        safeToShoot().onTrue(rumble(Constants.RUMBLE_STRENGTH)).onFalse(rumble(0));
+        // .and(automationEnabled())
+        // .whileTrue(
+        //         DriveCommands.smartShoot(
+        //                 drivetrain, intake, agitator, indexer, shooter, SpeedRequest.SafeShoot));
 
         // driveJoy.x().whileTrue(shooter.moveActuators(linearPosition));
     }

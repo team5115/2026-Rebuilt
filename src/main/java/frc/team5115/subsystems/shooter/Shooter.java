@@ -155,6 +155,7 @@ public class Shooter extends SubsystemBase implements MotorContainer {
      * @return the ideal speed in RPM of the shooter
      */
     private static double calculateSpeed(double distance) {
+        distance = Math.min(distance, 4.5);
         return distance * distance * constantA + distance * constantB + constantC;
     }
 
