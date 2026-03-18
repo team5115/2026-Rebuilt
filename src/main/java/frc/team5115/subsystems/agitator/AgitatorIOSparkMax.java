@@ -21,7 +21,7 @@ public class AgitatorIOSparkMax implements AgitatorIO {
 
         final SparkMaxConfig motorConfig = new SparkMaxConfig();
         // Agitator motor configs
-        motorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(20, 40);
+        motorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(35, 40);
 
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
