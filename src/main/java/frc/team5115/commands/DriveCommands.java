@@ -70,11 +70,14 @@ public class DriveCommands {
             Shooter shooter,
             DoubleSupplier shooterSpeed) {
         return Commands.parallel(
-                agitator.fast(),
                 intake.intake(),
                 shooter.spinUpBlind(shooterSpeed),
                 drivetrain.limitCurrent(false),
-                shooter.waitForBlindSetpoint().raceWith(indexer.reject()).andThen(indexer.index()));
+                shooter
+                        .waitForBlindSetpoint()
+                        .alongWith(Commands.waitSeconds(Constants.TELEOP_BARF_BURP_TIME))
+                        .raceWith(agitator.reject(), indexer.vomit())
+                        .andThen(agitator.fast().alongWith(indexer.index())));
     }
 
     public static Command spinUp(SpeedRequest request, Drivetrain drivetrain, Shooter shooter) {
