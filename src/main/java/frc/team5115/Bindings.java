@@ -191,14 +191,15 @@ public class Bindings {
 
         // // While autoHubLock is enabled, or holding a, lock on
         // autoHubLockEnabled()
-        //         .or(driveJoy.a())
-        //         .whileTrue(
-        //                 DriveCommands.lockedOnHub(
-        //                         shooter,
-        //                         drivetrain,
-        //                         slowMode,
-        //                         () -> -driveJoy.getLeftY(),
-        //                         () -> -driveJoy.getLeftX()));
+        driveJoy
+                .a()
+                .whileTrue(
+                        DriveCommands.lockedOnHub(
+                                shooter,
+                                drivetrain,
+                                slowMode,
+                                () -> -driveJoy.getLeftY(),
+                                () -> -driveJoy.getLeftX()));
 
         // If driver is locking onto hub spin up shooter
         driveJoy
