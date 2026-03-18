@@ -6,17 +6,20 @@ import org.littletonrobotics.junction.Logger;
 
 public class PDH {
     private final PowerDistribution pdh;
+    private final boolean logPDH = false;
 
     public PDH() {
-        pdh = new PowerDistribution(1, ModuleType.kRev);
+        pdh = logPDH ? new PowerDistribution(1, ModuleType.kRev) : null;
     }
 
     public void periodic() {
-        Logger.recordOutput("PDH/ChannelCurrents", pdh.getAllCurrents());
-        Logger.recordOutput("PDH/Temperature", pdh.getTemperature());
-        Logger.recordOutput("PDH/TotalCurrent", pdh.getTotalCurrent());
-        Logger.recordOutput("PDH/TotalEnergy", pdh.getTotalEnergy());
-        Logger.recordOutput("PDH/TotalPower", pdh.getTotalPower());
-        Logger.recordOutput("PDH/Voltage", pdh.getVoltage());
+        if (logPDH) {
+            Logger.recordOutput("PDH/ChannelCurrents", pdh.getAllCurrents());
+            Logger.recordOutput("PDH/Temperature", pdh.getTemperature());
+            Logger.recordOutput("PDH/TotalCurrent", pdh.getTotalCurrent());
+            Logger.recordOutput("PDH/TotalEnergy", pdh.getTotalEnergy());
+            Logger.recordOutput("PDH/TotalPower", pdh.getTotalPower());
+            Logger.recordOutput("PDH/Voltage", pdh.getVoltage());
+        }
     }
 }
