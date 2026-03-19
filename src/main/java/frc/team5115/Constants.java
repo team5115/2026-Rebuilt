@@ -47,7 +47,7 @@ public final class Constants {
     }
 
     public static final boolean SINGLE_MODE = false;
-    public static final boolean DISABLE_AUTOMATION = false;
+    public static final boolean DISABLE_AUTOMATION = true;
     public static final boolean ENABLE_DRIVER_CAMERA = false;
     public static final boolean ENABLE_DEFAULT_AGITATION = true;
     public static final double RUMBLE_STRENGTH = 0.5;
@@ -88,7 +88,7 @@ public final class Constants {
     public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED - 0.1;
     public static final double AGITATOR_ALT_PAUSE = 0.1;
 
-    public static final double AGITATOR_INTAKE_SPEED = INTAKE_SPEED * 0.418 * 0.7;
+    public static final double AGITATOR_INTAKE_SPEED = 0;
     public static final double AGITATOR_SLOW_SPEED = 0;
     public static final double AGITATOR_VOMIT_SPEED = -0.5;
     public static final double AGITATOR_REJECT_SPEED = -0.5;
