@@ -51,9 +51,9 @@ public final class Constants {
     public static final boolean ENABLE_DRIVER_CAMERA = false;
     public static final boolean ENABLE_DEFAULT_AGITATION = true;
     public static final double RUMBLE_STRENGTH = 0.5;
-    private static final boolean agitateDuringIntake = true;
+    private static final boolean agitateDuringIntake = false;
 
-    public static final double TELEOP_BARF_BURP_TIME = 1.0;
+    public static final double TELEOP_BARF_BURP_TIME = 0.5;
     public static final double AUTO_BARF_BURP_TIME = 0.5;
 
     public static final double AUTOMATED_SPINUP_DEBOUNCE_TIME = 2.0; // seconds
