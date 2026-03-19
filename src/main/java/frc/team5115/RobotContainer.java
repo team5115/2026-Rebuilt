@@ -231,7 +231,11 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get().alongWith(shooter.requestSpinUp(SpeedRequest.AutonomouseHold));
+        return autoChooser.get();
+    }
+
+    public Command getAlternativeCommand() {
+        return shooter.requestSpinUp(SpeedRequest.AutonomouseHold);
     }
 
     public void robotPeriodic() {

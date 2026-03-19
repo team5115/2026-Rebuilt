@@ -20,6 +20,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
+    private Command alternativeCommand;
     private RobotContainer robotContainer;
     private PDH pdh;
 
@@ -123,11 +124,11 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
+        alternativeCommand = robotContainer.getAlternativeCommand();
 
         // schedule the autonomous command
-        if (autonomousCommand != null) {
-            CommandScheduler.getInstance().schedule(autonomousCommand);
-        }
+        CommandScheduler.getInstance().schedule(autonomousCommand);
+        CommandScheduler.getInstance().schedule(alternativeCommand);
         robotContainer.autoInit();
         robotContainer.enabledInit();
     }
@@ -141,6 +142,9 @@ public class Robot extends LoggedRobot {
         // this line or comment it out.
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
+        }
+        if (alternativeCommand != null) {
+            alternativeCommand.cancel();
         }
         robotContainer.teleopInit();
         robotContainer.enabledInit();
