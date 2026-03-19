@@ -38,6 +38,7 @@ import frc.team5115.subsystems.shooter.Shooter;
 import frc.team5115.subsystems.shooter.ShooterIO;
 import frc.team5115.subsystems.shooter.ShooterIOSim;
 import frc.team5115.subsystems.shooter.ShooterIOSparkMax;
+import frc.team5115.subsystems.shooter.SpeedRequest;
 import frc.team5115.subsystems.vision.PhotonVision;
 import frc.team5115.subsystems.vision.PhotonVisionIO;
 import frc.team5115.subsystems.vision.PhotonVisionIOReal;
@@ -230,7 +231,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        return autoChooser.get().alongWith(shooter.requestSpinUp(SpeedRequest.AutonomouseHold));
     }
 
     public void robotPeriodic() {

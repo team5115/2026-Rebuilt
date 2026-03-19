@@ -366,10 +366,20 @@ public final class Constants {
     }
 
     public static boolean isHubActive() {
+        return isHubActive(0);
+    }
+
+    /**
+     * Is hub active in offset seconds?
+     *
+     * @param offset the number of seconds to look into the future
+     * @return if the hub is active
+     */
+    public static boolean isHubActive(int offset) {
         final double matchTime = Timer.getMatchTime();
         final String gameData = DriverStation.getGameSpecificMessage();
         final var alliance = DriverStation.getAlliance();
-        return isHubActiveTest(matchTime, gameData, alliance);
+        return isHubActiveTest(matchTime - offset, gameData, alliance);
     }
 
     public static boolean isRedAlliance() {

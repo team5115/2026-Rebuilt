@@ -180,14 +180,12 @@ public class Bindings {
                 .whileTrue(
                         DriveCommands.blindShoot(drivetrain, intake, agitator, indexer, shooter, shooterSpeed));
 
-        // While in alliance zone request to spin up shooter
-        drivetrain
-                .inAllianceZone()
-                .and(Constants::isHubActive)
+        // While in teleop & hub active, spin up shooter
+        new Trigger(() -> Constants.isHubActive(1))
                 .debounce(Constants.AUTOMATED_SPINUP_DEBOUNCE_TIME, DebounceType.kFalling)
                 .and(automationEnabled())
                 // .and(slowEnoughToSpinUp())
-                .whileTrue(DriveCommands.spinUp(SpeedRequest.InAllianceZone, drivetrain, shooter));
+                .whileTrue(DriveCommands.spinUp(SpeedRequest.WhileHubActive, drivetrain, shooter));
 
         // // While autoHubLock is enabled, or holding a, lock on
         // autoHubLockEnabled()

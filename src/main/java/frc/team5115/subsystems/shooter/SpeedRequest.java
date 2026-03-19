@@ -2,7 +2,8 @@ package frc.team5115.subsystems.shooter;
 
 public enum SpeedRequest {
     AutonomouseSpinUp(Type.Slow),
-    InAllianceZone(Type.Slow),
+    AutonomouseHold(Type.Slow),
+    WhileHubActive(Type.Slow),
     ManualSpinUp(Type.Slow),
 
     AutonomouseShoot(Type.Calculated),
