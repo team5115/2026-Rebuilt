@@ -7,8 +7,8 @@
    "intakevel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1 m / s",
-     "val":1.0
+     "exp":"1.5 m / s",
+     "val":1.5
     }
    }
   },
@@ -57,8 +57,8 @@
    },
    "ntrltop":{
     "x":{
-     "exp":"7.8 m",
-     "val":7.8
+     "exp":"7.65 m",
+     "val":7.65
     },
     "y":{
      "exp":"6.7 m",
@@ -113,8 +113,8 @@
    },
    "topntrl":{
     "x":{
-     "exp":"8 m",
-     "val":8.0
+     "exp":"7.75 m",
+     "val":7.75
     },
     "y":{
      "exp":"4.8 m",
