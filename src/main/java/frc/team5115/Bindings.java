@@ -160,7 +160,8 @@ public class Bindings {
         driveJoy.x().onTrue(Commands.runOnce(drivetrain::stopWithX, drivetrain));
         driveJoy.start().onTrue(offsetGyro());
 
-        manipJoy.back().whileTrue(DriveCommands.superVomit(agitator, indexer, intake, shooter));
+        manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake, shooter));
+        manipJoy.b().whileTrue(DriveCommands.superVomit(agitator, indexer, intake, shooter));
 
         if (Constants.ENABLE_DEFAULT_AGITATION) {
             agitator.setDefaultCommand(agitator.slow());
