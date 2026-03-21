@@ -54,7 +54,7 @@ public class DriveCommands {
         return Commands.parallel(
                 intake.intake(),
                 shooter.requestSpinUp(request),
-                drivetrain.limitCurrent(),
+                // drivetrain.limitCurrent(),
                 shooter
                         .waitForSetpoint()
                         .alongWith(Commands.waitSeconds(Constants.TELEOP_BARF_BURP_TIME))
@@ -72,7 +72,7 @@ public class DriveCommands {
         return Commands.parallel(
                 intake.intake(),
                 shooter.spinUpBlind(shooterSpeed),
-                drivetrain.limitCurrent(),
+                // drivetrain.limitCurrent(),
                 shooter
                         .waitForBlindSetpoint()
                         .alongWith(Commands.waitSeconds(Constants.TELEOP_BARF_BURP_TIME))
@@ -81,7 +81,7 @@ public class DriveCommands {
     }
 
     public static Command spinUp(SpeedRequest request, Drivetrain drivetrain, Shooter shooter) {
-        return shooter.requestSpinUp(request).alongWith(drivetrain.limitCurrent());
+        return shooter.requestSpinUp(request);//.alongWith(drivetrain.limitCurrent());
     }
 
     public static Command vomit(Agitator agitator, Indexer indexer, Intake intake, Shooter shooter) {
