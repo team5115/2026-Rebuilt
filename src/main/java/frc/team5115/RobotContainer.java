@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team5115.Constants.AutoConstants;
-import frc.team5115.Constants.SwerveConstants.DriveMotorCurrentLimit;
 import frc.team5115.commands.AutoCommands;
 import frc.team5115.subsystems.agitator.Agitator;
 import frc.team5115.subsystems.agitator.AgitatorIOSim;
@@ -270,7 +269,7 @@ public class RobotContainer {
     }
 
     public void teleopInit() {
-        drivetrain.setCurrentLimit(DriveMotorCurrentLimit.Teleop);
+        drivetrain.setTeleopCurrentLimits();
     }
 
     public void disabledInit() {
@@ -282,7 +281,7 @@ public class RobotContainer {
     }
 
     public void autoInit() {
-        drivetrain.setCurrentLimit(DriveMotorCurrentLimit.Auto);
+        drivetrain.setAutoCurrentLimits();
         // TODO offset the gyro to compensate for auto starting pose
         // ? How exactly do we do this considering our autos start (and end) in different rotations?
         drivetrain.zeroGyro();

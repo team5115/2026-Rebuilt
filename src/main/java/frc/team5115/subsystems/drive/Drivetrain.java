@@ -36,6 +36,7 @@ import frc.team5115.Constants.AutoConstants;
 import frc.team5115.Constants.SwerveConstants;
 import frc.team5115.Constants.SwerveConstants.DriveMotorCurrentLimit;
 import frc.team5115.Constants.VisionConstants;
+import frc.team5115.util.DynamicCurrentLimiter;
 import frc.team5115.util.LocalADStarAK;
 import frc.team5115.util.MotorContainer;
 import java.util.ArrayList;
@@ -50,6 +51,14 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
     private final SysIdRoutine sysId;
     private final SysIdRoutine spinSysId;
     private final Field2d field = new Field2d();
+
+    private final DynamicCurrentLimiter driveCurrentLimiter =
+            new DynamicCurrentLimiter(
+                    DriveMotorCurrentLimit.maxLimit,
+                    DriveMotorCurrentLimit.minLimit,
+                    DriveMotorCurrentLimit.stepSize,
+                    DriveMotorCurrentLimit.debounceTime,
+                    this::dynamicallyLimitCurrent);
 
     private final SlewRateLimiter slewLimiter =
             new SlewRateLimiter(SwerveConstants.MAX_LINEAR_ACCEL, Double.NEGATIVE_INFINITY, 0.0);
@@ -206,6 +215,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         SmartDashboard.putData(field);
 
         SmartDashboard.putData("Drivetrain/AnglePIDController", angularPID);
+        driveCurrentLimiter.hardOverrideLimit(DriveMotorCurrentLimit.autoLimit);
     }
 
     public void runCharacterization(double voltage) {
@@ -294,6 +304,13 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         gyroIO.updateInputs(gyroInputs);
         Logger.processInputs("Drivetrain/Gyro", gyroInputs);
         Logger.recordOutput("Drivetrain/GForce", gyroInputs.xyAcceleration / 9.81);
+
+        Logger.recordOutput(
+                "Drivetrain/DriveCurrentLimit/value", driveCurrentLimiter.getCurrentLimit());
+        Logger.recordOutput(
+                "Drivetrain/DriveCurrentLimit/SteppingDown?", driveCurrentLimiter.steppingDown());
+        Logger.recordOutput("Drivetrain/DriveCurrentLimit/Override", driveCurrentLimiter.getOverride());
+
         for (var module : modules) {
             module.periodic();
         }
@@ -621,22 +638,36 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         return sparks;
     }
 
-    public void setCurrentLimit(DriveMotorCurrentLimit limit) {
+    private void dynamicallyLimitCurrent(int currentLimit) {
         for (var module : modules) {
-            module.setDriveCurrentLimit(limit.amps);
+            module.setDriveCurrentLimit(currentLimit);
         }
     }
 
+    public void setAutoCurrentLimits() {
+        driveCurrentLimiter.hardOverrideLimit(DriveMotorCurrentLimit.autoLimit);
+    }
+
+    public void setTeleopCurrentLimits() {
+        driveCurrentLimiter.clearOverride();
+    }
+
+    public void resetDynamicCurrentLimiter() {
+        driveCurrentLimiter.resetToMax();
+    }
+
+    public void stepDownDynamicLimit() {
+        driveCurrentLimiter.stepDown();
+    }
+
     /**
-     * Limit the drive motor current, and then remove the limit when the command ends.
+     * StartEnd command limits current to minimum limit until interrupted
      *
-     * @param auto should we switch back into auto limit when we are done?
      * @return a StartEnd command
      */
-    public Command limitCurrent(boolean auto) {
-        return Commands.startEnd(
-                () -> setCurrentLimit(DriveMotorCurrentLimit.SpinUp),
-                () -> setCurrentLimit(auto ? DriveMotorCurrentLimit.Auto : DriveMotorCurrentLimit.Teleop));
+    public Command limitCurrent() {
+        return driveCurrentLimiter.commandOverrideLimit(
+                SwerveConstants.DriveMotorCurrentLimit.minLimit);
     }
 
     public boolean isGyroConnected() {

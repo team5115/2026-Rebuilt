@@ -52,7 +52,6 @@ public class Bindings {
      * Automation is enabled UNLESS one of the following conditions is true:
      *
      * <ol>
-     *   <li>either driver presses on the d-pad
      *   <li>auto is enabled
      *   <li>the robot is disabled
      *   <li>{@code Constants.DISABLE_AUTOMATION} is true
@@ -61,9 +60,9 @@ public class Bindings {
      * @return a Trigger that rises when automation enables and falls when automation is disabled.
      */
     public Trigger automationEnabled() {
-        return (driveJoy.povCenter().negate())
-                .or(manipJoy.povCenter().negate())
-                .or(DriverStation::isAutonomousEnabled)
+        // return (driveJoy.povCenter().negate())
+        //         .or(manipJoy.povCenter().negate())
+        return new Trigger(DriverStation::isAutonomousEnabled)
                 .or(DriverStation::isDisabled)
                 .or(() -> Constants.DISABLE_AUTOMATION)
                 .negate();
@@ -162,6 +161,9 @@ public class Bindings {
 
         manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake, shooter));
         manipJoy.b().whileTrue(DriveCommands.superVomit(agitator, indexer, intake, shooter));
+
+        driveJoy.povUp().onTrue(Commands.runOnce(drivetrain::resetDynamicCurrentLimiter));
+        driveJoy.povDown().onTrue(Commands.runOnce(drivetrain::stepDownDynamicLimit));
 
         if (Constants.ENABLE_DEFAULT_AGITATION) {
             agitator.setDefaultCommand(agitator.slow());
