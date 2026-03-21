@@ -652,12 +652,16 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         driveCurrentLimiter.clearOverride();
     }
 
-    public void resetDynamicCurrentLimiter() {
+    public void resetDynamicCurrentLimiterToMax() {
         driveCurrentLimiter.resetToMax();
     }
 
     public void stepDownDynamicLimit() {
         driveCurrentLimiter.stepDown();
+    }
+
+    public void humanOverrideLimit() {
+        driveCurrentLimiter.hardOverrideLimit(DriveMotorCurrentLimit.maxLimit);
     }
 
     /**

@@ -81,7 +81,7 @@ public class DriveCommands {
     }
 
     public static Command spinUp(SpeedRequest request, Drivetrain drivetrain, Shooter shooter) {
-        return shooter.requestSpinUp(request);//.alongWith(drivetrain.limitCurrent());
+        return shooter.requestSpinUp(request); // .alongWith(drivetrain.limitCurrent());
     }
 
     public static Command vomit(Agitator agitator, Indexer indexer, Intake intake, Shooter shooter) {

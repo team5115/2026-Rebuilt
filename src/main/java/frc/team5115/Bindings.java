@@ -162,8 +162,8 @@ public class Bindings {
         manipJoy.back().whileTrue(DriveCommands.vomit(agitator, indexer, intake, shooter));
         manipJoy.b().whileTrue(DriveCommands.superVomit(agitator, indexer, intake, shooter));
 
-        driveJoy.povUp().onTrue(Commands.runOnce(drivetrain::resetDynamicCurrentLimiter));
-        driveJoy.povDown().onTrue(Commands.runOnce(drivetrain::stepDownDynamicLimit));
+        driveJoy.povUp().onTrue(Commands.runOnce(drivetrain::humanOverrideLimit));
+        driveJoy.povDown().onTrue(Commands.runOnce(drivetrain::setTeleopCurrentLimits));
 
         if (Constants.ENABLE_DEFAULT_AGITATION) {
             agitator.setDefaultCommand(agitator.slow());
