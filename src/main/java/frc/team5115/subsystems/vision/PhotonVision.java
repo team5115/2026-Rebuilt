@@ -22,7 +22,7 @@ public class PhotonVision extends SubsystemBase {
     private final PhotonVisionIO io;
 
     public enum Camera {
-        LEFT_CAM_POINTS_RIGHT("Black", VisionConstants.LEFT_CAM_TO_ROBOT),
+        // LEFT_CAM_POINTS_RIGHT("Black", VisionConstants.LEFT_CAM_TO_ROBOT),
         RIGHT_CAM_POINTS_LEFT("Red", VisionConstants.RIGHT_CAM_TO_ROBOT);
 
         public final PhotonCameraSim cameraSim;
@@ -185,12 +185,12 @@ public class PhotonVision extends SubsystemBase {
     }
 
     public void framerateLimiter() {
-        Camera.LEFT_CAM_POINTS_RIGHT.camera.setFPSLimit(3);
+        // Camera.LEFT_CAM_POINTS_RIGHT.camera.setFPSLimit(3);
         Camera.RIGHT_CAM_POINTS_LEFT.camera.setFPSLimit(3);
     }
 
     public void framerateDeLimiter() {
-        Camera.LEFT_CAM_POINTS_RIGHT.camera.setFPSLimit(-1);
+        // Camera.LEFT_CAM_POINTS_RIGHT.camera.setFPSLimit(-1);
         Camera.RIGHT_CAM_POINTS_LEFT.camera.setFPSLimit(-1);
     }
 }
