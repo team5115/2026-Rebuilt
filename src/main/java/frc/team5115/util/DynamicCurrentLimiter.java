@@ -29,7 +29,7 @@ public class DynamicCurrentLimiter {
         dynamicLimit = maxLimit;
         stepDownTrigger =
                 new Trigger(RobotController::isBrownedOut)
-                        .and(() -> overrideLimit > -1)
+                        .and(() -> overrideLimit < 0)
                         .debounce(debounceTime, DebounceType.kFalling);
         stepDownTrigger.onTrue(Commands.runOnce(this::stepDown));
     }
