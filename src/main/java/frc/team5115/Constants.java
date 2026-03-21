@@ -47,7 +47,7 @@ public final class Constants {
     }
 
     public static final boolean SINGLE_MODE = false;
-    public static final boolean DISABLE_AUTOMATION = true;
+    public static final boolean DISABLE_AUTOMATION = false;
     public static final boolean ENABLE_DRIVER_CAMERA = false;
     public static final boolean ENABLE_DEFAULT_AGITATION = true;
     public static final double RUMBLE_STRENGTH = 0.5;
