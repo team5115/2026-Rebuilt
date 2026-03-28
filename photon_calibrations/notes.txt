@@ -1,3 +1,13 @@
+FLIPPED
+The `./flipped` directory of this folder contains some edited
+calibrations in which the focal length signs have been flipped
+because they were insane.
+
+*** This is a BAND-AID fix of QUESTIONABLE INTEGRITY! ***
+
+We should find out why the focal lengths were flipped in the
+first place.
+
 IMPORTANT THINGS TO REMEMBER!
 * Always print with a white margin, ~1 inch
 * Bigger target is better
