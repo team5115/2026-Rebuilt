@@ -52,7 +52,7 @@ public class AutoCommands {
                         shooter
                                 .waitForSetpoint()
                                 .alongWith(Commands.waitSeconds(Constants.AUTO_BARF_BURP_TIME))
-                                .raceWith(agitator.reject(), indexer.vomit())
+                                .raceWith(agitator.barfBurp(), indexer.vomit())
                                 .andThen(Commands.parallel(agitator.fast(), indexer.index())))
                 .withTimeout(timeout);
     }

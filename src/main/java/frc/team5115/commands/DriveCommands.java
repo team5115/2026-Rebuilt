@@ -58,7 +58,7 @@ public class DriveCommands {
                 shooter
                         .waitForSetpoint()
                         .alongWith(Commands.waitSeconds(Constants.TELEOP_BARF_BURP_TIME))
-                        .raceWith(agitator.reject(), indexer.vomit())
+                        .raceWith(agitator.barfBurp(), indexer.vomit())
                         .andThen(agitator.fast().alongWith(indexer.index())));
     }
 
@@ -76,7 +76,7 @@ public class DriveCommands {
                 shooter
                         .waitForBlindSetpoint()
                         .alongWith(Commands.waitSeconds(Constants.TELEOP_BARF_BURP_TIME))
-                        .raceWith(agitator.reject(), indexer.vomit())
+                        .raceWith(agitator.barfBurp(), indexer.vomit())
                         .andThen(agitator.fast().alongWith(indexer.index())));
     }
 

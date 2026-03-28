@@ -68,8 +68,8 @@ public class Agitator extends SubsystemBase implements MotorContainer {
      *
      * @return a Run Command
      */
-    public Command reject() {
-        return run(Constants.AGITATOR_REJECT_SPEED);
+    public Command barfBurp() {
+        return run(Constants.AGITATOR_BURP_SPEED);
     }
 
     private Command run(double speed) {
