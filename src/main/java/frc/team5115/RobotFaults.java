@@ -57,7 +57,7 @@ public class RobotFaults {
     }
 
     public ArrayList<String> getSubsystemFaults() {
-        ArrayList<String> faultArray = new ArrayList<>();
+        final ArrayList<String> faultArray = new ArrayList<>();
         if (vision == null || vision.areAnyCamerasDisconnected()) {
             faultArray.add("CameraDisconnected");
         }
@@ -73,11 +73,12 @@ public class RobotFaults {
 
     public ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> getSparkFaults() {
         ArrayList<AbstractMap.SimpleEntry<Integer, SparkBase.Faults>> sparkFaults = new ArrayList<>();
-        for (var spark : this.sparks) {
-            if (spark.getFaults() != new SparkBase.Faults(0)) {
+        for (final var spark : this.sparks) {
+            final var individualFaults = spark.getFaults();
+            if (individualFaults.rawBits != 0) {
                 sparkFaults.add(
                         new AbstractMap.SimpleEntry<Integer, SparkBase.Faults>(
-                                spark.getDeviceId(), spark.getFaults()));
+                                spark.getDeviceId(), individualFaults));
             }
         }
         return sparkFaults;
@@ -123,13 +124,14 @@ public class RobotFaults {
     }
 
     public void periodic() {
+        final boolean hasFaults = hasFaults();
         if (faultUpdateTimer.hasElapsed(1)) {
-            if (this.hasFaults()) {
+            if (hasFaults) {
                 System.err.println(this.toString());
             }
             faultUpdateTimer.restart();
         }
-        Logger.recordOutput("HasFaults", this.hasFaults());
-        Logger.recordOutput("ClearForMatch", !this.hasFaults());
+        Logger.recordOutput("HasFaults", hasFaults);
+        Logger.recordOutput("ClearForMatch", !hasFaults);
     }
 }
