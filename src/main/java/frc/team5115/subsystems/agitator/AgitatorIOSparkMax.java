@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class AgitatorIOSparkMax implements AgitatorIO {
     private final SparkMax motor;
     private final RelativeEncoder encoder;
-    private final double gearing = 1f / 4f;
+    private final double gearing = 1f / 4f / 3f;
 
     public AgitatorIOSparkMax() {
         motor = new SparkMax(Constants.AGITATOR_MOTOR_ID, MotorType.kBrushless);
@@ -21,7 +21,7 @@ public class AgitatorIOSparkMax implements AgitatorIO {
 
         final SparkMaxConfig motorConfig = new SparkMaxConfig();
         // Agitator motor configs
-        motorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(35, 40);
+        motorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(20, 20);
 
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }

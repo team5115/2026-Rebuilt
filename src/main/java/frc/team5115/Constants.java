@@ -83,17 +83,17 @@ public final class Constants {
     public static final double INDEX_REJECT_SPEED = -0.15;
     public static final double INDEX_VOMIT_SPEED = -0.25;
 
-    public static final double AGITATOR_FAST_SPEED = 0.75; // !
+    public static final double AGITATOR_FAST_SPEED = 1.0;
     public static final double AGITATOR_MAIN_PAUSE = 0.4;
 
     public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED - 0.1;
     public static final double AGITATOR_ALT_PAUSE = 0.1;
 
     public static final double AGITATOR_INTAKE_SPEED =
-            agitateDuringIntake ? INTAKE_SPEED * 0.418 * 0.7 : 0;
+            agitateDuringIntake ? INTAKE_SPEED * 0.418 * 0.7 * 3.0 : 0;
     public static final double AGITATOR_SLOW_SPEED = 0;
-    public static final double AGITATOR_VOMIT_SPEED = -0.5;
-    public static final double AGITATOR_BURP_SPEED = -0.75; // !
+    public static final double AGITATOR_VOMIT_SPEED = -1.0;
+    public static final double AGITATOR_BURP_SPEED = -1.0;
 
     public static class SwerveConstants {
         public static final byte FRONT_LEFT_DRIVE_ID = 6;
