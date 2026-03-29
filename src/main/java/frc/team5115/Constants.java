@@ -86,8 +86,8 @@ public final class Constants {
     public static final double AGITATOR_FAST_SPEED = 1.0;
     public static final double AGITATOR_MAIN_PAUSE = 0.4;
 
-    public static final double AGITATOR_ALT_SPEED = AGITATOR_FAST_SPEED - 0.1;
-    public static final double AGITATOR_ALT_PAUSE = 0.1;
+    public static final double AGITATOR_ALT_SPEED = 0.7;
+    public static final double AGITATOR_ALT_PAUSE = 0.15;
 
     public static final double AGITATOR_INTAKE_SPEED =
             agitateDuringIntake ? INTAKE_SPEED * 0.418 * 0.7 * 3.0 : 0;
