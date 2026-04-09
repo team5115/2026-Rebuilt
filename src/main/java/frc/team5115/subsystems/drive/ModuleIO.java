@@ -37,6 +37,11 @@ public interface ModuleIO {
         InterfaceReplayCheck.warnOnNotReplay();
     }
 
+    /** Run the drive motor at a current. */
+    public default void setDriveCurrent(double amps) {
+        InterfaceReplayCheck.warnOnNotReplay();
+    }
+
     /** Set the drive motor current limit. Only for real robot */
     public default void setDriveCurrentLimit(int amps) {
         InterfaceReplayCheck.warnOnNotReplay();

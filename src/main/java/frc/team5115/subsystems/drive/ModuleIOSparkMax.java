@@ -4,6 +4,8 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 public class ModuleIOSparkMax implements ModuleIO {
     private final SparkMax driveSparkMax;
     private final SparkMax turnSparkMax;
+    private final SparkClosedLoopController driveLoop;
 
     private final RelativeEncoder driveEncoder;
     private final AbsoluteEncoder turnEncoder;
@@ -55,6 +58,7 @@ public class ModuleIOSparkMax implements ModuleIO {
 
         driveSparkMax = new SparkMax(driveId, MotorType.kBrushless);
         turnSparkMax = new SparkMax(turnId, MotorType.kBrushless);
+        driveLoop = driveSparkMax.getClosedLoopController();
 
         driveEncoder = driveSparkMax.getEncoder();
         turnEncoder = turnSparkMax.getAbsoluteEncoder();
@@ -83,6 +87,8 @@ public class ModuleIOSparkMax implements ModuleIO {
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(SwerveConstants.DriveMotorCurrentLimit.autoLimit)
                 .voltageCompensation(12.0);
+
+        driveConfig.closedLoop.pid(SwerveConstants.CURRENT_LOOP_kP, SwerveConstants.CURRENT_LOOP_kI, 0);
 
         turnEncoderConfig.averageDepth(2).inverted(false);
         turnConfig.apply(turnEncoderConfig);
@@ -124,6 +130,11 @@ public class ModuleIOSparkMax implements ModuleIO {
     @Override
     public void setTurnVoltage(double volts) {
         turnSparkMax.setVoltage(volts);
+    }
+
+    @Override
+    public void setDriveCurrent(double amps) {
+        driveLoop.setSetpoint(amps, ControlType.kCurrent);
     }
 
     @Override

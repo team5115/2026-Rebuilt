@@ -106,6 +106,9 @@ public final class Constants {
         public static final byte BACK_LEFT_TURN_ID = 9;
         public static final byte BACK_RIGHT_TURN_ID = 7;
 
+        public static final double CURRENT_LOOP_kP = 0.5;
+        public static final double CURRENT_LOOP_kI = 0.0;
+
         private static RobotConfig ROBOT_CONFIG = null;
 
         public static RobotConfig getRobotConfig() {

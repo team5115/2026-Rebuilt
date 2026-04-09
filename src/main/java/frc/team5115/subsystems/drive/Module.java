@@ -2,7 +2,6 @@ package frc.team5115.subsystems.drive;
 
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -16,7 +15,6 @@ public class Module {
     private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
     private final int index;
 
-    private final SimpleMotorFeedforward driveFeedforward;
     private final PIDController driveFeedback;
     private final PIDController turnFeedback;
     private Rotation2d angleSetpoint = null; // Setpoint for closed loop control, null for open loop
@@ -33,12 +31,10 @@ public class Module {
             case REPLAY:
             case SIM:
                 // ! TODO tune Module FF and PID
-                driveFeedforward = new SimpleMotorFeedforward(0.15176, 0.10065, 0.0041833);
-                driveFeedback = new PIDController(0.05, 0.0, 0.0);
+                driveFeedback = new PIDController(0.3, 0.0, 0.0);
                 turnFeedback = new PIDController(2.4, 0.0, 0.0);
                 break;
             default:
-                driveFeedforward = new SimpleMotorFeedforward(0.0, 0.0);
                 driveFeedback = new PIDController(0.0, 0.0, 0.0);
                 turnFeedback = new PIDController(0.0, 0.0, 0.0);
                 break;
@@ -69,10 +65,11 @@ public class Module {
 
                 // Run drive controller
                 double velocityRadPerSec = adjustSpeedSetpoint / SwerveConstants.WHEEL_RADIUS_METERS;
-                double driveVoltage =
-                        driveFeedforward.calculate(velocityRadPerSec)
-                                + driveFeedback.calculate(inputs.driveVelocityRadPerSec, velocityRadPerSec);
-                io.setDriveVoltage(driveVoltage);
+                // close the velocity loop, output current
+                final double driveAmps =
+                        driveFeedback.calculate(inputs.driveVelocityRadPerSec, velocityRadPerSec);
+                io.setDriveCurrent(driveAmps);
+                Logger.recordOutput("ModuleCurrent/Applied/Index" + Integer.toString(index), driveAmps);
 
                 // Logger.recordOutput("ModuleVoltage/DriveVoltage/Index" + Integer.toString(index),
                 // driveVoltage);
@@ -100,6 +97,12 @@ public class Module {
 
         // Open loop drive control
         io.setDriveVoltage(volts);
+        speedSetpoint = null;
+    }
+
+    public void currentCommand(double amps) {
+        angleSetpoint = new Rotation2d();
+        io.setDriveCurrent(amps);
         speedSetpoint = null;
     }
 

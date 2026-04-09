@@ -20,6 +20,7 @@ import frc.team5115.subsystems.shooter.Shooter;
 import frc.team5115.subsystems.shooter.SpeedRequest;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
@@ -257,6 +258,16 @@ public class DriveCommands {
         BooleanClass(boolean b) {
             this.b = b;
         }
+    }
+
+    public static Command driveByCurrent(Drivetrain drivetrain, DoubleSupplier input) {
+        return Commands.run(
+                () -> {
+                    final double current = input.getAsDouble() * 25;
+                    Logger.recordOutput("Test/CurrentApplied", current);
+                    drivetrain.driveByCurrent(current);
+                },
+                drivetrain);
     }
 }
 

@@ -6,9 +6,12 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.team5115.Constants.SwerveConstants;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * Physics sim implementation of module IO.
@@ -20,6 +23,7 @@ import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 public class ModuleIOSim implements ModuleIO {
     private final SimulatedMotorController.GenericMotorController driveSim;
     private final SimulatedMotorController.GenericMotorController turnSim;
+    private final PIDController currentLoop;
 
     private final SwerveModuleSimulation moduleSimulation;
 
@@ -30,11 +34,31 @@ public class ModuleIOSim implements ModuleIO {
 
     public ModuleIOSim(SwerveModuleSimulation moduleSimulation) {
         this.moduleSimulation = moduleSimulation;
-        driveSim = moduleSimulation.useGenericMotorControllerForDrive().withCurrentLimit(Amps.of(60));
-        // LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.025, 6.75), DCMotor.getNEO(1));
-        turnSim = moduleSimulation.useGenericControllerForSteer().withCurrentLimit(Amps.of(20));
-        // LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), 0.004, 150.0 / 7.0),
-        // DCMotor.getNEO(1));
+        driveSim =
+                moduleSimulation
+                        .useGenericMotorControllerForDrive()
+                        .withCurrentLimit(Amps.of(SwerveConstants.DriveMotorCurrentLimit.autoLimit));
+        turnSim =
+                moduleSimulation
+                        .useGenericControllerForSteer()
+                        .withCurrentLimit(Amps.of(SwerveConstants.TurningMotorCurrentLimit));
+        currentLoop =
+                new PIDController(SwerveConstants.CURRENT_LOOP_kP, SwerveConstants.CURRENT_LOOP_kI, 0);
+    }
+
+    @Override
+    public void setDriveCurrent(double amps) {
+        final double measurement = moduleSimulation.getDriveMotorStatorCurrent().in(Amps);
+        final double volts = currentLoop.calculate(measurement, amps);
+        setDriveVoltage(volts);
+        Logger.recordOutput("Test/volts", volts);
+        Logger.recordOutput("Test/measurement", measurement);
+        Logger.recordOutput("Test/amps", amps);
+    }
+
+    @Override
+    public void setDriveVoltage(double volts) {
+        driveSim.requestVoltage(Volts.of(volts));
     }
 
     @Override
@@ -45,19 +69,13 @@ public class ModuleIOSim implements ModuleIO {
         inputs.drivePositionRad = moduleSimulation.getDriveWheelFinalPosition().in(Radians);
         inputs.driveVelocityRadPerSec = moduleSimulation.getDriveWheelFinalSpeed().in(RadiansPerSecond);
         inputs.driveAppliedVolts = driveAppliedVolts;
-        inputs.driveCurrentAmps = Math.abs(moduleSimulation.getDriveMotorSupplyCurrent().in(Amps));
+        inputs.driveCurrentAmps = Math.abs(moduleSimulation.getDriveMotorStatorCurrent().in(Amps));
 
         inputs.turnAbsolutePosition = new Rotation2d(moduleSimulation.getSteerAbsoluteAngle());
         inputs.turnVelocityRadPerSec =
                 moduleSimulation.getSteerAbsoluteEncoderSpeed().in(RadiansPerSecond);
         inputs.turnAppliedVolts = turnAppliedVolts;
-        inputs.turnCurrentAmps = Math.abs(moduleSimulation.getSteerMotorSupplyCurrent().in(Amps));
-    }
-
-    @Override
-    public void setDriveVoltage(double volts) {
-        driveAppliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
-        driveSim.requestVoltage(Volts.of(driveAppliedVolts));
+        inputs.turnCurrentAmps = Math.abs(moduleSimulation.getSteerMotorStatorCurrent().in(Amps));
     }
 
     @Override

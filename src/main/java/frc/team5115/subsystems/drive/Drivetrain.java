@@ -677,4 +677,10 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
     public boolean isGyroConnected() {
         return gyroInputs.connected;
     }
+
+    public void driveByCurrent(double amps) {
+        for (var module : modules) {
+            module.currentCommand(amps);
+        }
+    }
 }

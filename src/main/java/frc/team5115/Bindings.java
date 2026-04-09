@@ -124,6 +124,8 @@ public class Bindings {
     public void configureButtonBindings(DoubleSupplier shooterSpeed, DoubleSupplier linearPosition) {
         final Trigger slowMode = driveJoy.rightBumper();
 
+        driveJoy.b().whileTrue(DriveCommands.driveByCurrent(drivetrain, () -> -driveJoy.getLeftY()));
+
         drivetrain.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drivetrain,
