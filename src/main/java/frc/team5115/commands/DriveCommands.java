@@ -28,7 +28,7 @@ public class DriveCommands {
     private static final double LINEAR_K = 1.0;
 
     // TODO maybe modify slow mode speed?
-    private static final double SLOW_MODE_MULTIPLIER = 0.10;
+    private static final double SLOW_MODE_MULTIPLIER = 0.375;
 
     private DriveCommands() {}
 
@@ -192,7 +192,7 @@ public class DriveCommands {
 
                     omega *=
                             SwerveConstants.MAX_ANGULAR_SPEED
-                                    * (slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0);
+                                    * (!slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0);
                     drivetrain.runVelocity(
                             robotRelative.getAsBoolean()
                                     ? new ChassisSpeeds(v.x, v.y, omega)
@@ -224,7 +224,7 @@ public class DriveCommands {
                 new Pose2d(new Translation2d(), calculateLinearDirection(x, y))
                         .transformBy(new Transform2d(calculateLinearMagnitude(x, y), 0.0, new Rotation2d()))
                         .getTranslation();
-        final double multiplier = slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
+        final double multiplier = !slowMode.getAsBoolean() ? SLOW_MODE_MULTIPLIER : 1.0;
         final double vx = linearVelocity.getX() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
         final double vy = linearVelocity.getY() * SwerveConstants.MAX_LINEAR_SPEED * multiplier;
         return new LinearVelocity(vx, vy);
