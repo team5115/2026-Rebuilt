@@ -392,7 +392,7 @@ public class Drivetrain extends SubsystemBase implements MotorContainer {
         this.orbitting = orbitting;
         Logger.recordOutput("ChassisSpeeds/Input", speeds);
 
-        if (slew) {
+        if (slew && !DriverStation.isAutonomousEnabled()) {
             double slewedLinearVelocity =
                     slewLimiter.calculate(
                             Math.sqrt(
