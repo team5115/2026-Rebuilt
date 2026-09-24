@@ -151,6 +151,8 @@ public class PhotonVision extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         // final Pose3d robotPose = new Pose3d(drivetrain.getPose());
+
+        Logger.recordOutput("Vision/" + "Active", true);
         for (Camera camera : Camera.values()) {
             // final Pose3d referencePose = robotPose.transformBy(camera.robotToCamera);
             final String loggingPrefix = String.format("Vision/%s/", camera.camera.getName());
@@ -170,6 +172,8 @@ public class PhotonVision extends SubsystemBase {
                         Logger.recordOutput("Vision/EstimatedPose", pose.estimatedPose);
                         drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
                     }
+                } else {
+                    Logger.recordOutput(loggingPrefix + "Pose Present", false);
                 }
             }
         }
