@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "bottom_no_rot"
+                  "pathName": "top_no_rot"
                 }
               },
               {
@@ -30,7 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "neutral_downshot"
+                  "pathName": "top_neutral_bump"
                 }
               },
               {
@@ -51,13 +51,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "downshot_outpost"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "pathName": "top_to_start.0"
           }
         },
         {
@@ -67,7 +61,26 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "outpost_downshot"
+                  "pathName": "top_neutral_2nd"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "neutral_top_2nd"
                 }
               },
               {
@@ -82,13 +95,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot Forever"
+            "name": "Shoot"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "defunct",
+  "folder": null,
   "choreoAuto": true
 }
