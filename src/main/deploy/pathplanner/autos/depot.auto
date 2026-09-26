@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "central_sideshot"
+                  "pathName": "center_to_shot"
                 }
               },
               {
@@ -36,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "sideshot_outpost"
+                  "pathName": "shot_to_depot"
                 }
               },
               {
@@ -49,19 +49,13 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.5
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "outpost_sideshot"
+                  "pathName": "depot_to_shot"
                 }
               },
               {
@@ -83,6 +77,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "defunct",
+  "folder": null,
   "choreoAuto": true
 }
